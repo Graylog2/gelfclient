@@ -27,9 +27,11 @@ import java.util.Map;
  */
 public class GelfMessage {
     private final GelfMessageVersion version;
+    private final double timestamp;
 
     public GelfMessage(GelfMessageVersion version) {
         this.version = version;
+        this.timestamp = System.currentTimeMillis() / 1000D;
     }
 
     public GelfMessageVersion getVersion() {
@@ -37,7 +39,7 @@ public class GelfMessage {
     }
 
     public double getTimestamp() {
-        return (System.currentTimeMillis() / 1000D);
+        return timestamp;
     }
 
     public String getMessage() {
