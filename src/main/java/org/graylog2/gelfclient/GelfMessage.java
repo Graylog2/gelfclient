@@ -73,7 +73,8 @@ public class GelfMessage {
         fields.put(key, value);
     }
 
+    @Override
     public String toString() {
-        return String.format("[GelfMessage] version=\"%s\" short_message=\"%s\"", getVersion().toString(), getMessage());
+        return String.format("[GelfMessage] version=\"%s\" timestamp=\"%.3f\" short_message=\"%s\"", getVersion().toString(), getTimestamp(), getMessage());
     }
 }
