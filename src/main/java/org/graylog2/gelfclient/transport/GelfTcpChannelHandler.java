@@ -88,8 +88,13 @@ public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
                             // but if we aren't connected anymore, we'll have already pulled an event from the queue,
                             // which we keep hanging around in this thread and in the next loop iteration will block until we are connected again.
                             if (gelfMessage != null && channel != null && channel.isActive()) {
-                                final ByteBuf buffer = Unpooled.wrappedBuffer(encoder.toJson(gelfMessage));
-                                channel.writeAndFlush(buffer);
+                                final byte[] message = encoder.toJson(gelfMessage);
+
+                                if (message != null) {
+                                    final ByteBuf buffer = Unpooled.wrappedBuffer(message);
+                                    channel.writeAndFlush(buffer);
+                                }
+
                                 gelfMessage = null;
                             }
                         } catch (InterruptedException e) {

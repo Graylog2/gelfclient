@@ -21,6 +21,8 @@ package org.graylog2.gelfclient;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,6 +32,7 @@ import java.util.Map;
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 public class GelfMessageEncoder {
+    private final Logger LOG = LoggerFactory.getLogger(GelfMessageEncoder.class);
     private final JsonFactory jsonFactory = new JsonFactory();
 
     public GelfMessageEncoder() {
@@ -54,7 +57,8 @@ public class GelfMessageEncoder {
             jg.writeEndObject();
             jg.close();
         } catch (IOException e) {
-            // TODO Handle error!
+            LOG.error("Message encoding failed", e);
+            return null;
         }
 
         // Graylog2 GELF TCP input uses NULL-byte as separator.
