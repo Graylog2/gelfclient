@@ -59,6 +59,6 @@ public class GelfMessage {
     }
 
     public String toString() {
-        return String.format("[GelfMessage] version=%s short_message=%s", getVersion().toString(), getMessage());
+        return String.format("[GelfMessage] version=\"%s\" short_message=\"%s\"", getVersion().toString(), getMessage());
     }
 }
