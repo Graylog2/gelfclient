@@ -28,6 +28,10 @@ import org.graylog2.gelfclient.transport.GelfTransport;
 public enum GelfTransports {
     TCP;
 
+    public static GelfTransport create(Configuration config) {
+        return create(config, new GelfMessageEncoder());
+    }
+
     public static GelfTransport create(Configuration config, GelfMessageEncoder encoder) {
         GelfTransport transport = null;
 
