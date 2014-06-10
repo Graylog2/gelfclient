@@ -28,10 +28,17 @@ import java.util.Map;
 public class GelfMessage {
     private final GelfMessageVersion version;
     private final double timestamp;
+    private String message;
+    private String host = "localhost";
+    private final Map<String, Object> fields = new HashMap<>();
 
     public GelfMessage(GelfMessageVersion version) {
+        this(version, System.currentTimeMillis() / 1000D);
+    }
+
+    public GelfMessage(GelfMessageVersion version, double timestamp) {
         this.version = version;
-        this.timestamp = System.currentTimeMillis() / 1000D;
+        this.timestamp = timestamp;
     }
 
     public GelfMessageVersion getVersion() {
@@ -43,19 +50,27 @@ public class GelfMessage {
     }
 
     public String getMessage() {
-        return "This is the short_message.";
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public String getHost() {
-        return "localhost";
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
     }
 
     public Map<String, Object> getAdditionalFields() {
-        Map<String, Object> fields = new HashMap<>();
-
-        fields.put("_foo", "bar");
-
         return fields;
+    }
+
+    public void addAdditionalField(String key, Object value) {
+        fields.put(key, value);
     }
 
     public String toString() {
