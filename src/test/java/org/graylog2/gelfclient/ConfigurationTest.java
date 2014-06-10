@@ -81,4 +81,24 @@ public class ConfigurationTest {
 
         assertEquals(5000, config.getReconnectDelay());
     }
+
+    @Test
+    public void testConnectTimeout() {
+        // Check default value.
+        assertEquals(1000, config.getConnectTimeout());
+
+        config.setConnectTimeout(10000);
+
+        assertEquals(10000, config.getConnectTimeout());
+    }
+
+    @Test
+    public void testtcpNoDelay() {
+        // Check default value.
+        assertEquals(false, config.isTcpNoDelay());
+
+        config.setTcpNoDelay(true);
+
+        assertEquals(true, config.isTcpNoDelay());
+    }
 }

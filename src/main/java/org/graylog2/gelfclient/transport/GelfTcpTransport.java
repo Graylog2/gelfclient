@@ -21,6 +21,7 @@ package org.graylog2.gelfclient.transport;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -57,6 +58,8 @@ public class GelfTcpTransport implements GelfTransport {
 
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, config.getConnectTimeout())
+                .option(ChannelOption.TCP_NODELAY, config.isTcpNoDelay())
                 .remoteAddress(config.getHost(), config.getPort())
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override

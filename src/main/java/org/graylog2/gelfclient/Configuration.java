@@ -28,6 +28,8 @@ public class Configuration {
     private int queueSize = 5;
     private GelfTransports protocol = GelfTransports.TCP;
     private int reconnectDelay = 1000;
+    private int connectTimeout = 1000;
+    private boolean tcpNoDelay = false;
 
     public String getHost() {
         return host;
@@ -67,6 +69,22 @@ public class Configuration {
 
     public void setReconnectDelay(int reconnectDelay) {
         this.reconnectDelay = reconnectDelay;
+    }
+
+    public int getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    public void setConnectTimeout(int connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
+
+    public boolean isTcpNoDelay() {
+        return tcpNoDelay;
+    }
+
+    public void setTcpNoDelay(boolean tcpNoDelay) {
+        this.tcpNoDelay = tcpNoDelay;
     }
 
 }
