@@ -23,10 +23,34 @@ package org.graylog2.gelfclient;
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 public class Configuration {
+    private String host = "127.0.0.1";
+    private int port = 12201;
     private int queueSize = 5;
+    private GelfTransports protocol = GelfTransports.TCP;
+    private int reconnectDelay = 1000;
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
 
     public GelfTransports getProtocol() {
-        return GelfTransports.TCP;
+        return protocol;
+    }
+
+    public void setProtocol(GelfTransports protocol) {
+        this.protocol = protocol;
     }
 
     public int getQueueSize() {
@@ -36,4 +60,13 @@ public class Configuration {
     public void setQueueSize(int size) {
         queueSize = size;
     }
+
+    public int getReconnectDelay() {
+        return reconnectDelay;
+    }
+
+    public void setReconnectDelay(int reconnectDelay) {
+        this.reconnectDelay = reconnectDelay;
+    }
+
 }

@@ -19,19 +19,66 @@
 
 package org.graylog2.gelfclient;
 
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.*;
 
 public class ConfigurationTest {
+    private Configuration config;
+
+    @BeforeTest
+    public void setup() {
+        this.config = new Configuration();
+    }
+
     @Test
     public void testQueueSize() {
-        Configuration config = new Configuration();
-
         // Check default value.
         assertEquals(5, config.getQueueSize());
 
         config.setQueueSize(124);
 
         assertEquals(124, config.getQueueSize());
+    }
+
+    @Test
+    public void testHost() {
+        // Check default value.
+        assertEquals("127.0.0.1", config.getHost());
+
+        config.setHost("10.0.0.1");
+
+        assertEquals("10.0.0.1", config.getHost());
+    }
+
+    @Test
+    public void testPort() {
+        // Check default value.
+        assertEquals(12201, config.getPort());
+
+        config.setPort(10000);
+
+        assertEquals(10000, config.getPort());
+    }
+
+    @Test
+    public void testProtocol() {
+        // Check default value.
+        assertEquals(GelfTransports.TCP, config.getProtocol());
+
+        // We only have TCP for now so this is pretty useless.
+        config.setProtocol(GelfTransports.TCP);
+
+        assertEquals(GelfTransports.TCP, config.getProtocol());
+    }
+
+    @Test
+    public void testReconnectDelay() {
+        // Check default value.
+        assertEquals(1000, config.getReconnectDelay());
+
+        config.setReconnectDelay(5000);
+
+        assertEquals(5000, config.getReconnectDelay());
     }
 }
