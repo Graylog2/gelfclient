@@ -36,8 +36,17 @@ public class Play {
 
         GelfTransport transport = GelfTransports.create(config, encoder);
 
+        int count = 0;
+
         while (true) {
             GelfMessage msg = new GelfMessage(GelfMessageVersion.V1_1);
+
+            count++;
+
+            msg.setMessage("Hello world! " + count);
+            msg.addAdditionalField("_count", count);
+            msg.addAdditionalField("_oink", 1.231);
+            msg.addAdditionalField("_objecttest", new Object());
 
             transport.send(msg);
             Thread.sleep(5000);
