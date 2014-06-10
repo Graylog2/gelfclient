@@ -9,7 +9,6 @@ public class Application {
         GelfMessageBuilder builder = new GelfMessageBuilder(GelfMessageVersion.V1_1);
         GelfMessage message = builder.addHost("localhost")
                                      .addMessage("This will be the short_message.")
-                                     .addTimestamp(timestamp)
                                      .addAdditionalField("_foo", "bar")
                                      .build();
 
