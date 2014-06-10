@@ -138,7 +138,7 @@ public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        cause.printStackTrace();
+        LOG.error("Exception caught", cause);
     }
 
     public void send(GelfMessage message) {
