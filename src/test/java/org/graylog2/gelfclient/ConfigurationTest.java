@@ -19,21 +19,19 @@
 
 package org.graylog2.gelfclient;
 
-/**
- * @author Bernd Ahlers <bernd@torch.sh>
- */
-public class Configuration {
-    private int queueSize = 5;
+import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
-    public GelfTransports getProtocol() {
-        return GelfTransports.TCP;
-    }
+public class ConfigurationTest {
+    @Test
+    public void testQueueSize() {
+        Configuration config = new Configuration();
 
-    public int getQueueSize() {
-        return queueSize;
-    }
+        // Check default value.
+        assertEquals(5, config.getQueueSize());
 
-    public void setQueueSize(int size) {
-        queueSize = size;
+        config.setQueueSize(124);
+
+        assertEquals(124, config.getQueueSize());
     }
 }
