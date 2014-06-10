@@ -19,8 +19,46 @@
 
 package org.graylog2.gelfclient;
 
+import java.util.Map;
+
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 public class GelfMessageBuilder {
+    private final GelfMessage templateMessage;
+
+    public GelfMessageBuilder(GelfMessageVersion version) {
+        this.templateMessage = new GelfMessage(version);
+    }
+
+    public GelfMessageBuilder setHost(String host) {
+        templateMessage.setHost(host);
+
+        return this;
+    }
+
+    public GelfMessageBuilder setMessage(String message) {
+        templateMessage.setMessage(message);
+
+        return this;
+    }
+
+    public GelfMessageBuilder addAdditionalField(String key, Object value) {
+        templateMessage.addAdditionalField(key, value);
+
+        return this;
+    }
+
+    public GelfMessage build() {
+        final GelfMessage message = new GelfMessage(templateMessage.getVersion());
+
+        message.setHost(templateMessage.getHost());
+        message.setMessage(templateMessage.getMessage());
+
+        for (final Map.Entry<String, Object> entry : templateMessage.getAdditionalFields().entrySet()) {
+            message.addAdditionalField(entry.getKey(), entry.getValue());
+        }
+
+        return message;
+    }
 }
