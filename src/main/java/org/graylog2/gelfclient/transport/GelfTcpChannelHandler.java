@@ -40,7 +40,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
  */
-public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> implements GelfTransport {
+public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
     private final Logger LOG = LoggerFactory.getLogger(GelfTcpChannelHandler.class);
     private final BlockingQueue<GelfMessage> queue;
     private final ReentrantLock lock;
@@ -129,13 +129,11 @@ public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
         cause.printStackTrace();
     }
 
-    @Override
     public void send(GelfMessage message) {
         LOG.debug("Sending message: {}", message.toString());
         queue.offer(message);
     }
 
-    @Override
     public void stop() {
         keepRunning.set(false);
         senderThread.interrupt();
