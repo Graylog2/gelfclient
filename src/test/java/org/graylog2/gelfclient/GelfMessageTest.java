@@ -27,6 +27,7 @@ import java.util.Map;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 
 public class GelfMessageTest {
     private GelfMessage msg;
@@ -88,5 +89,13 @@ public class GelfMessageTest {
         msg.addAdditionalField("_bar", 10);
 
         assertEquals(data, msg.getAdditionalFields());
+    }
+
+    @Test
+    public void testAddAdditionalFieldWithoutUnderscore() {
+        msg.addAdditionalField("foobar", "test");
+
+        assertEquals("test", msg.getAdditionalFields().get("_foobar"));
+        assertNull(msg.getAdditionalFields().get("foobar"));
     }
 }
