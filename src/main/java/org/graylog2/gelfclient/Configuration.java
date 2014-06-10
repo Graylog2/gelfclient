@@ -25,9 +25,9 @@ package org.graylog2.gelfclient;
 public class Configuration {
     private String host = "127.0.0.1";
     private int port = 12201;
-    private int queueSize = 5;
+    private int queueSize = 512;
     private GelfTransports protocol = GelfTransports.TCP;
-    private int reconnectDelay = 1000;
+    private int reconnectDelay = 500;
     private int connectTimeout = 1000;
     private boolean tcpNoDelay = false;
 

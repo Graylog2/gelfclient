@@ -34,7 +34,7 @@ public class ConfigurationTest {
     @Test
     public void testQueueSize() {
         // Check default value.
-        assertEquals(5, config.getQueueSize());
+        assertEquals(512, config.getQueueSize());
 
         config.setQueueSize(124);
 
@@ -75,7 +75,7 @@ public class ConfigurationTest {
     @Test
     public void testReconnectDelay() {
         // Check default value.
-        assertEquals(1000, config.getReconnectDelay());
+        assertEquals(500, config.getReconnectDelay());
 
         config.setReconnectDelay(5000);
 
