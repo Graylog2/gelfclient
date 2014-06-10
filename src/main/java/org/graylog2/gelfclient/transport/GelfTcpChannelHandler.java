@@ -27,6 +27,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.graylog2.gelfclient.Configuration;
 import org.graylog2.gelfclient.GelfMessage;
 import org.graylog2.gelfclient.GelfMessageEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -39,6 +41,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> implements GelfTransport {
+    private final Logger LOG = LoggerFactory.getLogger(GelfTcpChannelHandler.class);
     private final BlockingQueue<GelfMessage> queue;
     private final ReentrantLock lock;
     private final Condition connectedCond;
@@ -99,8 +102,8 @@ public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
-        System.out.println("Received data!");
-        System.out.println(msg.toString());
+        LOG.debug("Received data!");
+        LOG.debug(msg.toString());
     }
 
     @Override
@@ -117,7 +120,7 @@ public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
         // TODO Implement reconnecting here!
-        System.out.println("Channel disconnected!");
+        LOG.info("Channel disconnected!");
         super.channelUnregistered(ctx);
     }
 
@@ -128,7 +131,7 @@ public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
 
     @Override
     public void send(GelfMessage message) {
-        System.out.println("Sending message: " + message.toString());
+        LOG.debug("Sending message: {}", message.toString());
         queue.offer(message);
     }
 
