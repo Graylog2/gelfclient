@@ -31,13 +31,16 @@ public class Play {
 
         config.setHost("127.0.0.1");
         config.setPort(12203);
+        config.setReconnectDelay(5000);
+        config.setQueueSize(1024);
 
         GelfTransport transport = GelfTransports.create(config, encoder);
-        GelfMessage msg = new GelfMessage(GelfMessageVersion.V1_1);
 
-        transport.send(msg);
+        while (true) {
+            GelfMessage msg = new GelfMessage(GelfMessageVersion.V1_1);
 
-        transport.sync();
-
+            transport.send(msg);
+            Thread.sleep(5000);
+        }
     }
 }
