@@ -19,15 +19,7 @@
 
 package org.graylog2.gelfclient;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import org.graylog2.gelfclient.transport.GelfTcpChannelHandler;
+import org.graylog2.gelfclient.transport.GelfTransport;
 
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
@@ -37,39 +29,15 @@ public class Play {
         final GelfMessageEncoder encoder = new GelfMessageEncoder();
         final Configuration config = new Configuration();
 
-        final EventLoopGroup workerGroup = new NioEventLoopGroup();
-        final Bootstrap bootstrap = new Bootstrap();
-        final GelfTcpChannelHandler handler = new GelfTcpChannelHandler(config, encoder);
+        config.setHost("127.0.0.1");
+        config.setPort(12203);
 
-        bootstrap.group(workerGroup)
-                .channel(NioSocketChannel.class)
-                .remoteAddress("127.0.0.1", 12203)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                       ch.pipeline().addLast(handler);
-                    }
-                });
-
-        ChannelFuture channelFuture = bootstrap.connect();
-
-        channelFuture.addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                if (future.isSuccess()) {
-                    System.out.println("Connected!");
-                } else {
-                    System.err.println("Connection failed!");
-                    future.cause().printStackTrace();
-                }
-            }
-        });
-
+        GelfTransport transport = GelfTransports.create(config, encoder);
         GelfMessage msg = new GelfMessage(GelfMessageVersion.V1_1);
 
-        handler.send(msg);
+        transport.send(msg);
 
-        channelFuture.sync();
+        transport.sync();
 
     }
 }
