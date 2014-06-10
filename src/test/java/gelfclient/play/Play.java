@@ -17,8 +17,12 @@
  * along with Graylog2.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.graylog2.gelfclient;
+package gelfclient.play;
 
+import org.graylog2.gelfclient.Configuration;
+import org.graylog2.gelfclient.GelfMessage;
+import org.graylog2.gelfclient.GelfMessageVersion;
+import org.graylog2.gelfclient.GelfTransports;
 import org.graylog2.gelfclient.transport.GelfTransport;
 
 /**
@@ -26,7 +30,6 @@ import org.graylog2.gelfclient.transport.GelfTransport;
  */
 public class Play {
     public static void main(String... args) throws InterruptedException {
-        final GelfMessageEncoder encoder = new GelfMessageEncoder();
         final Configuration config = new Configuration();
 
         config.setHost("127.0.0.1");
@@ -34,7 +37,7 @@ public class Play {
         config.setReconnectDelay(5000);
         config.setQueueSize(1024);
 
-        GelfTransport transport = GelfTransports.create(config, encoder);
+        GelfTransport transport = GelfTransports.create(config);
 
         int count = 0;
 
