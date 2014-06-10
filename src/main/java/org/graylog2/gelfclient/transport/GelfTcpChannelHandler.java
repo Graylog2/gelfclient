@@ -23,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.EventLoop;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.graylog2.gelfclient.Configuration;
 import org.graylog2.gelfclient.GelfMessage;
@@ -48,8 +49,12 @@ public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
     private AtomicBoolean keepRunning = new AtomicBoolean(true);
     private final Thread senderThread;
     private Channel channel;
+    private final Configuration config;
+    private final GelfTcpTransport transport;
 
-    public GelfTcpChannelHandler(final Configuration config, final GelfMessageEncoder encoder) {
+    public GelfTcpChannelHandler(final Configuration config, final GelfMessageEncoder encoder, final GelfTcpTransport transport) {
+        this.config = config;
+        this.transport = transport;
         this.queue = new LinkedBlockingQueue<>(config.getQueueSize());
         this.lock = new ReentrantLock();
         this.connectedCond = lock.newCondition();
@@ -118,10 +123,17 @@ public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
     }
 
     @Override
-    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-        // TODO Implement reconnecting here!
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         LOG.info("Channel disconnected!");
-        super.channelUnregistered(ctx);
+
+        final EventLoop loop = ctx.channel().eventLoop();
+        loop.schedule(new Runnable() {
+            @Override
+            public void run() {
+                LOG.debug("Starting reconnect!");
+                transport.createBootstrap(loop);
+            }
+        }, config.getReconnectDelay(), TimeUnit.MILLISECONDS);
     }
 
     @Override

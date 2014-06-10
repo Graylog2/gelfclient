@@ -20,8 +20,6 @@
 package org.graylog2.gelfclient.transport;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -33,6 +31,8 @@ import org.graylog2.gelfclient.GelfMessageEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
  */
@@ -41,18 +41,19 @@ public class GelfTcpTransport implements GelfTransport {
     private final Configuration config;
     private final GelfMessageEncoder encoder;
 
-    private final EventLoopGroup workerGroup;
-    private final Bootstrap bootstrap;
-    private final GelfTcpChannelHandler handler;
-    private final ChannelFuture channelFuture;
+    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private AtomicReference<GelfTcpChannelHandler> handler = new AtomicReference<>(null);
 
     public GelfTcpTransport(Configuration config, GelfMessageEncoder encoder) {
         this.config = config;
         this.encoder = encoder;
 
-        this.workerGroup = new NioEventLoopGroup();
-        this.bootstrap = new Bootstrap();
-        this.handler = new GelfTcpChannelHandler(config, encoder);
+        createBootstrap(workerGroup);
+    }
+
+    public void createBootstrap(EventLoopGroup workerGroup) {
+        final Bootstrap bootstrap = new Bootstrap();
+        final GelfTcpChannelHandler handler = new GelfTcpChannelHandler(config, encoder, this);
 
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
@@ -64,29 +65,23 @@ public class GelfTcpTransport implements GelfTransport {
                     }
                 });
 
-        this.channelFuture = bootstrap.connect();
+        this.handler.set(handler);
 
-        channelFuture.addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                if (future.isSuccess()) {
-                    LOG.debug("Connected!");
-                } else {
-                    LOG.error("Connection failed", future.cause());
-                    future.cause().printStackTrace();
-                }
-            }
-        });
+        bootstrap.connect().addListener(new TcpConnectionListener(this));
+    }
+
+    public int getReconnectDelay() {
+        return config.getReconnectDelay();
     }
 
     @Override
     public void send(GelfMessage message) {
-        handler.send(message);
+        handler.get().send(message);
     }
 
     @Override
     public void stop() {
-        handler.stop();
+        handler.get().stop();
         workerGroup.shutdownGracefully();
     }
 }
