@@ -49,6 +49,13 @@ public class GelfMessageTest {
     }
 
     @Test
+    public void testSetTimestamp() throws Exception {
+        msg.setTimestamp(timestamp);
+
+        assertEquals(timestamp, msg.getTimestamp());
+    }
+
+    @Test
     public void testAutoTimestamp() throws Exception {
         GelfMessage message = new GelfMessage(GelfMessageVersion.V1_1);
 

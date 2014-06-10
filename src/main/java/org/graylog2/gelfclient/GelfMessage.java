@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class GelfMessage {
     private final GelfMessageVersion version;
-    private final double timestamp;
+    private double timestamp;
     private String message;
     private String host = "localhost";
     private final Map<String, Object> fields = new HashMap<>();
@@ -47,6 +47,10 @@ public class GelfMessage {
 
     public double getTimestamp() {
         return timestamp;
+    }
+
+    public void setTimestamp(double timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getMessage() {
