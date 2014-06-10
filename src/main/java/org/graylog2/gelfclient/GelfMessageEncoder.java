@@ -51,7 +51,12 @@ public class GelfMessageEncoder {
             jg.writeStringField("short_message", message.getMessage());
 
             for (Map.Entry<String, Object> field : message.getAdditionalFields().entrySet()) {
-                jg.writeStringField(field.getKey(), (String) field.getValue());
+                if (field.getValue() instanceof Number) {
+                    // Let Jackson figure out how to write Number values.
+                    jg.writeObjectField(field.getKey(), field.getValue());
+                } else {
+                    jg.writeStringField(field.getKey(), field.getValue().toString());
+                }
             }
 
             jg.writeEndObject();
