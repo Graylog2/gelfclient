@@ -19,7 +19,7 @@
 
 package org.graylog2.gelfclient;
 
-import org.graylog2.gelfclient.transport.GelfTcpChannelHandler;
+import org.graylog2.gelfclient.transport.GelfTcpTransport;
 import org.graylog2.gelfclient.transport.GelfTransport;
 
 /**
@@ -33,7 +33,7 @@ public enum GelfTransports {
 
         switch (config.getProtocol()) {
             case TCP:
-                transport =  new GelfTcpChannelHandler(config, encoder);
+                transport = new GelfTcpTransport(config, encoder);
                 break;
         }
 
