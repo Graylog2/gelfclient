@@ -28,6 +28,4 @@ public interface GelfTransport {
     public void send(GelfMessage message);
 
     public void stop();
-
-    public void sync() throws InterruptedException;
 }

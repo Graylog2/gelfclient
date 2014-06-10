@@ -89,9 +89,4 @@ public class GelfTcpTransport implements GelfTransport {
         handler.stop();
         workerGroup.shutdownGracefully();
     }
-
-    @Override
-    public void sync() throws InterruptedException {
-        channelFuture.sync();
-    }
 }
