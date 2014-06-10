@@ -19,14 +19,14 @@
 
 package org.graylog2.gelfclient;
 
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.*;
 
 public class ConfigurationTest {
     private Configuration config;
 
-    @BeforeTest
+    @BeforeMethod
     public void setup() {
         this.config = new Configuration();
     }
