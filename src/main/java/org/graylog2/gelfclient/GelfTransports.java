@@ -21,12 +21,14 @@ package org.graylog2.gelfclient;
 
 import org.graylog2.gelfclient.transport.GelfTcpTransport;
 import org.graylog2.gelfclient.transport.GelfTransport;
+import org.graylog2.gelfclient.transport.GelfUdpTransport;
 
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 public enum GelfTransports {
-    TCP;
+    TCP,
+    UDP;
 
     public static GelfTransport create(Configuration config) {
         return create(config, new GelfMessageEncoder());
@@ -38,6 +40,9 @@ public enum GelfTransports {
         switch (config.getProtocol()) {
             case TCP:
                 transport = new GelfTcpTransport(config, encoder);
+                break;
+            case UDP:
+                transport = new GelfUdpTransport(config, encoder);
                 break;
         }
 
