@@ -24,23 +24,19 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import org.graylog2.gelfclient.Configuration;
 import org.graylog2.gelfclient.GelfMessage;
-import org.graylog2.gelfclient.GelfMessageEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 public class GelfUdpChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
     private final Logger LOG = LoggerFactory.getLogger(GelfUdpChannelHandler.class);
-    private final BlockingQueue<GelfMessage> queue;
     private final GelfSenderThread senderThread;
 
-    public GelfUdpChannelHandler(final Configuration config, final GelfMessageEncoder encoder) {
-        this.queue = new LinkedBlockingQueue<>(config.getQueueSize());
+    public GelfUdpChannelHandler(final Configuration config, final BlockingQueue<GelfMessage> queue) {
         this.senderThread = new GelfSenderThread(queue);
 
         senderThread.start();
@@ -58,11 +54,6 @@ public class GelfUdpChannelHandler extends SimpleChannelInboundHandler<DatagramP
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         LOG.error("Exception caught", cause);
-    }
-
-    public void send(GelfMessage message) {
-        LOG.debug("Sending message: {}", message.toString());
-        queue.offer(message);
     }
 
     public void stop() {

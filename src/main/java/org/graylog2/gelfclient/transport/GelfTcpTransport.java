@@ -32,6 +32,8 @@ import org.graylog2.gelfclient.GelfMessageEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -41,6 +43,7 @@ public class GelfTcpTransport implements GelfTransport {
     private final Logger LOG = LoggerFactory.getLogger(GelfTcpTransport.class);
     private final Configuration config;
     private final GelfMessageEncoder encoder;
+    private final BlockingQueue<GelfMessage> queue;
 
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private AtomicReference<GelfTcpChannelHandler> handler = new AtomicReference<>(null);
@@ -48,13 +51,14 @@ public class GelfTcpTransport implements GelfTransport {
     public GelfTcpTransport(Configuration config, GelfMessageEncoder encoder) {
         this.config = config;
         this.encoder = encoder;
+        this.queue = new LinkedBlockingQueue<>(config.getQueueSize());
 
         createBootstrap(workerGroup);
     }
 
     public void createBootstrap(EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
-        final GelfTcpChannelHandler handler = new GelfTcpChannelHandler(config, encoder, this);
+        final GelfTcpChannelHandler handler = new GelfTcpChannelHandler(config, queue, this);
 
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
@@ -80,7 +84,8 @@ public class GelfTcpTransport implements GelfTransport {
 
     @Override
     public void send(GelfMessage message) {
-        handler.get().send(message);
+        LOG.debug("Sending message: {}", message.toString());
+        queue.offer(message);
     }
 
     @Override

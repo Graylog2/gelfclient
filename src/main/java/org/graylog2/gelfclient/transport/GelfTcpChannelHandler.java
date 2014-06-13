@@ -25,12 +25,10 @@ import io.netty.channel.EventLoop;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.graylog2.gelfclient.Configuration;
 import org.graylog2.gelfclient.GelfMessage;
-import org.graylog2.gelfclient.GelfMessageEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,15 +36,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
     private final Logger LOG = LoggerFactory.getLogger(GelfTcpChannelHandler.class);
-    private final BlockingQueue<GelfMessage> queue;
     private final GelfSenderThread senderThread;
     private final Configuration config;
     private final GelfTcpTransport transport;
 
-    public GelfTcpChannelHandler(final Configuration config, final GelfMessageEncoder encoder, final GelfTcpTransport transport) {
+    public GelfTcpChannelHandler(final Configuration config, final BlockingQueue<GelfMessage> queue, GelfTcpTransport transport) {
         this.config = config;
         this.transport = transport;
-        this.queue = new LinkedBlockingQueue<>(config.getQueueSize());
         this.senderThread = new GelfSenderThread(queue);
 
         senderThread.start();
@@ -80,11 +76,6 @@ public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         LOG.error("Exception caught", cause);
-    }
-
-    public void send(GelfMessage message) {
-        LOG.debug("Sending message: {}", message.toString());
-        queue.offer(message);
     }
 
     public void stop() {

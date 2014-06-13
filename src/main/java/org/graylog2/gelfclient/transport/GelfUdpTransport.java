@@ -29,28 +29,35 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.graylog2.gelfclient.Configuration;
 import org.graylog2.gelfclient.GelfMessage;
 import org.graylog2.gelfclient.GelfMessageEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 public class GelfUdpTransport implements GelfTransport {
+    private final Logger LOG = LoggerFactory.getLogger(GelfUdpChannelHandler.class);
     private final Configuration config;
     private final GelfMessageEncoder encoder;
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private AtomicReference<GelfUdpChannelHandler> handler = new AtomicReference<>(null);
+    private final BlockingQueue<GelfMessage> queue;
 
     public GelfUdpTransport(Configuration config, GelfMessageEncoder encoder) {
         this.config = config;
         this.encoder = encoder;
+        this.queue = new LinkedBlockingQueue<>(config.getQueueSize());
 
         createBootstrap(workerGroup);
     }
 
     public void createBootstrap(EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
-        final GelfUdpChannelHandler handler = new GelfUdpChannelHandler(config, encoder);
+        final GelfUdpChannelHandler handler = new GelfUdpChannelHandler(config, queue);
 
         bootstrap.group(workerGroup)
                 .channel(NioDatagramChannel.class)
@@ -70,7 +77,8 @@ public class GelfUdpTransport implements GelfTransport {
 
     @Override
     public void send(GelfMessage message) {
-        handler.get().send(message);
+        LOG.debug("Sending message: {}", message.toString());
+        queue.offer(message);
     }
 
     @Override
