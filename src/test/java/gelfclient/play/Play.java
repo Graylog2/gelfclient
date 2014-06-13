@@ -34,6 +34,9 @@ public class Play {
 
         config.setHost("127.0.0.1");
         config.setPort(12203);
+        config.setTransport(GelfTransports.TCP);
+        //config.setPort(12201);
+        //config.setTransport(GelfTransports.UDP);
         config.setReconnectDelay(5000);
         config.setQueueSize(1024);
 
@@ -46,7 +49,7 @@ public class Play {
 
             count++;
 
-            msg.setMessage("Hello world! " + count);
+            msg.setMessage("Hello world! " + count + " " + config.getTransport().toString());
             msg.addAdditionalField("_count", count);
             msg.addAdditionalField("_oink", 1.231);
             msg.addAdditionalField("_objecttest", new Object());
