@@ -62,14 +62,14 @@ public class GelfConfigurationTest {
     }
 
     @Test
-    public void testProtocol() {
+    public void testTransport() {
         // Check default value.
-        assertEquals(GelfTransports.TCP, config.getProtocol());
+        assertEquals(GelfTransports.TCP, config.getTransport());
 
         // We only have TCP for now so this is pretty useless.
-        config.setProtocol(GelfTransports.TCP);
+        config.setTransport(GelfTransports.TCP);
 
-        assertEquals(GelfTransports.TCP, config.getProtocol());
+        assertEquals(GelfTransports.TCP, config.getTransport());
     }
 
     @Test

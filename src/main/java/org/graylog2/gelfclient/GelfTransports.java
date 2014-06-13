@@ -33,7 +33,7 @@ public enum GelfTransports {
     public static GelfTransport create(GelfConfiguration config) {
         GelfTransport transport = null;
 
-        switch (config.getProtocol()) {
+        switch (config.getTransport()) {
             case TCP:
                 transport = new GelfTcpTransport(config);
                 break;

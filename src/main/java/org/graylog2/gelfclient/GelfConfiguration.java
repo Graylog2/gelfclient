@@ -26,7 +26,7 @@ public class GelfConfiguration {
     private String host = "127.0.0.1";
     private int port = 12201;
     private int queueSize = 512;
-    private GelfTransports protocol = GelfTransports.TCP;
+    private GelfTransports transport = GelfTransports.TCP;
     private int reconnectDelay = 500;
     private int connectTimeout = 1000;
     private boolean tcpNoDelay = false;
@@ -47,12 +47,12 @@ public class GelfConfiguration {
         this.port = port;
     }
 
-    public GelfTransports getProtocol() {
-        return protocol;
+    public GelfTransports getTransport() {
+        return transport;
     }
 
-    public void setProtocol(GelfTransports protocol) {
-        this.protocol = protocol;
+    public void setTransport(GelfTransports transport) {
+        this.transport = transport;
     }
 
     public int getQueueSize() {
