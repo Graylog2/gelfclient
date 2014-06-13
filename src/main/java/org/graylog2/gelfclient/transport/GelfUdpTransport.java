@@ -20,6 +20,9 @@
 package org.graylog2.gelfclient.transport;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
@@ -51,7 +54,14 @@ public class GelfUdpTransport implements GelfTransport {
 
         bootstrap.group(workerGroup)
                 .channel(NioDatagramChannel.class)
-                .handler(handler);
+                .handler(new ChannelInitializer<Channel>() {
+                    @Override
+                    protected void initChannel(Channel ch) throws Exception {
+                        ChannelPipeline pipeline = ch.pipeline();
+                        pipeline.addLast(new GelfMessageUdpEncoder(config, encoder));
+                        pipeline.addLast(handler);
+                    }
+                });
 
         this.handler.set(handler);
 

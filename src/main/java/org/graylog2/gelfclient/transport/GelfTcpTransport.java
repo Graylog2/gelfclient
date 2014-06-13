@@ -64,6 +64,7 @@ public class GelfTcpTransport implements GelfTransport {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new GelfMessageTcpEncoder(config, encoder));
                         ch.pipeline().addLast(handler);
                     }
                 });

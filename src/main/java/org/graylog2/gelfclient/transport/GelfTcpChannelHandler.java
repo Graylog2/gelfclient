@@ -20,8 +20,6 @@
 package org.graylog2.gelfclient.transport;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoop;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -34,9 +32,6 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
@@ -44,11 +39,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
     private final Logger LOG = LoggerFactory.getLogger(GelfTcpChannelHandler.class);
     private final BlockingQueue<GelfMessage> queue;
-    private final ReentrantLock lock;
-    private final Condition connectedCond;
-    private AtomicBoolean keepRunning = new AtomicBoolean(true);
-    private final Thread senderThread;
-    private Channel channel;
+    private final GelfSenderThread senderThread;
     private final Configuration config;
     private final GelfTcpTransport transport;
 
@@ -56,56 +47,7 @@ public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
         this.config = config;
         this.transport = transport;
         this.queue = new LinkedBlockingQueue<>(config.getQueueSize());
-        this.lock = new ReentrantLock();
-        this.connectedCond = lock.newCondition();
-
-        this.senderThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                GelfMessage gelfMessage = null;
-
-                while (keepRunning.get()) {
-                    // wait until we are connected to the graylog2 server before polling log events from the queue
-                    lock.lock();
-                    try {
-                        while (channel == null || !channel.isActive()) {
-                            try {
-                                connectedCond.await();
-                            } catch (InterruptedException e) {
-                                if (!keepRunning.get()) {
-                                    // bail out if we are awoken because the application is stopping
-                                    break;
-                                }
-                            }
-                        }
-                        // we are connected, let's start sending logs
-                        try {
-                            // if we have a lingering event already, try to send that instead of polling a new one.
-                            if (gelfMessage == null) {
-                                gelfMessage = queue.poll(100, TimeUnit.MILLISECONDS);
-                            }
-                            // if we are still connected, convert LoggingEvent to GELF and send it
-                            // but if we aren't connected anymore, we'll have already pulled an event from the queue,
-                            // which we keep hanging around in this thread and in the next loop iteration will block until we are connected again.
-                            if (gelfMessage != null && channel != null && channel.isActive()) {
-                                final byte[] message = encoder.toJson(gelfMessage);
-
-                                if (message != null) {
-                                    final ByteBuf buffer = Unpooled.wrappedBuffer(message);
-                                    channel.writeAndFlush(buffer);
-                                }
-
-                                gelfMessage = null;
-                            }
-                        } catch (InterruptedException e) {
-                            // ignore, when stopping keepRunning will be set to false outside
-                        }
-                    } finally {
-                        lock.unlock();
-                    }
-                }
-            }
-        });
+        this.senderThread = new GelfSenderThread(queue);
 
         senderThread.start();
     }
@@ -118,13 +60,7 @@ public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        lock.lock();
-        try {
-            channel = ctx.channel();
-            connectedCond.signalAll();
-        } finally {
-            lock.unlock();
-        }
+        senderThread.setChannel(ctx.channel());
     }
 
     @Override
@@ -152,7 +88,6 @@ public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
     }
 
     public void stop() {
-        keepRunning.set(false);
-        senderThread.interrupt();
+        senderThread.stop();
     }
 }
