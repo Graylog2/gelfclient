@@ -17,10 +17,9 @@
  * along with Graylog2.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.graylog2.gelfclient.transport;
+package org.graylog2.gelfclient;
 
 import io.netty.channel.Channel;
-import org.graylog2.gelfclient.GelfMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
