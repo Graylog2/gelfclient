@@ -19,14 +19,11 @@
 
 package org.graylog2.gelfclient.encoder;
 
-import io.netty.buffer.Unpooled;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageEncoder;
-import org.graylog2.gelfclient.Configuration;
-import org.graylog2.gelfclient.GelfMessage;
-import org.graylog2.gelfclient.GelfMessageEncoder;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -35,21 +32,16 @@ import java.util.List;
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 @ChannelHandler.Sharable
-public class GelfMessageUdpEncoder extends MessageToMessageEncoder<GelfMessage> {
-    private final GelfMessageEncoder encoder;
+public class GelfMessageUdpEncoder extends MessageToMessageEncoder<ByteBuf> {
     private final InetSocketAddress remoteAddress;
 
-    public GelfMessageUdpEncoder(Configuration config, GelfMessageEncoder encoder) {
-        this.encoder = encoder;
-        this.remoteAddress = new InetSocketAddress(config.getHost(), config.getPort());
+    public GelfMessageUdpEncoder(InetSocketAddress remoteAddress) {
+        this.remoteAddress = remoteAddress;
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, GelfMessage msg, List<Object> out) throws Exception {
-        final byte[] message = encoder.toJson(msg);
-
-        if (message != null) {
-            out.add(new DatagramPacket(Unpooled.wrappedBuffer(message), remoteAddress));
-        }
+    protected void encode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) throws Exception {
+        // Need to retain() the buffer here to avoid a io.netty.util.IllegalReferenceCountException.
+        out.add(new DatagramPacket(buf.retain(), remoteAddress));
     }
 }

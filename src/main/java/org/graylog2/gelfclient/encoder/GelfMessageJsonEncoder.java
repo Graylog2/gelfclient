@@ -17,28 +17,44 @@
  * along with Graylog2.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.graylog2.gelfclient;
+package org.graylog2.gelfclient.encoder;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToMessageEncoder;
+import org.graylog2.gelfclient.GelfMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
  */
-public class GelfMessageEncoder {
-    private final Logger LOG = LoggerFactory.getLogger(GelfMessageEncoder.class);
+@ChannelHandler.Sharable
+public class GelfMessageJsonEncoder extends MessageToMessageEncoder<GelfMessage> {
+    private final Logger LOG = LoggerFactory.getLogger(GelfMessageJsonEncoder.class);
     private final JsonFactory jsonFactory = new JsonFactory();
 
-    public GelfMessageEncoder() {
+    public GelfMessageJsonEncoder() {
     }
 
-    public byte[] toJson(GelfMessage message) {
+    @Override
+    protected void encode(ChannelHandlerContext ctx, GelfMessage msg, List<Object> out) throws Exception {
+        final byte[] message = toJson(msg);
+
+        if (message != null) {
+            out.add(Unpooled.wrappedBuffer(message));
+        }
+    }
+
+    private byte[] toJson(GelfMessage message) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         try {

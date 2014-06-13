@@ -31,18 +31,14 @@ public enum GelfTransports {
     UDP;
 
     public static GelfTransport create(Configuration config) {
-        return create(config, new GelfMessageEncoder());
-    }
-
-    public static GelfTransport create(Configuration config, GelfMessageEncoder encoder) {
         GelfTransport transport = null;
 
         switch (config.getProtocol()) {
             case TCP:
-                transport = new GelfTcpTransport(config, encoder);
+                transport = new GelfTcpTransport(config);
                 break;
             case UDP:
-                transport = new GelfUdpTransport(config, encoder);
+                transport = new GelfUdpTransport(config);
                 break;
         }
 

@@ -26,12 +26,13 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.graylog2.gelfclient.Configuration;
 import org.graylog2.gelfclient.GelfMessage;
-import org.graylog2.gelfclient.GelfMessageEncoder;
+import org.graylog2.gelfclient.encoder.GelfMessageJsonEncoder;
 import org.graylog2.gelfclient.GelfSenderThread;
 import org.graylog2.gelfclient.encoder.GelfMessageUdpEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -41,13 +42,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class GelfUdpTransport implements GelfTransport {
     private final Logger LOG = LoggerFactory.getLogger(GelfUdpTransport.class);
     private final Configuration config;
-    private final GelfMessageEncoder encoder;
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private final BlockingQueue<GelfMessage> queue;
 
-    public GelfUdpTransport(Configuration config, GelfMessageEncoder encoder) {
+    public GelfUdpTransport(Configuration config) {
         this.config = config;
-        this.encoder = encoder;
         this.queue = new LinkedBlockingQueue<>(config.getQueueSize());
 
         createBootstrap(workerGroup);
@@ -56,13 +55,15 @@ public class GelfUdpTransport implements GelfTransport {
     public void createBootstrap(EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
         final GelfSenderThread senderThread = new GelfSenderThread(queue);
+        final InetSocketAddress remoteAddress = new InetSocketAddress(config.getHost(), config.getPort());
 
         bootstrap.group(workerGroup)
                 .channel(NioDatagramChannel.class)
                 .handler(new ChannelInitializer<Channel>() {
                     @Override
                     protected void initChannel(Channel ch) throws Exception {
-                        ch.pipeline().addLast(new GelfMessageUdpEncoder(config, encoder));
+                        ch.pipeline().addLast(new GelfMessageUdpEncoder(remoteAddress));
+                        ch.pipeline().addLast(new GelfMessageJsonEncoder());
                         ch.pipeline().addLast(new SimpleChannelInboundHandler<DatagramPacket>() {
                             @Override
                             protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {

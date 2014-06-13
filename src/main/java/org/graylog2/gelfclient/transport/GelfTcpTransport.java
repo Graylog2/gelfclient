@@ -27,9 +27,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.graylog2.gelfclient.Configuration;
 import org.graylog2.gelfclient.GelfMessage;
-import org.graylog2.gelfclient.GelfMessageEncoder;
 import org.graylog2.gelfclient.GelfSenderThread;
-import org.graylog2.gelfclient.encoder.GelfMessageTcpEncoder;
+import org.graylog2.gelfclient.encoder.GelfMessageJsonEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,14 +42,12 @@ import java.util.concurrent.TimeUnit;
 public class GelfTcpTransport implements GelfTransport {
     private final Logger LOG = LoggerFactory.getLogger(GelfTcpTransport.class);
     private final Configuration config;
-    private final GelfMessageEncoder encoder;
     private final BlockingQueue<GelfMessage> queue;
 
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-    public GelfTcpTransport(Configuration config, GelfMessageEncoder encoder) {
+    public GelfTcpTransport(Configuration config) {
         this.config = config;
-        this.encoder = encoder;
         this.queue = new LinkedBlockingQueue<>(config.getQueueSize());
 
         createBootstrap(workerGroup);
@@ -68,7 +65,7 @@ public class GelfTcpTransport implements GelfTransport {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(new GelfMessageTcpEncoder(config, encoder));
+                        ch.pipeline().addLast(new GelfMessageJsonEncoder());
                         ch.pipeline().addLast(new SimpleChannelInboundHandler<ByteBuf>() {
                             @Override
                             protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
