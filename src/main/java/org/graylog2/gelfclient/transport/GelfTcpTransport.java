@@ -20,6 +20,7 @@
 package org.graylog2.gelfclient.transport;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -56,7 +57,6 @@ public class GelfTcpTransport implements GelfTransport {
     private void createBootstrap(EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
         final GelfSenderThread senderThread = new GelfSenderThread(queue);
-        final GelfTcpChannelHandler handler = new GelfTcpChannelHandler(senderThread, this);
 
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
@@ -67,7 +67,29 @@ public class GelfTcpTransport implements GelfTransport {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addLast(new GelfMessageTcpEncoder(config, encoder));
-                        ch.pipeline().addLast(handler);
+                        ch.pipeline().addLast(new SimpleChannelInboundHandler<ByteBuf>() {
+                            @Override
+                            protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
+                                // We do not receive data.
+                            }
+
+                            @Override
+                            public void channelActive(ChannelHandlerContext ctx) throws Exception {
+                                senderThread.start(ctx.channel());
+                            }
+
+                            @Override
+                            public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+                                LOG.info("Channel disconnected!");
+                                senderThread.stop();
+                                scheduleReconnect(ctx.channel().eventLoop());
+                            }
+
+                            @Override
+                            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+                                LOG.error("Exception caught", cause);
+                            }
+                        });
                     }
                 });
 
@@ -84,7 +106,7 @@ public class GelfTcpTransport implements GelfTransport {
         });
     }
 
-    public void scheduleReconnect(final EventLoopGroup workerGroup) {
+    private void scheduleReconnect(final EventLoopGroup workerGroup) {
         workerGroup.schedule(new Runnable() {
             @Override
             public void run() {
