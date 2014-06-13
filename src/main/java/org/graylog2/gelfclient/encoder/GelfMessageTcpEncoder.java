@@ -17,31 +17,27 @@
  * along with Graylog2.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.graylog2.gelfclient.transport;
+package org.graylog2.gelfclient.encoder;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageEncoder;
 import org.graylog2.gelfclient.Configuration;
 import org.graylog2.gelfclient.GelfMessage;
 import org.graylog2.gelfclient.GelfMessageEncoder;
 
-import java.net.InetSocketAddress;
 import java.util.List;
 
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 @ChannelHandler.Sharable
-public class GelfMessageUdpEncoder extends MessageToMessageEncoder<GelfMessage> {
+public class GelfMessageTcpEncoder extends MessageToMessageEncoder<GelfMessage> {
     private final GelfMessageEncoder encoder;
-    private final InetSocketAddress remoteAddress;
 
-    public GelfMessageUdpEncoder(Configuration config, GelfMessageEncoder encoder) {
+    public GelfMessageTcpEncoder(Configuration config, GelfMessageEncoder encoder) {
         this.encoder = encoder;
-        this.remoteAddress = new InetSocketAddress(config.getHost(), config.getPort());
     }
 
     @Override
@@ -49,7 +45,7 @@ public class GelfMessageUdpEncoder extends MessageToMessageEncoder<GelfMessage> 
         final byte[] message = encoder.toJson(msg);
 
         if (message != null) {
-            out.add(new DatagramPacket(Unpooled.wrappedBuffer(message), remoteAddress));
+            out.add(Unpooled.wrappedBuffer(message));
         }
     }
 }

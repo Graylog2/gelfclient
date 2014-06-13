@@ -27,6 +27,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.graylog2.gelfclient.Configuration;
 import org.graylog2.gelfclient.GelfMessage;
 import org.graylog2.gelfclient.GelfMessageEncoder;
+import org.graylog2.gelfclient.encoder.GelfMessageUdpEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
