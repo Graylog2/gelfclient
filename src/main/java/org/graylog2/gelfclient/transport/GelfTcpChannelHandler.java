@@ -21,14 +21,9 @@ package org.graylog2.gelfclient.transport;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.EventLoop;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.graylog2.gelfclient.GelfMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
@@ -38,11 +33,9 @@ public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
     private final GelfSenderThread senderThread;
     private final GelfTcpTransport transport;
 
-    public GelfTcpChannelHandler(final BlockingQueue<GelfMessage> queue, GelfTcpTransport transport) {
+    public GelfTcpChannelHandler(final GelfSenderThread senderThread, GelfTcpTransport transport) {
         this.transport = transport;
-        this.senderThread = new GelfSenderThread(queue);
-
-        senderThread.start();
+        this.senderThread = senderThread;
     }
 
     @Override
@@ -53,29 +46,18 @@ public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        senderThread.setChannel(ctx.channel());
+        senderThread.start(ctx.channel());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         LOG.info("Channel disconnected!");
-
-        final EventLoop loop = ctx.channel().eventLoop();
-        loop.schedule(new Runnable() {
-            @Override
-            public void run() {
-                LOG.debug("Starting reconnect!");
-                transport.createBootstrap(loop);
-            }
-        }, transport.getReconnectDelay(), TimeUnit.MILLISECONDS);
+        senderThread.stop();
+        transport.scheduleReconnect(ctx.channel().eventLoop());
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         LOG.error("Exception caught", cause);
-    }
-
-    public void stop() {
-        senderThread.stop();
     }
 }

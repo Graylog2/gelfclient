@@ -20,9 +20,7 @@
 package org.graylog2.gelfclient.transport;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -34,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
@@ -46,7 +44,6 @@ public class GelfTcpTransport implements GelfTransport {
     private final BlockingQueue<GelfMessage> queue;
 
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
-    private AtomicReference<GelfTcpChannelHandler> handler = new AtomicReference<>(null);
 
     public GelfTcpTransport(Configuration config, GelfMessageEncoder encoder) {
         this.config = config;
@@ -56,9 +53,10 @@ public class GelfTcpTransport implements GelfTransport {
         createBootstrap(workerGroup);
     }
 
-    public void createBootstrap(EventLoopGroup workerGroup) {
+    private void createBootstrap(EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
-        final GelfTcpChannelHandler handler = new GelfTcpChannelHandler(queue, this);
+        final GelfSenderThread senderThread = new GelfSenderThread(queue);
+        final GelfTcpChannelHandler handler = new GelfTcpChannelHandler(senderThread, this);
 
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
@@ -73,13 +71,27 @@ public class GelfTcpTransport implements GelfTransport {
                     }
                 });
 
-        this.handler.set(handler);
-
-        bootstrap.connect().addListener(new TcpConnectionListener(this));
+        bootstrap.connect().addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (future.isSuccess()) {
+                    LOG.debug("Connected!");
+                } else {
+                    LOG.error("Connection failed: {}", future.cause().getMessage());
+                    scheduleReconnect(future.channel().eventLoop());
+                }
+            }
+        });
     }
 
-    public int getReconnectDelay() {
-        return config.getReconnectDelay();
+    public void scheduleReconnect(final EventLoopGroup workerGroup) {
+        workerGroup.schedule(new Runnable() {
+            @Override
+            public void run() {
+                LOG.debug("Starting reconnect!");
+                createBootstrap(workerGroup);
+            }
+        }, config.getReconnectDelay(), TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -90,7 +102,6 @@ public class GelfTcpTransport implements GelfTransport {
 
     @Override
     public void stop() {
-        handler.get().stop();
         workerGroup.shutdownGracefully();
     }
 }

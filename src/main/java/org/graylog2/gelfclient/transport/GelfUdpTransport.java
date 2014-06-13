@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
@@ -44,7 +43,6 @@ public class GelfUdpTransport implements GelfTransport {
     private final Configuration config;
     private final GelfMessageEncoder encoder;
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
-    private AtomicReference<GelfUdpChannelHandler> handler = new AtomicReference<>(null);
     private final BlockingQueue<GelfMessage> queue;
 
     public GelfUdpTransport(Configuration config, GelfMessageEncoder encoder) {
@@ -57,7 +55,8 @@ public class GelfUdpTransport implements GelfTransport {
 
     public void createBootstrap(EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
-        final GelfUdpChannelHandler handler = new GelfUdpChannelHandler(queue);
+        final GelfSenderThread senderThread = new GelfSenderThread(queue);
+        final GelfUdpChannelHandler handler = new GelfUdpChannelHandler(senderThread);
 
         bootstrap.group(workerGroup)
                 .channel(NioDatagramChannel.class)
@@ -70,8 +69,6 @@ public class GelfUdpTransport implements GelfTransport {
                     }
                 });
 
-        this.handler.set(handler);
-
         bootstrap.bind(0);
     }
 
@@ -83,7 +80,6 @@ public class GelfUdpTransport implements GelfTransport {
 
     @Override
     public void stop() {
-        handler.get().stop();
         workerGroup.shutdownGracefully();
     }
 }

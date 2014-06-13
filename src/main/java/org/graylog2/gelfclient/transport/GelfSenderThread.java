@@ -21,6 +21,8 @@ package org.graylog2.gelfclient.transport;
 
 import io.netty.channel.Channel;
 import org.graylog2.gelfclient.GelfMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +34,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 public class GelfSenderThread {
+    private final Logger LOG = LoggerFactory.getLogger(GelfSenderThread.class);
     private final ReentrantLock lock;
     private final Condition connectedCond;
     private final AtomicBoolean keepRunning = new AtomicBoolean(true);
@@ -83,11 +86,15 @@ public class GelfSenderThread {
                         lock.unlock();
                     }
                 }
+
+                LOG.debug("GelfSenderThread exiting!");
             }
         });
+
+        this.senderThread.setName("GelfSenderThread-" + senderThread.getId());
     }
 
-    public void setChannel(Channel channel) {
+    public void start(Channel channel) {
         lock.lock();
         try {
             this.channel = channel;
@@ -95,9 +102,6 @@ public class GelfSenderThread {
         } finally {
             lock.unlock();
         }
-    }
-
-    public void start() {
         senderThread.start();
     }
 

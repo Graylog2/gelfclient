@@ -22,11 +22,8 @@ package org.graylog2.gelfclient.transport;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
-import org.graylog2.gelfclient.GelfMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.BlockingQueue;
 
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
@@ -35,10 +32,8 @@ public class GelfUdpChannelHandler extends SimpleChannelInboundHandler<DatagramP
     private final Logger LOG = LoggerFactory.getLogger(GelfUdpChannelHandler.class);
     private final GelfSenderThread senderThread;
 
-    public GelfUdpChannelHandler(final BlockingQueue<GelfMessage> queue) {
-        this.senderThread = new GelfSenderThread(queue);
-
-        senderThread.start();
+    public GelfUdpChannelHandler(final GelfSenderThread senderThread) {
+        this.senderThread = senderThread;
     }
 
     @Override
@@ -47,15 +42,16 @@ public class GelfUdpChannelHandler extends SimpleChannelInboundHandler<DatagramP
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        senderThread.setChannel(ctx.channel());
+        senderThread.start(ctx.channel());
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        senderThread.stop();
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         LOG.error("Exception caught", cause);
-    }
-
-    public void stop() {
-        senderThread.stop();
     }
 }
