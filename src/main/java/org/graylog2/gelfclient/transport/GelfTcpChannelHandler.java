@@ -23,7 +23,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoop;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.graylog2.gelfclient.Configuration;
 import org.graylog2.gelfclient.GelfMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,11 +36,9 @@ import java.util.concurrent.TimeUnit;
 public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
     private final Logger LOG = LoggerFactory.getLogger(GelfTcpChannelHandler.class);
     private final GelfSenderThread senderThread;
-    private final Configuration config;
     private final GelfTcpTransport transport;
 
-    public GelfTcpChannelHandler(final Configuration config, final BlockingQueue<GelfMessage> queue, GelfTcpTransport transport) {
-        this.config = config;
+    public GelfTcpChannelHandler(final BlockingQueue<GelfMessage> queue, GelfTcpTransport transport) {
         this.transport = transport;
         this.senderThread = new GelfSenderThread(queue);
 
@@ -70,7 +67,7 @@ public class GelfTcpChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
                 LOG.debug("Starting reconnect!");
                 transport.createBootstrap(loop);
             }
-        }, config.getReconnectDelay(), TimeUnit.MILLISECONDS);
+        }, transport.getReconnectDelay(), TimeUnit.MILLISECONDS);
     }
 
     @Override

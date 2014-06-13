@@ -57,7 +57,7 @@ public class GelfUdpTransport implements GelfTransport {
 
     public void createBootstrap(EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
-        final GelfUdpChannelHandler handler = new GelfUdpChannelHandler(config, queue);
+        final GelfUdpChannelHandler handler = new GelfUdpChannelHandler(queue);
 
         bootstrap.group(workerGroup)
                 .channel(NioDatagramChannel.class)

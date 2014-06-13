@@ -22,7 +22,6 @@ package org.graylog2.gelfclient.transport;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
-import org.graylog2.gelfclient.Configuration;
 import org.graylog2.gelfclient.GelfMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +35,7 @@ public class GelfUdpChannelHandler extends SimpleChannelInboundHandler<DatagramP
     private final Logger LOG = LoggerFactory.getLogger(GelfUdpChannelHandler.class);
     private final GelfSenderThread senderThread;
 
-    public GelfUdpChannelHandler(final Configuration config, final BlockingQueue<GelfMessage> queue) {
+    public GelfUdpChannelHandler(final BlockingQueue<GelfMessage> queue) {
         this.senderThread = new GelfSenderThread(queue);
 
         senderThread.start();

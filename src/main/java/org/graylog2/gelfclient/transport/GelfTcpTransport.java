@@ -58,7 +58,7 @@ public class GelfTcpTransport implements GelfTransport {
 
     public void createBootstrap(EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
-        final GelfTcpChannelHandler handler = new GelfTcpChannelHandler(config, queue, this);
+        final GelfTcpChannelHandler handler = new GelfTcpChannelHandler(queue, this);
 
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
