@@ -23,12 +23,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.*;
 
-public class ConfigurationTest {
-    private Configuration config;
+public class GelfConfigurationTest {
+    private GelfConfiguration config;
 
     @BeforeMethod
     public void setup() {
-        this.config = new Configuration();
+        this.config = new GelfConfiguration();
     }
 
     @Test

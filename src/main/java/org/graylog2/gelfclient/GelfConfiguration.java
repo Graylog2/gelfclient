@@ -22,7 +22,7 @@ package org.graylog2.gelfclient;
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
  */
-public class Configuration {
+public class GelfConfiguration {
     private String host = "127.0.0.1";
     private int port = 12201;
     private int queueSize = 512;

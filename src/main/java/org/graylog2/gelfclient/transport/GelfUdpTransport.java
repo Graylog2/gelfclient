@@ -24,7 +24,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import org.graylog2.gelfclient.Configuration;
+import org.graylog2.gelfclient.GelfConfiguration;
 import org.graylog2.gelfclient.GelfMessage;
 import org.graylog2.gelfclient.encoder.GelfMessageJsonEncoder;
 import org.graylog2.gelfclient.GelfSenderThread;
@@ -41,11 +41,11 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class GelfUdpTransport implements GelfTransport {
     private final Logger LOG = LoggerFactory.getLogger(GelfUdpTransport.class);
-    private final Configuration config;
+    private final GelfConfiguration config;
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private final BlockingQueue<GelfMessage> queue;
 
-    public GelfUdpTransport(Configuration config) {
+    public GelfUdpTransport(GelfConfiguration config) {
         this.config = config;
         this.queue = new LinkedBlockingQueue<>(config.getQueueSize());
 

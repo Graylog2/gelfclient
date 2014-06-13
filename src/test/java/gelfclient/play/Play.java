@@ -19,7 +19,7 @@
 
 package gelfclient.play;
 
-import org.graylog2.gelfclient.Configuration;
+import org.graylog2.gelfclient.GelfConfiguration;
 import org.graylog2.gelfclient.GelfMessage;
 import org.graylog2.gelfclient.GelfMessageVersion;
 import org.graylog2.gelfclient.GelfTransports;
@@ -30,7 +30,7 @@ import org.graylog2.gelfclient.transport.GelfTransport;
  */
 public class Play {
     public static void main(String... args) throws InterruptedException {
-        final Configuration config = new Configuration();
+        final GelfConfiguration config = new GelfConfiguration();
 
         config.setHost("127.0.0.1");
         config.setPort(12203);

@@ -30,7 +30,7 @@ public enum GelfTransports {
     TCP,
     UDP;
 
-    public static GelfTransport create(Configuration config) {
+    public static GelfTransport create(GelfConfiguration config) {
         GelfTransport transport = null;
 
         switch (config.getProtocol()) {
