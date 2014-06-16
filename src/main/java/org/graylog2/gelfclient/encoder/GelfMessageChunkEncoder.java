@@ -74,11 +74,14 @@ public class GelfMessageChunkEncoder extends MessageToMessageEncoder<ByteBuf> {
         }
 
         private byte[] generateMessageId() {
-            final ByteBuf messageId = Unpooled.buffer(8);
+            // GELF message ID, max 8 bytes
+            final ByteBuf messageId = Unpooled.buffer(8, 8);
             final ByteBuf hostname = Unpooled.wrappedBuffer(config.getHost().getBytes());
 
+            // 4 bytes of current time.
             messageId.writeInt((int) System.currentTimeMillis());
 
+            // 4 bytes of the hostname.
             try {
                 byte[] h = new byte[4];
 
