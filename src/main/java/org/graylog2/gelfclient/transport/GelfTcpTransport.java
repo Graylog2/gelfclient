@@ -65,6 +65,8 @@ public class GelfTcpTransport implements GelfTransport {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
+                        // We cannot use GZIP encoding for TCP because the headers contain '\0'-bytes then.
+                        // The graylog2-server uses '\0'-bytes as delimiter for TCP frames.
                         ch.pipeline().addLast(new GelfMessageJsonEncoder());
                         ch.pipeline().addLast(new SimpleChannelInboundHandler<ByteBuf>() {
                             @Override
