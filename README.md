@@ -1,10 +1,6 @@
 Graylog2 GELFClient
 ===================
 
-## TODO
-
-* UDP chunking
-
 ## Usage
 
 ```java
