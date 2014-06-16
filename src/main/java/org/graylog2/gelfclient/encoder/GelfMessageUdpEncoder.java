@@ -24,6 +24,8 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -33,6 +35,7 @@ import java.util.List;
  */
 @ChannelHandler.Sharable
 public class GelfMessageUdpEncoder extends MessageToMessageEncoder<ByteBuf> {
+    private final Logger LOG = LoggerFactory.getLogger(GelfMessageUdpEncoder.class);
     private final InetSocketAddress remoteAddress;
 
     public GelfMessageUdpEncoder(InetSocketAddress remoteAddress) {
@@ -43,5 +46,10 @@ public class GelfMessageUdpEncoder extends MessageToMessageEncoder<ByteBuf> {
     protected void encode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) throws Exception {
         // Need to retain() the buffer here to avoid a io.netty.util.IllegalReferenceCountException.
         out.add(new DatagramPacket(buf.retain(), remoteAddress));
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        LOG.error("UDP encoding error", cause);
     }
 }

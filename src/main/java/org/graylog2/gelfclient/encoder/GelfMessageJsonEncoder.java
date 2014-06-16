@@ -46,6 +46,11 @@ public class GelfMessageJsonEncoder extends MessageToMessageEncoder<GelfMessage>
     }
 
     @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        LOG.error("JSON encoding error", cause);
+    }
+
+    @Override
     protected void encode(ChannelHandlerContext ctx, GelfMessage msg, List<Object> out) throws Exception {
         final byte[] message = toJson(msg);
 

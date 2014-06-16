@@ -44,6 +44,12 @@ public class GelfMessageChunkEncoder extends MessageToMessageEncoder<ByteBuf> {
 
     private final GelfConfiguration config;
 
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        super.exceptionCaught(ctx, cause);
+        LOG.error("Chunking error", cause);
+    }
+
     private class Chunker {
         private final byte[] sequenceCount;
         private int sequenceNumber = 0;
