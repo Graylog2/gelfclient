@@ -28,6 +28,7 @@ import org.graylog2.gelfclient.GelfConfiguration;
 import org.graylog2.gelfclient.GelfMessage;
 import org.graylog2.gelfclient.encoder.GelfMessageJsonEncoder;
 import org.graylog2.gelfclient.GelfSenderThread;
+import org.graylog2.gelfclient.encoder.GelfCompressionEncoder;
 import org.graylog2.gelfclient.encoder.GelfMessageUdpEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +64,7 @@ public class GelfUdpTransport implements GelfTransport {
                     @Override
                     protected void initChannel(Channel ch) throws Exception {
                         ch.pipeline().addLast(new GelfMessageUdpEncoder(remoteAddress));
+                        ch.pipeline().addLast(new GelfCompressionEncoder());
                         ch.pipeline().addLast(new GelfMessageJsonEncoder());
                         ch.pipeline().addLast(new SimpleChannelInboundHandler<DatagramPacket>() {
                             @Override
