@@ -122,7 +122,7 @@ public class GelfMessageChunkEncoder extends MessageToMessageEncoder<ByteBuf> {
         }
 
         if (buf.readableBytes() <= MAX_CHUNK_SIZE) {
-            // Need to retain() the buffer here to avoid a io.netty.util.IllegalReferenceCountException. ???
+            // Need to retain() the buffer here to avoid releasing the buffer too early.
             out.add(buf.retain());
         } else {
             final Chunker chunker = new Chunker(buf.readableBytes());
