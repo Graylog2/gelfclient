@@ -75,6 +75,8 @@ public class GelfMessageJsonEncoder extends MessageToMessageEncoder<GelfMessage>
                 if (field.getValue() instanceof Number) {
                     // Let Jackson figure out how to write Number values.
                     jg.writeObjectField(field.getKey(), field.getValue());
+                } else if (field.getValue() == null) {
+                    jg.writeNullField(field.getKey());
                 } else {
                     jg.writeStringField(field.getKey(), field.getValue().toString());
                 }
@@ -84,6 +86,9 @@ public class GelfMessageJsonEncoder extends MessageToMessageEncoder<GelfMessage>
             jg.close();
         } catch (IOException e) {
             LOG.error("Message encoding failed", e);
+            return null;
+        } catch (Exception e) {
+            LOG.error("JSON encoding error", e);
             return null;
         }
 

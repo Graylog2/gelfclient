@@ -99,6 +99,26 @@ public class GelfMessageTest {
     }
 
     @Test
+    public void testAddAdditionalFieldWithNullKey() throws Exception {
+        Map<String, Object> data = new HashMap<>();
+
+        //data.put("_foo", "test");
+        msg.addAdditionalField(null, "null");
+
+        assertEquals(data, msg.getAdditionalFields());
+    }
+
+    @Test
+    public void testAddAdditionalFieldWithNullValue() throws Exception {
+        Map<String, Object> data = new HashMap<>();
+
+        data.put("_null", null);
+        msg.addAdditionalField("_null", null);
+
+        assertEquals(data, msg.getAdditionalFields());
+    }
+
+    @Test
     public void testAddAdditionalFieldWithoutUnderscore() {
         msg.addAdditionalField("foobar", "test");
 

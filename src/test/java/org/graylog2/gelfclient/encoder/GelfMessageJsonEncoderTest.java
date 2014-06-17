@@ -70,6 +70,17 @@ public class GelfMessageJsonEncoderTest {
     }
 
     @Test
+    public void testNullValue() throws Exception {
+        channel = new EmbeddedChannel(new GelfMessageJsonEncoder());
+        message = new GelfMessage(GelfMessageVersion.V1_1);
+
+        message.setMessage("test");
+        message.addAdditionalField("_null", null);
+
+        assertTrue(channel.writeOutbound(message));
+    }
+
+    @Test
     public void testEncode() throws Exception {
         byte[] bytes = readBytes();
 

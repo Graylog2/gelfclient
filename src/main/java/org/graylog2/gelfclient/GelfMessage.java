@@ -74,6 +74,9 @@ public class GelfMessage {
     }
 
     public void addAdditionalField(String key, Object value) {
+        if (key == null) {
+            return;
+        }
         String realKey = key.startsWith("_") ? key : ("_" + key);
 
         fields.put(realKey, value);
