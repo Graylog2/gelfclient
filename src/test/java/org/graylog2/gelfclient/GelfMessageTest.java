@@ -70,6 +70,13 @@ public class GelfMessageTest {
     }
 
     @Test
+    public void testGetFullMessage() throws Exception {
+        msg.setFullMessage("Hello full world!");
+
+        assertEquals("Hello full world!", msg.getFullMessage());
+    }
+
+    @Test
     public void testGetHost() throws Exception {
         // Check default.
         assertEquals("localhost", msg.getHost());

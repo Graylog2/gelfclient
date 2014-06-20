@@ -42,6 +42,7 @@ public class GelfMessageJsonEncoderTest {
         message = new GelfMessage(GelfMessageVersion.V1_1);
 
         message.setMessage("test");
+        message.setFullMessage("The full message!");
         message.addAdditionalField("_foo", 1.0);
         message.addAdditionalField("_bar", 128);
         message.addAdditionalField("_baz", "a value");
@@ -91,6 +92,7 @@ public class GelfMessageJsonEncoderTest {
         Number timestamp = null;
         String host = null;
         String short_message = null;
+        String full_message = null;
         Number _foo = null;
         Number _bar = null;
         String _baz = null;
@@ -117,6 +119,9 @@ public class GelfMessageJsonEncoderTest {
                 case "short_message":
                     short_message = parser.getText();
                     break;
+                case "full_message":
+                    full_message = parser.getText();
+                    break;
                 case "_foo":
                     _foo = parser.getNumberValue();
                     break;
@@ -135,6 +140,7 @@ public class GelfMessageJsonEncoderTest {
         assertEquals(message.getTimestamp(), timestamp);
         assertEquals(message.getHost(), host);
         assertEquals(message.getMessage(), short_message);
+        assertEquals(message.getFullMessage(), full_message);
         assertEquals(1.0, _foo);
         assertEquals(128, _bar);
         assertEquals("a value", _baz);

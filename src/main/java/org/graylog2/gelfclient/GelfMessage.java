@@ -29,6 +29,7 @@ public class GelfMessage {
     private final GelfMessageVersion version;
     private double timestamp;
     private String message;
+    private String fullMessage;
     private String host = "localhost";
     private final Map<String, Object> fields = new HashMap<>();
 
@@ -59,6 +60,14 @@ public class GelfMessage {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getFullMessage() {
+        return fullMessage;
+    }
+
+    public void setFullMessage(String fullMessage) {
+        this.fullMessage = fullMessage;
     }
 
     public String getHost() {
