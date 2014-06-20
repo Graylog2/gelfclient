@@ -41,6 +41,7 @@ public class Play {
         config.setTransport(GelfTransports.UDP);
         config.setReconnectDelay(5000);
         config.setQueueSize(1024);
+        //config.setSendBufferSize(32768);
 
         GelfTransport transport = GelfTransports.create(config);
 

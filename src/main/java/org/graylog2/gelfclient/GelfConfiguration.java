@@ -30,6 +30,7 @@ public class GelfConfiguration {
     private int reconnectDelay = 500;
     private int connectTimeout = 1000;
     private boolean tcpNoDelay = false;
+    private int sendBufferSize = -1;
 
     public String getHost() {
         return host;
@@ -87,4 +88,11 @@ public class GelfConfiguration {
         this.tcpNoDelay = tcpNoDelay;
     }
 
+    public int getSendBufferSize() {
+        return sendBufferSize;
+    }
+
+    public void setSendBufferSize(int sendBufferSize) {
+        this.sendBufferSize = sendBufferSize;
+    }
 }

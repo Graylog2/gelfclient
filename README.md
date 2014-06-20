@@ -13,6 +13,7 @@ public class Application {
         config.setPort(12201);
         config.setReconnectDelay(1000);
         config.setQueueSize(512);
+        config.setSendBufferSize(32768);
 
         GelfMessageBuilder builder = new GelfMessageBuilder(GelfMessageVersion.V1_1);
         GelfMessage messageTemplate = builder.addHost("localhost").addAdditionalField("_foo", "bar");

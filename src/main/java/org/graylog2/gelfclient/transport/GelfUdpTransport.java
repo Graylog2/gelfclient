@@ -92,6 +92,10 @@ public class GelfUdpTransport implements GelfTransport {
                     }
                 });
 
+        if (config.getSendBufferSize() != -1) {
+            bootstrap.option(ChannelOption.SO_SNDBUF, config.getSendBufferSize());
+        }
+
         bootstrap.bind(0);
     }
 

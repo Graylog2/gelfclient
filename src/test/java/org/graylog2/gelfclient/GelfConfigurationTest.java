@@ -101,4 +101,14 @@ public class GelfConfigurationTest {
 
         assertEquals(true, config.isTcpNoDelay());
     }
+
+    @Test
+    public void testSendBufferSize() {
+        // Check default value.
+        assertEquals(-1, config.getSendBufferSize());
+
+        config.setSendBufferSize(32768);
+
+        assertEquals(32768, config.getSendBufferSize());
+    }
 }

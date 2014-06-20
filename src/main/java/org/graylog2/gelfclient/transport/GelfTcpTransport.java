@@ -94,6 +94,10 @@ public class GelfTcpTransport implements GelfTransport {
                     }
                 });
 
+        if (config.getSendBufferSize() != -1) {
+            bootstrap.option(ChannelOption.SO_SNDBUF, config.getSendBufferSize());
+        }
+
         bootstrap.connect().addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
