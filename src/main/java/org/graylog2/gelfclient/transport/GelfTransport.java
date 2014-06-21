@@ -25,7 +25,28 @@ import org.graylog2.gelfclient.GelfMessage;
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 public interface GelfTransport {
-    public void send(GelfMessage message);
+    /**
+     * Sends the given message to the remote host. This <strong>blocks</strong> until there is sufficient capacity to
+     * process the message. It is not guaranteed that the message has been sent once the method call returns because
+     * a queue might be used to dispatch the message.
+     *
+     * @param message message to send to the remote host
+     * @throws InterruptedException
+     */
+    public void send(GelfMessage message) throws InterruptedException;
 
+    /**
+     * Tries to send the given message to the remote host. It does <strong>not block</strong> if there is not enough
+     * capacity to process the message. It is not guaranteed that the message has been sent once the method call
+     * returns because a queue might be used to dispatch the message.
+     *
+     * @param message message to send to the remote host
+     * @return true if the message could be dispatched, false otherwise
+     */
+    public boolean trySend(GelfMessage message);
+
+    /**
+     * Stops the transport. Should be used to gracefully shutdown the backend.
+     */
     public void stop();
 }

@@ -37,6 +37,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * A {@link GelfTransport} implementation that uses TCP to send GELF messages.
+ *
+ * <p>This class is thread-safe.</p>
+ *
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 public class GelfTcpTransport implements GelfTransport {
@@ -46,6 +50,11 @@ public class GelfTcpTransport implements GelfTransport {
 
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
+    /**
+     * Creates a new TCP GELF transport.
+     *
+     * @param config the client configuration
+     */
     public GelfTcpTransport(GelfConfiguration config) {
         this.config = config;
         this.queue = new LinkedBlockingQueue<>(config.getQueueSize());
@@ -121,10 +130,36 @@ public class GelfTcpTransport implements GelfTransport {
         }, config.getReconnectDelay(), TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>This implementation is backed by a {@link java.util.concurrent.BlockingQueue}. When this method returns the
+     * message has been added to the {@link java.util.concurrent.BlockingQueue} but has not been sent to the remote
+     * host yet.</p>
+     *
+     * @param message message to send to the remote host
+     * @throws InterruptedException
+     */
     @Override
-    public void send(GelfMessage message) {
+    public void send(GelfMessage message) throws InterruptedException {
         LOG.debug("Sending message: {}", message.toString());
-        queue.offer(message);
+        queue.put(message);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>This implementation is backed by a {@link java.util.concurrent.BlockingQueue}. When this method returns the
+     * message has been added to the {@link java.util.concurrent.BlockingQueue} but has not been sent to the remote
+     * host yet.</p>
+     *
+     * @param message message to send to the remote host
+     * @return true if the message could be dispatched, false otherwise
+     */
+    @Override
+    public boolean trySend(GelfMessage message) {
+        LOG.debug("Trying to send message: {}", message.toString());
+        return queue.offer(message);
     }
 
     @Override
