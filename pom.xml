@@ -34,12 +34,25 @@
     <url>https://github.com/Graylog2/gelfclient</url>
     <description>A Java GELF client implementation.</description>
 
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <scm>
         <url>https://github.com/Graylog2/gelfclient</url>
         <connection>scm:git:git@github.com:Graylog2/gelfclient.git</connection>
         <developerConnection>scm:git:git@github.com:Graylog2/gelfclient.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/Graylog2/gelfclient/issues</url>
+    </issueManagement>
 
     <dependencies>
         <dependency>
