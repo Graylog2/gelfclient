@@ -8,7 +8,22 @@ Available transports:
 * TCP
 * UDP
 
+The library uses [Netty v4](http://netty.io/) to handle all network related
+tasks and [Jackson](https://github.com/FasterXML/jackson) for JSON encoding.
+
 ## Usage
+
+### Maven Dependency
+
+```xml
+<dependency>
+  <groupId>org.graylog2</groupId>
+  <artifactId>gelfclient</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
+
+### Example
 
 ```java
 public class Application {
