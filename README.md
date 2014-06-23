@@ -29,7 +29,8 @@ public class Application {
         config.setSendBufferSize(32768);
 
         GelfMessageBuilder builder = new GelfMessageBuilder(GelfMessageVersion.V1_1);
-        GelfMessage messageTemplate = builder.addHost("localhost").addAdditionalField("_foo", "bar");
+        GelfMessage messageTemplate = builder.addHost("localhost")
+                                        .addAdditionalField("_foo", "bar");
 
         GelfTransport transport = GelfTransports.create(config);
 
