@@ -8,6 +8,13 @@ Available transports:
 * TCP
 * UDP
 
+All default transport implementations use a queue to send messages in a
+background thread to avoid blocking the calling thread until a message has
+been sent. That means that the `send()` and `trySend()` methods do not
+actually send the messages but add them to a queue where the background
+thread will pick them up. This is important to keep in mind when it comes to
+message delivery guarantees.
+
 The library uses [Netty v4](http://netty.io/) to handle all network related
 tasks and [Jackson](https://github.com/FasterXML/jackson) for JSON encoding.
 
