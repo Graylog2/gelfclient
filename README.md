@@ -38,10 +38,10 @@ public class Application {
         boolean blocking = false;
         GelfConfiguration config = new GelfConfiguration();
 
-        // Required settings
-        config.setTransport(GelfTransports.TCP);
+        // Optional but recommended settings
         config.setHost("127.0.0.1");
         config.setPort(12201);
+        config.setTransport(GelfTransports.TCP);
 
         // Optional settings
         config.setConnectTimeout(5000);
@@ -50,9 +50,9 @@ public class Application {
         config.setQueueSize(512);
         config.setSendBufferSize(32768);
 
-        GelfMessageBuilder builder = new GelfMessageBuilder(GelfMessageVersion.V1_1);
-        GelfMessage messageTemplate = builder.addHost("localhost")
-                                        .addAdditionalField("_foo", "bar");
+        GelfMessageBuilder messageTemplate = new GelfMessageBuilder(GelfMessageVersion.V1_1)
+                                               .addHost("localhost")
+                                               .addAdditionalField("_foo", "bar");
 
         GelfTransport transport = GelfTransports.create(config);
 
