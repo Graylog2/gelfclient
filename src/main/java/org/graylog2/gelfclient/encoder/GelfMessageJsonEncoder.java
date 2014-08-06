@@ -16,6 +16,7 @@
 
 package org.graylog2.gelfclient.encoder;
 
+import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import io.netty.buffer.Unpooled;
@@ -56,12 +57,10 @@ public class GelfMessageJsonEncoder extends MessageToMessageEncoder<GelfMessage>
         }
     }
 
-    private byte[] toJson(GelfMessage message) {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+    private byte[] toJson(final GelfMessage message) {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        try {
-            JsonGenerator jg = jsonFactory.createGenerator(out);
-
+        try(final JsonGenerator jg = jsonFactory.createGenerator(out, JsonEncoding.UTF8)) {
             jg.writeStartObject();
             jg.writeStringField("version", message.getVersion().toString());
             jg.writeNumberField("timestamp", message.getTimestamp());
@@ -81,7 +80,6 @@ public class GelfMessageJsonEncoder extends MessageToMessageEncoder<GelfMessage>
             }
 
             jg.writeEndObject();
-            jg.close();
         } catch (IOException e) {
             LOG.error("Message encoding failed", e);
             return null;
