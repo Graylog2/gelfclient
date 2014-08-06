@@ -18,34 +18,30 @@ package org.graylog2.gelfclient.transport;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.graylog2.gelfclient.GelfConfiguration;
-import org.graylog2.gelfclient.GelfMessage;
 import org.graylog2.gelfclient.GelfSenderThread;
 import org.graylog2.gelfclient.encoder.GelfMessageJsonEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
 /**
  * A {@link GelfTransport} implementation that uses TCP to send GELF messages.
- *
+ * <p/>
  * <p>This class is thread-safe.</p>
  *
  * @author Bernd Ahlers <bernd@torch.sh>
  */
-public class GelfTcpTransport implements GelfTransport {
-    private final Logger LOG = LoggerFactory.getLogger(GelfTcpTransport.class);
-    private final GelfConfiguration config;
-    private final BlockingQueue<GelfMessage> queue;
-
-    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
+public class GelfTcpTransport extends AbstractGelfTransport {
+    private static final Logger LOG = LoggerFactory.getLogger(GelfTcpTransport.class);
 
     /**
      * Creates a new TCP GELF transport.
@@ -53,13 +49,11 @@ public class GelfTcpTransport implements GelfTransport {
      * @param config the client configuration
      */
     public GelfTcpTransport(GelfConfiguration config) {
-        this.config = config;
-        this.queue = new LinkedBlockingQueue<>(config.getQueueSize());
-
-        createBootstrap(workerGroup);
+        super(config);
     }
 
-    private void createBootstrap(EventLoopGroup workerGroup) {
+    @Override
+    protected void createBootstrap(final EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
         final GelfSenderThread senderThread = new GelfSenderThread(queue);
 
@@ -115,52 +109,5 @@ public class GelfTcpTransport implements GelfTransport {
                 }
             }
         });
-    }
-
-    private void scheduleReconnect(final EventLoopGroup workerGroup) {
-        workerGroup.schedule(new Runnable() {
-            @Override
-            public void run() {
-                LOG.debug("Starting reconnect!");
-                createBootstrap(workerGroup);
-            }
-        }, config.getReconnectDelay(), TimeUnit.MILLISECONDS);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>This implementation is backed by a {@link java.util.concurrent.BlockingQueue}. When this method returns the
-     * message has been added to the {@link java.util.concurrent.BlockingQueue} but has not been sent to the remote
-     * host yet.</p>
-     *
-     * @param message message to send to the remote host
-     * @throws InterruptedException
-     */
-    @Override
-    public void send(GelfMessage message) throws InterruptedException {
-        LOG.debug("Sending message: {}", message.toString());
-        queue.put(message);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>This implementation is backed by a {@link java.util.concurrent.BlockingQueue}. When this method returns the
-     * message has been added to the {@link java.util.concurrent.BlockingQueue} but has not been sent to the remote
-     * host yet.</p>
-     *
-     * @param message message to send to the remote host
-     * @return true if the message could be dispatched, false otherwise
-     */
-    @Override
-    public boolean trySend(GelfMessage message) {
-        LOG.debug("Trying to send message: {}", message.toString());
-        return queue.offer(message);
-    }
-
-    @Override
-    public void stop() {
-        workerGroup.shutdownGracefully();
     }
 }

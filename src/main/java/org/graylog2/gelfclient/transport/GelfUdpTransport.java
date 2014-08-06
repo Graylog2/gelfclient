@@ -17,12 +17,15 @@
 package org.graylog2.gelfclient.transport;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.graylog2.gelfclient.GelfConfiguration;
-import org.graylog2.gelfclient.GelfMessage;
 import org.graylog2.gelfclient.GelfSenderThread;
 import org.graylog2.gelfclient.encoder.GelfCompressionEncoder;
 import org.graylog2.gelfclient.encoder.GelfMessageChunkEncoder;
@@ -32,35 +35,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * A {@link GelfTransport} implementation that uses UDP to send GELF messages.
- *
+ * <p/>
  * <p>This class is thread-safe.</p>
  *
  * @author Bernd Ahlers <bernd@torch.sh>
  */
-public class GelfUdpTransport implements GelfTransport {
-    private final Logger LOG = LoggerFactory.getLogger(GelfUdpTransport.class);
-    private final GelfConfiguration config;
-    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
-    private final BlockingQueue<GelfMessage> queue;
+public class GelfUdpTransport extends AbstractGelfTransport {
+    private static final Logger LOG = LoggerFactory.getLogger(GelfUdpTransport.class);
 
     /**
      * Creates a new UDP GELF transport.
      *
      * @param config the client configuration
      */
-    public GelfUdpTransport(GelfConfiguration config) {
-        this.config = config;
-        this.queue = new LinkedBlockingQueue<>(config.getQueueSize());
-
-        createBootstrap(workerGroup);
+    public GelfUdpTransport(final GelfConfiguration config) {
+        super(config);
     }
 
-    public void createBootstrap(EventLoopGroup workerGroup) {
+    @Override
+    protected void createBootstrap(final EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
         final GelfSenderThread senderThread = new GelfSenderThread(queue);
         final InetSocketAddress remoteAddress = new InetSocketAddress(config.getHost(), config.getPort());
@@ -103,42 +99,5 @@ public class GelfUdpTransport implements GelfTransport {
         }
 
         bootstrap.bind(0);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>This implementation is backed by a {@link java.util.concurrent.BlockingQueue}. When this method returns the
-     * message has been added to the {@link java.util.concurrent.BlockingQueue} but has not been sent to the remote
-     * host yet.</p>
-     *
-     * @param message message to send to the remote host
-     * @throws InterruptedException
-     */
-    @Override
-    public void send(GelfMessage message) throws InterruptedException {
-        LOG.debug("Sending message: {}", message.toString());
-        queue.put(message);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>This implementation is backed by a {@link java.util.concurrent.BlockingQueue}. When this method returns the
-     * message has been added to the {@link java.util.concurrent.BlockingQueue} but has not been sent to the remote
-     * host yet.</p>
-     *
-     * @param message message to send to the remote host
-     * @return true if the message could be dispatched, false otherwise
-     */
-    @Override
-    public boolean trySend(GelfMessage message) {
-        LOG.debug("Trying to send message: {}", message.toString());
-        return queue.offer(message);
-    }
-
-    @Override
-    public void stop() {
-        workerGroup.shutdownGracefully();
     }
 }
