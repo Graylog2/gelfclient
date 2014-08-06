@@ -31,15 +31,13 @@ import java.util.zip.GZIPOutputStream;
 public class GelfCompressionEncoder extends MessageToMessageEncoder<ByteBuf> {
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        GZIPOutputStream stream = new GZIPOutputStream(bos);
+        try (final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             final GZIPOutputStream stream = new GZIPOutputStream(bos)) {
 
-        stream.write(msg.array());
-        stream.finish();
-        stream.close();
+            stream.write(msg.array());
+            stream.finish();
 
-        out.add(Unpooled.wrappedBuffer(bos.toByteArray()));
-
-        bos.close();
+            out.add(Unpooled.wrappedBuffer(bos.toByteArray()));
+        }
     }
 }
