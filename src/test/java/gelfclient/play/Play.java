@@ -47,12 +47,10 @@ public class Play {
         String largeMessage = largeMessage();
 
         while (true) {
-            GelfMessage msg = new GelfMessage(GelfMessageVersion.V1_1);
+            GelfMessage msg = new GelfMessage("Hello world! " + count + " " + config.getTransport().toString());
 
             count++;
 
-            msg.setMessage("Hello world! " + count + " " + config.getTransport().toString());
-            //msg.setMessage(count + "-" + config.getTransport().toString() + "-" + largeMessage);
             msg.addAdditionalField("_count", count);
             msg.addAdditionalField("_oink", 1.231);
             msg.addAdditionalField("_objecttest", new Object());

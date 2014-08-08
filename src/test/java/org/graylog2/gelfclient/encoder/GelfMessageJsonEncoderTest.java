@@ -22,7 +22,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.embedded.EmbeddedChannel;
 import org.graylog2.gelfclient.GelfMessage;
-import org.graylog2.gelfclient.GelfMessageVersion;
+import org.graylog2.gelfclient.GelfMessageBuilder;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -36,13 +36,12 @@ public class GelfMessageJsonEncoderTest {
     @BeforeMethod
     public void setup() {
         channel = new EmbeddedChannel(new GelfMessageJsonEncoder());
-        message = new GelfMessage(GelfMessageVersion.V1_1);
-
-        message.setMessage("test");
-        message.setFullMessage("The full message!");
-        message.addAdditionalField("_foo", 1.0);
-        message.addAdditionalField("_bar", 128);
-        message.addAdditionalField("_baz", "a value");
+        message = new GelfMessageBuilder("test")
+                .fullMessage("The full message!")
+                .additionalField("_foo", 1.0)
+                .additionalField("_bar", 128)
+                .additionalField("_baz", "a value")
+                .build();
 
         assertTrue(channel.writeOutbound(message));
         assertTrue(channel.finish());
@@ -70,9 +69,7 @@ public class GelfMessageJsonEncoderTest {
     @Test
     public void testNullValue() throws Exception {
         channel = new EmbeddedChannel(new GelfMessageJsonEncoder());
-        message = new GelfMessage(GelfMessageVersion.V1_1);
-
-        message.setMessage("test");
+        message = new GelfMessage("test");
         message.addAdditionalField("_null", null);
 
         assertTrue(channel.writeOutbound(message));

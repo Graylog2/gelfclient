@@ -16,46 +16,88 @@
 
 package org.graylog2.gelfclient;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 public class GelfMessageBuilder {
-    private final GelfMessage templateMessage;
+    private final GelfMessageVersion version;
+    private final String host;
+    private final String message;
+    private String fullMessage;
+    private Double timestamp;
+    private GelfMessageLevel level = GelfMessageLevel.ALERT;
+    private final Map<String, Object> fields = new HashMap<>();
 
-    public GelfMessageBuilder(GelfMessageVersion version) {
-        this.templateMessage = new GelfMessage(version);
+    public GelfMessageBuilder(final String message) {
+        this(message, "localhost");
     }
 
-    public GelfMessageBuilder setHost(String host) {
-        templateMessage.setHost(host);
+    public GelfMessageBuilder(final String message, final String host) {
+        this(message, host, GelfMessageVersion.V1_1);
+    }
 
+    public GelfMessageBuilder(final String message, final String host, final GelfMessageVersion version) {
+        this.message = message;
+        this.host = host;
+        this.version = version;
+    }
+
+    public GelfMessageBuilder fullMessage(final String fullMessage) {
+        this.fullMessage = fullMessage;
         return this;
     }
 
-    public GelfMessageBuilder setMessage(String message) {
-        templateMessage.setMessage(message);
-
+    public GelfMessageBuilder timestamp(final double timestamp) {
+        this.timestamp = timestamp;
         return this;
     }
 
-    public GelfMessageBuilder addAdditionalField(String key, Object value) {
-        templateMessage.addAdditionalField(key, value);
+    public GelfMessageBuilder level(final GelfMessageLevel level) {
+        this.level = level;
+        return this;
+    }
 
+    public GelfMessageBuilder additionalField(final String key, final Object value) {
+        fields.put(key, value);
+        return this;
+    }
+
+    public GelfMessageBuilder additionalFields(final Map<String, Object> additionalFields) {
+        fields.putAll(additionalFields);
         return this;
     }
 
     public GelfMessage build() {
-        final GelfMessage message = new GelfMessage(templateMessage.getVersion());
-
-        message.setHost(templateMessage.getHost());
-        message.setMessage(templateMessage.getMessage());
-
-        for (final Map.Entry<String, Object> entry : templateMessage.getAdditionalFields().entrySet()) {
-            message.addAdditionalField(entry.getKey(), entry.getValue());
+        if (message == null) {
+            throw new IllegalArgumentException("message must not be null!");
         }
 
-        return message;
+        if (host == null || host.trim().isEmpty()) {
+            throw new IllegalArgumentException("host must not be null or empty!");
+        }
+
+        if (version == null) {
+            throw new IllegalArgumentException("version must not be null!");
+        }
+
+        if (level == null) {
+            throw new IllegalArgumentException("level must not be null!");
+        }
+
+        final GelfMessage gelfMessage = new GelfMessage(message, host, version);
+
+        gelfMessage.setFullMessage(fullMessage);
+        gelfMessage.setLevel(level);
+
+        if (timestamp != null) {
+            gelfMessage.setTimestamp(timestamp);
+        }
+
+        gelfMessage.addAdditionalFields(fields);
+
+        return gelfMessage;
     }
 }

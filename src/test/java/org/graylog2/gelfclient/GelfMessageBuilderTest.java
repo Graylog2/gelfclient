@@ -16,33 +16,31 @@
 
 package org.graylog2.gelfclient;
 
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertNotSame;
 
 public class GelfMessageBuilderTest {
-    private GelfMessageBuilder builder;
-
-    @BeforeMethod
-    public void setUp() {
-        builder = new GelfMessageBuilder(GelfMessageVersion.V1_1);
-    }
-
     @Test
     public void testBuilder() throws Exception {
-        builder.setHost("localhost2")
-               .setMessage("hello builder message")
-               .addAdditionalField("_foo", "bar")
-               .addAdditionalField("baz", 123);
+        final GelfMessage gelfMessage =
+                new GelfMessageBuilder("hello builder message", "example.org")
+                        .additionalField("_foo", "bar")
+                        .additionalField("_baz", 123)
+                        .build();
 
-        assertEquals("localhost2", builder.build().getHost());
-        assertEquals("hello builder message", builder.build().getMessage());
-        assertEquals("bar", builder.build().getAdditionalFields().get("_foo"));
-        assertEquals(123, builder.build().getAdditionalFields().get("_baz"));
+        assertEquals("hello builder message", gelfMessage.getMessage());
+        assertEquals("example.org", gelfMessage.getHost());
+        assertEquals(GelfMessageVersion.V1_1, gelfMessage.getVersion());
+        assertEquals("bar", gelfMessage.getAdditionalFields().get("_foo"));
+        assertEquals(123, gelfMessage.getAdditionalFields().get("_baz"));
     }
 
     @Test
     public void testReturnsNewMessageObjectEveryTime() throws Exception {
+        final GelfMessageBuilder builder = new GelfMessageBuilder("hello builder message", "example.org");
+
         assertNotSame(builder.build(), builder.build());
     }
 }

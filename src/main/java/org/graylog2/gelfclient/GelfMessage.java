@@ -18,78 +18,113 @@ package org.graylog2.gelfclient;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 public class GelfMessage {
     private final GelfMessageVersion version;
-    private double timestamp;
-    private String message;
+    private final String host;
+    private final String message;
     private String fullMessage;
-    private String host = "localhost";
-    private final Map<String, Object> fields = new HashMap<>();
+    private double timestamp = System.currentTimeMillis() / 1000D;
+    private GelfMessageLevel level = GelfMessageLevel.ALERT;
+    private final Map<String, Object> additionalFields = new HashMap<>();
 
-    public GelfMessage(GelfMessageVersion version) {
-        this(version, System.currentTimeMillis() / 1000D);
+    public GelfMessage(final String message) {
+        this(message, "localhost");
     }
 
-    public GelfMessage(GelfMessageVersion version, double timestamp) {
+    public GelfMessage(final String message, final String host) {
+        this(message, host, GelfMessageVersion.V1_1);
+    }
+
+    public GelfMessage(final String message, final String host, final GelfMessageVersion version) {
+        this.message = message;
+        this.host = host;
         this.version = version;
-        this.timestamp = timestamp;
     }
 
     public GelfMessageVersion getVersion() {
         return version;
     }
 
-    public double getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(double timestamp) {
-        this.timestamp = timestamp;
+    public String getHost() {
+        return host;
     }
 
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public String getFullMessage() {
         return fullMessage;
     }
 
-    public void setFullMessage(String fullMessage) {
+    public void setFullMessage(final String fullMessage) {
         this.fullMessage = fullMessage;
     }
 
-    public String getHost() {
-        return host;
+    public double getTimestamp() {
+        return timestamp;
     }
 
-    public void setHost(String host) {
-        this.host = host;
+    public void setTimestamp(final double timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public GelfMessageLevel getLevel() {
+        return level;
+    }
+
+    public void setLevel(final GelfMessageLevel level) {
+        this.level = level;
     }
 
     public Map<String, Object> getAdditionalFields() {
-        return fields;
+        return additionalFields;
     }
 
-    public void addAdditionalField(String key, Object value) {
+    public void addAdditionalField(final String key, final Object value) {
         if (key == null) {
             return;
         }
+
         String realKey = key.startsWith("_") ? key : ("_" + key);
 
-        fields.put(realKey, value);
+        additionalFields.put(realKey, value);
+    }
+
+    public void addAdditionalFields(final Map<String, Object> additionalFields) {
+        this.additionalFields.putAll(additionalFields);
     }
 
     @Override
     public String toString() {
-        return String.format("[GelfMessage] version=\"%s\" timestamp=\"%.3f\" short_message=\"%s\"", getVersion().toString(), getTimestamp(), getMessage());
+        return String.format("GelfMessage{version=\"%s\" timestamp=\"%.3f\" short_message=\"%s\", level=\"%s\"}",
+                version, timestamp, message, level);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final GelfMessage that = (GelfMessage) o;
+
+        if (version != that.version) return false;
+        if (!message.equals(that.message)) return false;
+        if (!host.equals(that.host)) return false;
+        if (level != that.level) return false;
+        if (Double.compare(that.timestamp, timestamp) != 0) return false;
+        if (fullMessage != null ? !fullMessage.equals(that.fullMessage) : that.fullMessage != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(version, host, message, fullMessage, timestamp);
     }
 }

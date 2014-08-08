@@ -16,117 +16,114 @@
 
 package org.graylog2.gelfclient;
 
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 public class GelfMessageTest {
-    private GelfMessage msg;
-    private final double timestamp = System.currentTimeMillis() / 1000D;
-
-    @BeforeMethod
-    public void setUp() {
-        msg = new GelfMessage(GelfMessageVersion.V1_1, timestamp);
-    }
-
     @Test
     public void testGetVersion() throws Exception {
-        assertEquals(GelfMessageVersion.V1_1, msg.getVersion());
-    }
-
-    @Test
-    public void testGetTimestamp() throws Exception {
-        assertEquals(timestamp, msg.getTimestamp());
+        assertEquals(GelfMessageVersion.V1_1, new GelfMessage("Test").getVersion());
     }
 
     @Test
     public void testSetTimestamp() throws Exception {
-        msg.setTimestamp(timestamp);
+        final double timestamp = System.currentTimeMillis() / 1000d;
+        final GelfMessage message = new GelfMessage("Test");
+        message.setTimestamp(timestamp);
 
-        assertEquals(timestamp, msg.getTimestamp());
+        assertEquals(timestamp, message.getTimestamp());
     }
 
     @Test
     public void testAutoTimestamp() throws Exception {
-        GelfMessage message = new GelfMessage(GelfMessageVersion.V1_1);
+        final GelfMessage message = new GelfMessage("Test");
 
-        assertNotNull(message.getTimestamp());
+        assertTrue(message.getTimestamp() <= System.currentTimeMillis() / 1000d);
     }
 
     @Test
     public void testGetMessage() throws Exception {
-        msg.setMessage("Hello world!");
+        final GelfMessage message = new GelfMessage("Hello world!");
 
-        assertEquals("Hello world!", msg.getMessage());
+        assertEquals("Hello world!", message.getMessage());
     }
 
     @Test
     public void testGetFullMessage() throws Exception {
-        msg.setFullMessage("Hello full world!");
+        final GelfMessage message = new GelfMessage("Test");
+        message.setFullMessage("Hello full world!");
 
-        assertEquals("Hello full world!", msg.getFullMessage());
+        assertEquals("Hello full world!", message.getFullMessage());
     }
 
     @Test
     public void testGetHost() throws Exception {
-        // Check default.
-        assertEquals("localhost", msg.getHost());
-
-        msg.setHost("my-machine");
-
-        assertEquals("my-machine", msg.getHost());
+        assertEquals("localhost", new GelfMessage("Test").getHost());
+        assertEquals("example.com", new GelfMessage("Test", "example.com").getHost());
     }
 
     @Test
     public void testGetAdditionalFields() throws Exception {
-        Map<String, String> data = new HashMap<>();
-
-        assertEquals(data, msg.getAdditionalFields());
+        assertTrue(new GelfMessage("Test").getAdditionalFields().isEmpty());
     }
 
     @Test
     public void testAddAdditionalField() throws Exception {
-        Map<String, Object> data = new HashMap<>();
-
+        final Map<String, Object> data = new HashMap<>();
         data.put("_foo", "test");
         data.put("_bar", 10);
-        msg.addAdditionalField("_foo", "test");
-        msg.addAdditionalField("_bar", 10);
 
-        assertEquals(data, msg.getAdditionalFields());
+        final GelfMessage message = new GelfMessage("Test");
+        message.addAdditionalField("_foo", "test");
+        message.addAdditionalField("_bar", 10);
+
+        assertEquals(data, message.getAdditionalFields());
+    }
+
+    @Test
+    public void testAddAdditionalFields() throws Exception {
+        final Map<String, Object> data = new HashMap<>();
+        data.put("_foo", "test");
+        data.put("_bar", 10);
+
+        final GelfMessage message = new GelfMessage("Test");
+        message.addAdditionalFields(data);
+
+
+        assertEquals(data, message.getAdditionalFields());
     }
 
     @Test
     public void testAddAdditionalFieldWithNullKey() throws Exception {
-        Map<String, Object> data = new HashMap<>();
+        final GelfMessage message = new GelfMessage("Test");
+        message.addAdditionalField(null, "null");
 
-        //data.put("_foo", "test");
-        msg.addAdditionalField(null, "null");
-
-        assertEquals(data, msg.getAdditionalFields());
+        assertTrue(message.getAdditionalFields().isEmpty());
     }
 
     @Test
     public void testAddAdditionalFieldWithNullValue() throws Exception {
         Map<String, Object> data = new HashMap<>();
-
         data.put("_null", null);
-        msg.addAdditionalField("_null", null);
 
-        assertEquals(data, msg.getAdditionalFields());
+        final GelfMessage message = new GelfMessage("Test");
+        message.addAdditionalField("_null", null);
+
+        assertEquals(data, message.getAdditionalFields());
     }
 
     @Test
     public void testAddAdditionalFieldWithoutUnderscore() {
-        msg.addAdditionalField("foobar", "test");
+        final GelfMessage message = new GelfMessage("Test");
+        message.addAdditionalField("foobar", "test");
 
-        assertEquals("test", msg.getAdditionalFields().get("_foobar"));
-        assertNull(msg.getAdditionalFields().get("foobar"));
+        assertEquals("test", message.getAdditionalFields().get("_foobar"));
+        assertNull(message.getAdditionalFields().get("foobar"));
     }
 }
