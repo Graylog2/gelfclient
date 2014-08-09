@@ -63,6 +63,11 @@
         <url>https://travis-ci.org/Graylog2/gelfclient</url>
     </ciManagement>
 
+    <organization>
+        <name>TORCH</name>
+        <url>http://www.torch.sh/</url>
+    </organization>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
