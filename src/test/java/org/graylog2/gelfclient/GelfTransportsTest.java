@@ -26,23 +26,25 @@ import static org.testng.AssertJUnit.assertEquals;
 public class GelfTransportsTest {
     @Test
     public void testCreateUdp() throws Exception {
-        GelfConfiguration config = new GelfConfiguration();
+        final GelfTransport transport = GelfTransports.create(GelfTransports.UDP, new GelfConfiguration());
 
-        config.setTransport(GelfTransports.UDP);
-
-        GelfTransport transportUdp = GelfTransports.create(config);
-
-        assertEquals(GelfUdpTransport.class, transportUdp.getClass());
+        assertEquals(GelfUdpTransport.class, transport.getClass());
     }
 
     @Test
     public void testCreateTcp() throws Exception {
-        GelfConfiguration config = new GelfConfiguration();
+        final GelfTransport transport = GelfTransports.create(GelfTransports.TCP, new GelfConfiguration());
 
-        config.setTransport(GelfTransports.TCP);
+        assertEquals(GelfTcpTransport.class, transport.getClass());
+    }
 
-        GelfTransport transportTcp = GelfTransports.create(config);
+    @Test
+    public void testCreateTransportFromGelfConfiguration() throws Exception {
+        final GelfConfiguration gelfConfiguration = new GelfConfiguration();
+        gelfConfiguration.setTransport(GelfTransports.UDP);
 
-        assertEquals(GelfTcpTransport.class, transportTcp.getClass());
+        final GelfTransport transport = GelfTransports.create(gelfConfiguration);
+
+        assertEquals(GelfUdpTransport.class, transport.getClass());
     }
 }

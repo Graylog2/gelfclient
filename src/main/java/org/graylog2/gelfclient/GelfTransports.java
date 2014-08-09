@@ -27,18 +27,24 @@ public enum GelfTransports {
     TCP,
     UDP;
 
-    public static GelfTransport create(GelfConfiguration config) {
-        GelfTransport transport = null;
+    public static GelfTransport create(final GelfTransports transport, final GelfConfiguration config) {
+        GelfTransport gelfTransport;
 
-        switch (config.getTransport()) {
+        switch (transport) {
             case TCP:
-                transport = new GelfTcpTransport(config);
+                gelfTransport = new GelfTcpTransport(config);
                 break;
             case UDP:
-                transport = new GelfUdpTransport(config);
+                gelfTransport = new GelfUdpTransport(config);
                 break;
+            default:
+                throw new IllegalArgumentException("Unsupported GELF transport: " + transport);
         }
 
-        return transport;
+        return gelfTransport;
+    }
+
+    public static GelfTransport create(final GelfConfiguration config) {
+        return create(config.getTransport(), config);
     }
 }
