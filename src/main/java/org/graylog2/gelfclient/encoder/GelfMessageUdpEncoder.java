@@ -32,7 +32,7 @@ import java.util.List;
  */
 @ChannelHandler.Sharable
 public class GelfMessageUdpEncoder extends MessageToMessageEncoder<ByteBuf> {
-    private final Logger LOG = LoggerFactory.getLogger(GelfMessageUdpEncoder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GelfMessageUdpEncoder.class);
     private final InetSocketAddress remoteAddress;
 
     public GelfMessageUdpEncoder(InetSocketAddress remoteAddress) {

@@ -30,7 +30,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 public class GelfSenderThread {
-    private final Logger LOG = LoggerFactory.getLogger(GelfSenderThread.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GelfSenderThread.class);
     private final ReentrantLock lock;
     private final Condition connectedCond;
     private final AtomicBoolean keepRunning = new AtomicBoolean(true);
