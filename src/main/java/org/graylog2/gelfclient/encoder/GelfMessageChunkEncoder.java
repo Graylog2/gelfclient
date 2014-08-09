@@ -22,12 +22,11 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.MessageToMessageEncoder;
-import org.graylog2.gelfclient.GelfConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
@@ -39,8 +38,7 @@ public class GelfMessageChunkEncoder extends MessageToMessageEncoder<ByteBuf> {
     private static final int MAX_CHUNK_SIZE = 1420;
     private static final int MAX_MESSAGE_SIZE = (MAX_CHUNKS * MAX_CHUNK_SIZE);
     private static final byte[] CHUNK_MAGIC_BYTES = new byte[]{0x1e, 0x0f};
-
-    private final GelfConfiguration config;
+    private final byte[] machineIdentifier = new byte[4];
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
@@ -80,37 +78,35 @@ public class GelfMessageChunkEncoder extends MessageToMessageEncoder<ByteBuf> {
         private byte[] generateMessageId() {
             // GELF message ID, max 8 bytes
             final ByteBuf messageId = Unpooled.buffer(8, 8);
-            final ByteBuf hostname = Unpooled.wrappedBuffer(config.getHost().getBytes(StandardCharsets.US_ASCII));
 
             // 4 bytes of current time.
             messageId.writeInt((int) System.currentTimeMillis());
+            messageId.writeBytes(machineIdentifier, 0, 4);
 
-            // 4 bytes of the hostname.
-            try {
-                byte[] h = new byte[4];
-
-                if (hostname.readableBytes() > 4) {
-                    hostname.slice(0, 4).readBytes(h);
-                } else {
-                    hostname.readBytes(h);
-                }
-
-                messageId.writeBytes(h);
-            } finally {
-                hostname.release();
-            }
-
-            byte[] messageBytes = new byte[messageId.readableBytes()];
-
-            messageId.readBytes(messageBytes);
-            messageId.release();
-
-            return messageBytes;
+            return messageId.array();
         }
     }
 
-    public GelfMessageChunkEncoder(final GelfConfiguration config) {
-        this.config = config;
+    public GelfMessageChunkEncoder(final byte[] machineIdentifier) {
+        if(machineIdentifier.length < 4) {
+            throw new IllegalArgumentException("The machine identifier must at least be 4 bytes long.");
+        }
+
+        System.arraycopy(machineIdentifier, 0, this.machineIdentifier, 0, 4);
+    }
+
+    /**
+     * Create a new instance which will try to detect the types to match out of the type parameter of the class.
+     */
+    public GelfMessageChunkEncoder() {
+        this(randomIdentifier(4));
+    }
+
+    private static byte[] randomIdentifier(final int length) {
+        final byte[] randomIdentifier = new byte[length];
+        final Random random = new Random();
+        random.nextBytes(randomIdentifier);
+        return randomIdentifier;
     }
 
     @Override

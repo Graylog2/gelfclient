@@ -19,7 +19,7 @@ package org.graylog2.gelfclient.encoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
-import org.graylog2.gelfclient.GelfConfiguration;
+import io.netty.handler.codec.EncoderException;
 import org.testng.annotations.Test;
 
 import java.util.Random;
@@ -30,14 +30,13 @@ import static org.testng.AssertJUnit.assertNull;
 public class GelfMessageChunkEncoderTest {
     @Test
     public void testChunkedEncode() throws Exception {
-        GelfConfiguration config = new GelfConfiguration();
-        EmbeddedChannel channel = new EmbeddedChannel(new GelfMessageChunkEncoder(config));
-        String largeMessage = largeMessage(1500);
+        final EmbeddedChannel channel = new EmbeddedChannel(new GelfMessageChunkEncoder());
+        final String largeMessage = largeMessage(1500);
 
         channel.writeOutbound(Unpooled.wrappedBuffer(largeMessage.getBytes()));
 
-        ByteBuf chunk1 = (ByteBuf) channel.readOutbound();
-        ByteBuf chunk2 = (ByteBuf) channel.readOutbound();
+        final ByteBuf chunk1 = (ByteBuf) channel.readOutbound();
+        final ByteBuf chunk2 = (ByteBuf) channel.readOutbound();
 
         // Generates two messages
         assertNull(channel.readOutbound());
@@ -63,6 +62,54 @@ public class GelfMessageChunkEncoderTest {
         // data bytes
         assertEquals(1420, chunk1.readableBytes());
         assertEquals(largeMessage.length() - 1420, chunk2.readableBytes());
+    }
+
+    @Test
+    public void testChunkedEncodeExactChunkSize() throws Exception {
+        final EmbeddedChannel channel = new EmbeddedChannel(new GelfMessageChunkEncoder());
+        final byte[] largeMessage = new byte[2840];
+
+        channel.writeOutbound(Unpooled.wrappedBuffer(largeMessage));
+
+        final ByteBuf chunk1 = (ByteBuf) channel.readOutbound();
+        final ByteBuf chunk2 = (ByteBuf) channel.readOutbound();
+
+        // Generates two messages
+        assertNull(channel.readOutbound());
+
+        // Check for GELF chunked magic bytes
+        assertEquals((byte) 0x1e, chunk1.readByte());
+        assertEquals((byte) 0x0f, chunk1.readByte());
+        assertEquals((byte) 0x1e, chunk2.readByte());
+        assertEquals((byte) 0x0f, chunk2.readByte());
+
+        // 8 bytes for the message ID
+        assertEquals(8, chunk1.readBytes(8).array().length);
+        assertEquals(8, chunk2.readBytes(8).array().length);
+
+        // 1 byte sequence number
+        assertEquals((byte) 0, chunk1.readByte());
+        assertEquals((byte) 1, chunk2.readByte());
+
+        // 1 byte sequence count
+        assertEquals((byte) 2, chunk1.readByte());
+        assertEquals((byte) 2, chunk2.readByte());
+
+        // data bytes
+        assertEquals(1420, chunk1.readableBytes());
+        assertEquals(largeMessage.length - 1420, chunk2.readableBytes());
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testShortMachineIdentifierShouldThrowException() throws Exception {
+        new GelfMessageChunkEncoder(new byte[1]);
+    }
+
+    @Test(expectedExceptions = EncoderException.class)
+    public void testTooLargeMessage() throws Exception {
+        final EmbeddedChannel channel = new EmbeddedChannel(new GelfMessageChunkEncoder());
+
+        channel.writeOutbound(Unpooled.wrappedBuffer(new byte[1420 * 128 + 1]));
     }
 
     private String largeMessage(int limit) {

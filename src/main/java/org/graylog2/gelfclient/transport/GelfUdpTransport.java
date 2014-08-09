@@ -67,7 +67,7 @@ public class GelfUdpTransport extends AbstractGelfTransport {
                     @Override
                     protected void initChannel(Channel ch) throws Exception {
                         ch.pipeline().addLast(new GelfMessageUdpEncoder(remoteAddress));
-                        ch.pipeline().addLast(new GelfMessageChunkEncoder(config));
+                        ch.pipeline().addLast(new GelfMessageChunkEncoder());
                         ch.pipeline().addLast(new GelfCompressionEncoder());
                         ch.pipeline().addLast(new GelfMessageJsonEncoder());
                         ch.pipeline().addLast(new SimpleChannelInboundHandler<DatagramPacket>() {
