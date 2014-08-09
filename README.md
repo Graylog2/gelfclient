@@ -35,8 +35,7 @@ tasks and [Jackson](https://github.com/FasterXML/jackson) for JSON encoding.
 ```java
 public class Application {
     public static void main(String[] args) {
-        boolean blocking = false;
-        GelfConfiguration config = new GelfConfiguration();
+        final GelfConfiguration config = new GelfConfiguration();
 
         // Optional but recommended settings
         config.setHost("127.0.0.1");
@@ -50,17 +49,15 @@ public class Application {
         config.setQueueSize(512);
         config.setSendBufferSize(32768);
 
-        GelfMessageBuilder messageTemplate = new GelfMessageBuilder(GelfMessageVersion.V1_1)
-                                               .addHost("localhost")
-                                               .addAdditionalField("_foo", "bar");
+        final GelfTransport transport = GelfTransports.create(config);
 
-        GelfTransport transport = GelfTransports.create(config);
-
+        boolean blocking = false;
         for (int i = 0; i < 100; i++) {
-            GelfMessage message = messageTemplate.build();
-
-            message.addMessage("This is message #" + i);
-            message.addAdditionalField("_count", i);
+            final GelfMessage message = new GelfMessageBuilder("This is message #" + i, "localhost")
+                    .level(GelfMessageLevel.INFORMATIONAL)
+                    .additionalField("_foo", "bar")
+                    .additionalField("_count", i)
+                    .build();
 
             if (blocking) {
                 // Blocks until there is capacity in the queue
@@ -70,8 +67,6 @@ public class Application {
                 boolean enqueued = transport.trySend(message);
             }
         }
-
-        transport.stop();
     }
 }
 ```
