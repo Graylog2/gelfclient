@@ -26,6 +26,7 @@ import org.graylog2.gelfclient.GelfConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -79,7 +80,7 @@ public class GelfMessageChunkEncoder extends MessageToMessageEncoder<ByteBuf> {
         private byte[] generateMessageId() {
             // GELF message ID, max 8 bytes
             final ByteBuf messageId = Unpooled.buffer(8, 8);
-            final ByteBuf hostname = Unpooled.wrappedBuffer(config.getHost().getBytes());
+            final ByteBuf hostname = Unpooled.wrappedBuffer(config.getHost().getBytes(StandardCharsets.US_ASCII));
 
             // 4 bytes of current time.
             messageId.writeInt((int) System.currentTimeMillis());
