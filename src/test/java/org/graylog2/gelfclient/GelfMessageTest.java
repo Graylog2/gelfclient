@@ -21,8 +21,9 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotEquals;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 public class GelfMessageTest {
@@ -116,5 +117,43 @@ public class GelfMessageTest {
         message.addAdditionalField("_null", null);
 
         assertEquals(data, message.getAdditionalFields());
+    }
+
+    @Test
+    public void testEquals() throws Exception {
+        final GelfMessage message = new GelfMessage("Test");
+
+        assertEquals(new GelfMessage("Test"), message);
+        assertNotEquals(new GelfMessage("Not Equal"), message);
+    }
+
+    @Test
+    public void testHashCode() throws Exception {
+        final GelfMessage message = new GelfMessage("Test");
+
+        assertEquals(new GelfMessage("Test").hashCode(), message.hashCode());
+        assertNotEquals(new GelfMessage("Not Equal"), message);
+    }
+
+    @Test
+    public void testHashCodeIgnoresAdditionalFields() throws Exception {
+        final GelfMessage message = new GelfMessage("Test");
+        message.addAdditionalField("key", "value");
+
+        assertEquals(new GelfMessage("Test").hashCode(), message.hashCode());
+        assertNotEquals(new GelfMessage("NotEqual").hashCode(), message.hashCode());
+    }
+
+    @Test
+    public void testToString() throws Exception {
+        final GelfMessage message = new GelfMessage("Test");
+        message.setTimestamp(123456.0d);
+        message.addAdditionalField("additional_key", "additional_value");
+
+        assertTrue(message.toString().contains("1.1"));
+        assertTrue(message.toString().contains("Test"));
+        assertTrue(message.toString().contains("123456"));
+        assertTrue(message.toString().contains("ALERT"));
+        assertFalse(message.toString().contains("additional_key"));
     }
 }

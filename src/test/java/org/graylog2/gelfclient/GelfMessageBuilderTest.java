@@ -18,23 +18,33 @@ package org.graylog2.gelfclient;
 
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotSame;
 
 public class GelfMessageBuilderTest {
     @Test
     public void testBuilder() throws Exception {
+        final Map<String, Object> additionalFields = new HashMap<>();
+        additionalFields.put("_qux", 456.789d);
+
         final GelfMessage gelfMessage =
                 new GelfMessageBuilder("hello builder message", "example.org")
+                        .timestamp(0.0d)
                         .additionalField("_foo", "bar")
                         .additionalField("_baz", 123)
+                        .additionalFields(additionalFields)
                         .build();
 
         assertEquals("hello builder message", gelfMessage.getMessage());
         assertEquals("example.org", gelfMessage.getHost());
         assertEquals(GelfMessageVersion.V1_1, gelfMessage.getVersion());
+        assertEquals(0.0d, gelfMessage.getTimestamp());
         assertEquals("bar", gelfMessage.getAdditionalFields().get("_foo"));
         assertEquals(123, gelfMessage.getAdditionalFields().get("_baz"));
+        assertEquals(456.789d, gelfMessage.getAdditionalFields().get("_qux"));
     }
 
     @Test
@@ -42,5 +52,35 @@ public class GelfMessageBuilderTest {
         final GelfMessageBuilder builder = new GelfMessageBuilder("hello builder message", "example.org");
 
         assertNotSame(builder.build(), builder.build());
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testMissingMessageThrowsException() throws Exception {
+        new GelfMessageBuilder(null).build();
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testMissingHostThrowsException() throws Exception {
+        new GelfMessageBuilder("Test", null).build();
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testEmptyHostThrowsException() throws Exception {
+        new GelfMessageBuilder("Test", "").build();
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testBlankHostThrowsException() throws Exception {
+        new GelfMessageBuilder("Test", "  ").build();
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testMissingVersionThrowsException() throws Exception {
+        new GelfMessageBuilder("Test", "localhost", null).build();
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testMissingLevelThrowsException() throws Exception {
+        new GelfMessageBuilder("Test").level(null).build();
     }
 }
