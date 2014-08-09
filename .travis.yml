@@ -1,4 +1,6 @@
 language: java
+after_success:
+  - mvn clean test jacoco:report coveralls:jacoco
 jdk:
   - openjdk7
   - oraclejdk7
