@@ -123,6 +123,6 @@ public class GelfMessage {
 
     @Override
     public int hashCode() {
-        return Objects.hash(version, host, message, fullMessage, timestamp);
+        return Objects.hash(version, host, message, fullMessage, level, timestamp);
     }
 }
