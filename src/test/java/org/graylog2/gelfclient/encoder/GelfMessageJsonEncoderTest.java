@@ -23,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.embedded.EmbeddedChannel;
 import org.graylog2.gelfclient.GelfMessage;
 import org.graylog2.gelfclient.GelfMessageBuilder;
+import org.graylog2.gelfclient.GelfMessageLevel;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -38,6 +39,7 @@ public class GelfMessageJsonEncoderTest {
         channel = new EmbeddedChannel(new GelfMessageJsonEncoder());
         message = new GelfMessageBuilder("test")
                 .fullMessage("The full message!")
+                .level(GelfMessageLevel.INFORMATIONAL)
                 .additionalField("_foo", 1.0)
                 .additionalField("_bar", 128)
                 .additionalField("_baz", "a value")
@@ -87,6 +89,7 @@ public class GelfMessageJsonEncoderTest {
         String host = null;
         String short_message = null;
         String full_message = null;
+        Number level= null;
         Number _foo = null;
         Number _bar = null;
         String _baz = null;
@@ -116,6 +119,9 @@ public class GelfMessageJsonEncoderTest {
                 case "full_message":
                     full_message = parser.getText();
                     break;
+                case "level":
+                    level = parser.getNumberValue();
+                    break;
                 case "_foo":
                     _foo = parser.getNumberValue();
                     break;
@@ -135,6 +141,7 @@ public class GelfMessageJsonEncoderTest {
         assertEquals(message.getHost(), host);
         assertEquals(message.getMessage(), short_message);
         assertEquals(message.getFullMessage(), full_message);
+        assertEquals(message.getLevel().getLevel(), level);
         assertEquals(1.0, _foo);
         assertEquals(128, _bar);
         assertEquals("a value", _baz);

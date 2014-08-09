@@ -67,6 +67,7 @@ public class GelfMessageJsonEncoder extends MessageToMessageEncoder<GelfMessage>
             jg.writeStringField("host", message.getHost());
             jg.writeStringField("short_message", message.getMessage());
             jg.writeStringField("full_message", message.getFullMessage());
+            jg.writeNumberField("level", message.getLevel().getLevel());
 
             for (Map.Entry<String, Object> field : message.getAdditionalFields().entrySet()) {
                 if (field.getValue() instanceof Number) {
