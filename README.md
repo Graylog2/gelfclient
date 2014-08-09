@@ -1,6 +1,9 @@
 GELF Client
 ===========
 
+[![Build Status](https://travis-ci.org/Graylog2/gelfclient.svg)](https://travis-ci.org/Graylog2/gelfclient)
+[![Coverage Status](https://img.shields.io/coveralls/Graylog2/gelfclient.svg)](https://coveralls.io/r/Graylog2/gelfclient)
+
 A Java GELF client library with support for different transports.
 
 Available transports:
