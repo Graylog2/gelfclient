@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -37,31 +36,34 @@ import java.util.Map;
  */
 @ChannelHandler.Sharable
 public class GelfMessageJsonEncoder extends MessageToMessageEncoder<GelfMessage> {
-    private final Logger LOG = LoggerFactory.getLogger(GelfMessageJsonEncoder.class);
-    private final JsonFactory jsonFactory = new JsonFactory();
+    private static final Logger LOG = LoggerFactory.getLogger(GelfMessageJsonEncoder.class);
+    private final JsonFactory jsonFactory;
 
     public GelfMessageJsonEncoder() {
+        this(new JsonFactory());
+    }
+
+    public GelfMessageJsonEncoder(final JsonFactory jsonFactory) {
+        this.jsonFactory = jsonFactory;
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        super.exceptionCaught(ctx, cause);
         LOG.error("JSON encoding error", cause);
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, GelfMessage msg, List<Object> out) throws Exception {
-        final byte[] message = toJson(msg);
-
-        if (message != null) {
-            out.add(Unpooled.wrappedBuffer(message));
-        }
+    protected void encode(ChannelHandlerContext ctx, GelfMessage message, List<Object> out) throws Exception {
+        out.add(Unpooled.wrappedBuffer(toJson(message)));
     }
 
-    private byte[] toJson(final GelfMessage message) {
+    private byte[] toJson(final GelfMessage message) throws Exception {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        try(final JsonGenerator jg = jsonFactory.createGenerator(out, JsonEncoding.UTF8)) {
+        try (final JsonGenerator jg = jsonFactory.createGenerator(out, JsonEncoding.UTF8)) {
             jg.writeStartObject();
+
             jg.writeStringField("version", message.getVersion().toString());
             jg.writeNumberField("timestamp", message.getTimestamp());
             jg.writeStringField("host", message.getHost());
@@ -70,8 +72,7 @@ public class GelfMessageJsonEncoder extends MessageToMessageEncoder<GelfMessage>
             jg.writeNumberField("level", message.getLevel().getLevel());
 
             for (Map.Entry<String, Object> field : message.getAdditionalFields().entrySet()) {
-
-                String realKey = field.getKey().startsWith("_") ? field.getKey() : ("_" + field.getKey());
+                final String realKey = field.getKey().startsWith("_") ? field.getKey() : ("_" + field.getKey());
 
                 if (field.getValue() instanceof Number) {
                     // Let Jackson figure out how to write Number values.
@@ -84,12 +85,6 @@ public class GelfMessageJsonEncoder extends MessageToMessageEncoder<GelfMessage>
             }
 
             jg.writeEndObject();
-        } catch (IOException e) {
-            LOG.error("Message encoding failed", e);
-            return null;
-        } catch (Exception e) {
-            LOG.error("JSON encoding error", e);
-            return null;
         }
 
         // Graylog2 GELF TCP input uses NULL-byte as separator.

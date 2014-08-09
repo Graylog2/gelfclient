@@ -16,17 +16,26 @@
 
 package org.graylog2.gelfclient.encoder;
 
+import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.handler.codec.EncoderException;
 import org.graylog2.gelfclient.GelfMessage;
 import org.graylog2.gelfclient.GelfMessageBuilder;
 import org.graylog2.gelfclient.GelfMessageLevel;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -56,6 +65,15 @@ public class GelfMessageJsonEncoderTest {
         buf.getBytes(0, bytes).release();
 
         return bytes;
+    }
+
+    @Test(expectedExceptions = EncoderException.class)
+    public void testExceptionIsPassedThrough() throws Exception {
+        final JsonFactory jsonFactory = mock(JsonFactory.class);
+        when(jsonFactory.createGenerator(any(OutputStream.class), eq(JsonEncoding.UTF8))).thenThrow(new IOException());
+
+        final EmbeddedChannel channel = new EmbeddedChannel(new GelfMessageJsonEncoder(jsonFactory));
+        assertTrue(channel.writeOutbound(new GelfMessage("test")));
     }
 
     @Test
@@ -89,7 +107,7 @@ public class GelfMessageJsonEncoderTest {
         String host = null;
         String short_message = null;
         String full_message = null;
-        Number level= null;
+        Number level = null;
         Number _foo = null;
         Number _bar = null;
         String _baz = null;
