@@ -91,9 +91,7 @@ public class GelfMessage {
             return;
         }
 
-        String realKey = key.startsWith("_") ? key : ("_" + key);
-
-        additionalFields.put(realKey, value);
+        additionalFields.put(key, value);
     }
 
     public void addAdditionalFields(final Map<String, Object> additionalFields) {

@@ -117,13 +117,4 @@ public class GelfMessageTest {
 
         assertEquals(data, message.getAdditionalFields());
     }
-
-    @Test
-    public void testAddAdditionalFieldWithoutUnderscore() {
-        final GelfMessage message = new GelfMessage("Test");
-        message.addAdditionalField("foobar", "test");
-
-        assertEquals("test", message.getAdditionalFields().get("_foobar"));
-        assertNull(message.getAdditionalFields().get("foobar"));
-    }
 }

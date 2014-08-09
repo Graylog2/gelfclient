@@ -70,13 +70,16 @@ public class GelfMessageJsonEncoder extends MessageToMessageEncoder<GelfMessage>
             jg.writeNumberField("level", message.getLevel().getLevel());
 
             for (Map.Entry<String, Object> field : message.getAdditionalFields().entrySet()) {
+
+                String realKey = field.getKey().startsWith("_") ? field.getKey() : ("_" + field.getKey());
+
                 if (field.getValue() instanceof Number) {
                     // Let Jackson figure out how to write Number values.
-                    jg.writeObjectField(field.getKey(), field.getValue());
+                    jg.writeObjectField(realKey, field.getValue());
                 } else if (field.getValue() == null) {
-                    jg.writeNullField(field.getKey());
+                    jg.writeNullField(realKey);
                 } else {
-                    jg.writeStringField(field.getKey(), field.getValue().toString());
+                    jg.writeStringField(realKey, field.getValue().toString());
                 }
             }
 
