@@ -36,6 +36,16 @@ public enum GelfMessageLevel {
         return level;
     }
 
+    public static GelfMessageLevel fromLevel(final int level) {
+        for (final GelfMessageLevel gelfMessageLevel : GelfMessageLevel.values()) {
+            if (level == gelfMessageLevel.getLevel()) {
+                return gelfMessageLevel;
+            }
+        }
+
+        throw new IllegalArgumentException("Unknown GELF message level: " + level);
+    }
+
     public String toString() {
         return name() + "(" + level + ")";
     }

@@ -26,4 +26,16 @@ public class GelfMessageLevelTest {
     public void testToString() throws Exception {
         assertEquals("ALERT(1)", GelfMessageLevel.ALERT.toString());
     }
+
+    @Test
+    public void testFromLevel() throws Exception {
+        for (GelfMessageLevel gelfMessageLevel : GelfMessageLevel.values()) {
+            assertEquals(gelfMessageLevel, GelfMessageLevel.fromLevel(gelfMessageLevel.getLevel()));
+        }
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testFromLevelThrowsIllegalArgumentExceptionForUnknownLevels() throws Exception {
+        GelfMessageLevel.fromLevel(-1);
+    }
 }
