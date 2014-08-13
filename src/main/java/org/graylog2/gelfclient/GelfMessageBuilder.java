@@ -35,7 +35,7 @@ import java.util.Map;
 public class GelfMessageBuilder {
     private final GelfMessageVersion version;
     private final String host;
-    private final String message;
+    private String message;
     private String fullMessage;
     private Double timestamp;
     private GelfMessageLevel level = GelfMessageLevel.ALERT;
@@ -71,6 +71,17 @@ public class GelfMessageBuilder {
         this.message = message;
         this.host = host;
         this.version = version;
+    }
+
+    /**
+     * Set the (short) message of the {@link GelfMessage}.
+     *
+     * @param message the (short) message of the {@link GelfMessage}
+     * @return {@code this} instance
+     */
+    public GelfMessageBuilder message(final String message) {
+        this.message = message;
+        return this;
     }
 
     /**

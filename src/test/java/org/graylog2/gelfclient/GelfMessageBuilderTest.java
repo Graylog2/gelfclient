@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotSame;
 
 public class GelfMessageBuilderTest {
@@ -50,8 +50,13 @@ public class GelfMessageBuilderTest {
     @Test
     public void testReturnsNewMessageObjectEveryTime() throws Exception {
         final GelfMessageBuilder builder = new GelfMessageBuilder("hello builder message", "example.org");
-
         assertNotSame(builder.build(), builder.build());
+    }
+
+    @Test
+    public void testMessageCanBeOverwritten() throws Exception {
+        final GelfMessage gelfMessage = new GelfMessageBuilder("Test").message("Foo").build();
+        assertEquals("Foo", gelfMessage.getMessage());
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
