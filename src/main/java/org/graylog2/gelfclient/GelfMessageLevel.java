@@ -16,6 +16,9 @@
 
 package org.graylog2.gelfclient;
 
+/**
+ * The log level of a {@link GelfMessage}.
+ */
 public enum GelfMessageLevel {
     EMERGENCY(0),
     ALERT(1),
@@ -32,6 +35,11 @@ public enum GelfMessageLevel {
         this.level = level;
     }
 
+    /**
+     * Get the numerical level of a {@link GelfMessage}.
+     *
+     * @return the numerical level
+     */
     public int getLevel() {
         return level;
     }

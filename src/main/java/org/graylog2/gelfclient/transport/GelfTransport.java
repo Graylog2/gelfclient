@@ -19,7 +19,7 @@ package org.graylog2.gelfclient.transport;
 import org.graylog2.gelfclient.GelfMessage;
 
 /**
- * @author Bernd Ahlers <bernd@torch.sh>
+ * A common interface for all GELF network transports.
  */
 public interface GelfTransport {
     /**

@@ -35,10 +35,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A {@link GelfTransport} implementation that uses TCP to send GELF messages.
- * <p/>
  * <p>This class is thread-safe.</p>
- *
- * @author Bernd Ahlers <bernd@torch.sh>
  */
 public class GelfTcpTransport extends AbstractGelfTransport {
     private static final Logger LOG = LoggerFactory.getLogger(GelfTcpTransport.class);
@@ -46,7 +43,7 @@ public class GelfTcpTransport extends AbstractGelfTransport {
     /**
      * Creates a new TCP GELF transport.
      *
-     * @param config the client configuration
+     * @param config the GELF client configuration
      */
     public GelfTcpTransport(GelfConfiguration config) {
         super(config);

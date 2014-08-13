@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * An abstract {@link GelfTransport} implementation serving as parent for the concrete implementations.
- * <p/>
  * <p>This class is thread-safe.</p>
  */
 public abstract class AbstractGelfTransport implements GelfTransport {
@@ -41,7 +40,7 @@ public abstract class AbstractGelfTransport implements GelfTransport {
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
     /**
-     * Creates a new GELF transport.
+     * Creates a new GELF transport with the given configuration and {@link java.util.concurrent.BlockingQueue}.
      *
      * @param config the client configuration
      * @param queue  the {@link BlockingQueue} used to buffer GELF messages
@@ -54,7 +53,7 @@ public abstract class AbstractGelfTransport implements GelfTransport {
     }
 
     /**
-     * Creates a new GELF transport.
+     * Creates a new GELF transport with the given configuration.
      *
      * @param config the client configuration
      */
@@ -77,7 +76,6 @@ public abstract class AbstractGelfTransport implements GelfTransport {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>This implementation is backed by a {@link java.util.concurrent.BlockingQueue}. When this method returns the
      * message has been added to the {@link java.util.concurrent.BlockingQueue} but has not been sent to the remote
      * host yet.</p>
@@ -93,7 +91,6 @@ public abstract class AbstractGelfTransport implements GelfTransport {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>This implementation is backed by a {@link java.util.concurrent.BlockingQueue}. When this method returns the
      * message has been added to the {@link java.util.concurrent.BlockingQueue} but has not been sent to the remote
      * host yet.</p>
@@ -107,6 +104,9 @@ public abstract class AbstractGelfTransport implements GelfTransport {
         return queue.offer(message);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void stop() {
         workerGroup.shutdownGracefully();

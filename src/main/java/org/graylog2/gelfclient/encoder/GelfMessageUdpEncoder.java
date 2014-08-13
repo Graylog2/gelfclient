@@ -28,23 +28,35 @@ import java.net.InetSocketAddress;
 import java.util.List;
 
 /**
- * @author Bernd Ahlers <bernd@torch.sh>
+ * A Netty channel handler encoding messages into {@link DatagramPacket}s.
  */
 @ChannelHandler.Sharable
 public class GelfMessageUdpEncoder extends MessageToMessageEncoder<ByteBuf> {
     private static final Logger LOG = LoggerFactory.getLogger(GelfMessageUdpEncoder.class);
     private final InetSocketAddress remoteAddress;
 
+    /**
+     * Creates a new instance of this channel handler with the given {@link InetSocketAddress} of the
+     * remote recipient of the message.
+     *
+     * @param remoteAddress the remote address of the message recipient
+     */
     public GelfMessageUdpEncoder(InetSocketAddress remoteAddress) {
         this.remoteAddress = remoteAddress;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) throws Exception {
         // Need to retain() the buffer here to avoid a io.netty.util.IllegalReferenceCountException.
         out.add(new DatagramPacket(buf.retain(), remoteAddress));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         LOG.error("UDP encoding error", cause);

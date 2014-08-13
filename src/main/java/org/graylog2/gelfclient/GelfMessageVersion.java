@@ -17,7 +17,8 @@
 package org.graylog2.gelfclient;
 
 /**
- * @author Bernd Ahlers <bernd@torch.sh>
+ * The version of the <a href="http://graylog2.org/gelf#specs">GELF specification</a>
+ * used for a {@link GelfMessage}.
  */
 public enum GelfMessageVersion {
     V1_1("1.1");

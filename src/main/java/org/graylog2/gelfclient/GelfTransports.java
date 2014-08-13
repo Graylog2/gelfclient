@@ -21,12 +21,19 @@ import org.graylog2.gelfclient.transport.GelfTransport;
 import org.graylog2.gelfclient.transport.GelfUdpTransport;
 
 /**
- * @author Bernd Ahlers <bernd@torch.sh>
+ * Factory for building a {@link GelfTransport}.
  */
 public enum GelfTransports {
     TCP,
     UDP;
 
+    /**
+     * Creates a {@link GelfTransport} from the given protocol and configuration.
+     *
+     * @param transport the transport protocol to use
+     * @param config    the {@link GelfConfiguration} to pass to the transport
+     * @return An initialized and started {@link GelfTransport}
+     */
     public static GelfTransport create(final GelfTransports transport, final GelfConfiguration config) {
         GelfTransport gelfTransport;
 
@@ -44,6 +51,12 @@ public enum GelfTransports {
         return gelfTransport;
     }
 
+    /**
+     * Creates a {@link GelfTransport} from the given configuration.
+     *
+     * @param config the {@link GelfConfiguration} to pass to the transport
+     * @return An initialized and started {@link GelfTransport}
+     */
     public static GelfTransport create(final GelfConfiguration config) {
         return create(config.getTransport(), config);
     }

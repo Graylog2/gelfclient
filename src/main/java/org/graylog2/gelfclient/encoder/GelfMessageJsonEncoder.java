@@ -32,27 +32,42 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Bernd Ahlers <bernd@torch.sh>
+ * A Netty channel handler encoding {@link GelfMessage} into valid JSON according to the
+ * <a href="http://graylog2.org/gelf#specs">GELF specification</a>.
  */
 @ChannelHandler.Sharable
 public class GelfMessageJsonEncoder extends MessageToMessageEncoder<GelfMessage> {
     private static final Logger LOG = LoggerFactory.getLogger(GelfMessageJsonEncoder.class);
     private final JsonFactory jsonFactory;
 
+    /**
+     * Creates a new instance of this channel handler with the default {@link com.fasterxml.jackson.core.JsonFactory}.
+     */
     public GelfMessageJsonEncoder() {
         this(new JsonFactory());
     }
 
+    /**
+     * Creates a new instance of this channel handler with the given {@link com.fasterxml.jackson.core.JsonFactory}.
+     *
+     * @param jsonFactory the Jackson {@link com.fasterxml.jackson.core.JsonFactory} to use for constructing a GELF message payload
+     */
     public GelfMessageJsonEncoder(final JsonFactory jsonFactory) {
         this.jsonFactory = jsonFactory;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
         LOG.error("JSON encoding error", cause);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void encode(ChannelHandlerContext ctx, GelfMessage message, List<Object> out) throws Exception {
         out.add(Unpooled.wrappedBuffer(toJson(message)));

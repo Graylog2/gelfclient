@@ -27,7 +27,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * @author Bernd Ahlers <bernd@torch.sh>
+ * The main event thread used by the {@link org.graylog2.gelfclient.transport.GelfTransport}s.
  */
 public class GelfSenderThread {
     private static final Logger LOG = LoggerFactory.getLogger(GelfSenderThread.class);
@@ -37,6 +37,11 @@ public class GelfSenderThread {
     private final Thread senderThread;
     private Channel channel;
 
+    /**
+     * Creates a new sender thread with the given {@link BlockingQueue} as source of messages.
+     *
+     * @param queue the {@link BlockingQueue} used as source of {@link GelfMessage}s
+     */
     public GelfSenderThread(final BlockingQueue<GelfMessage> queue) {
         this.lock = new ReentrantLock();
         this.connectedCond = lock.newCondition();

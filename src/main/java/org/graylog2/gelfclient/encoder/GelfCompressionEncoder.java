@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * @author Bernd Ahlers <bernd@torch.sh>
+ * A Netty channel handler which compresses messages using a {@link GZIPOutputStream}.
  */
 public class GelfCompressionEncoder extends MessageToMessageEncoder<ByteBuf> {
     @Override

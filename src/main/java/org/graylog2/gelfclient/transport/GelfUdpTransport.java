@@ -38,10 +38,7 @@ import java.net.InetSocketAddress;
 
 /**
  * A {@link GelfTransport} implementation that uses UDP to send GELF messages.
- * <p/>
  * <p>This class is thread-safe.</p>
- *
- * @author Bernd Ahlers <bernd@torch.sh>
  */
 public class GelfUdpTransport extends AbstractGelfTransport {
     private static final Logger LOG = LoggerFactory.getLogger(GelfUdpTransport.class);
@@ -49,7 +46,7 @@ public class GelfUdpTransport extends AbstractGelfTransport {
     /**
      * Creates a new UDP GELF transport.
      *
-     * @param config the client configuration
+     * @param config the GELF client configuration
      */
     public GelfUdpTransport(final GelfConfiguration config) {
         super(config);

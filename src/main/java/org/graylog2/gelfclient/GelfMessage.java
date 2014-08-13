@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * @author Bernd Ahlers <bernd@torch.sh>
+ * A GELF message according to the <a href="http://graylog2.org/gelf#specs">GELF specification</a>
  */
 public class GelfMessage {
     private final GelfMessageVersion version;

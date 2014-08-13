@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * @author Bernd Ahlers <bernd@torch.sh>
+ * A Netty channel handler which splits large GELF messages into
+ * <a href="http://graylog2.org/gelf#specs">chunked GELF</a> messages.
  */
 @ChannelHandler.Sharable
 public class GelfMessageChunkEncoder extends MessageToMessageEncoder<ByteBuf> {
@@ -40,6 +41,9 @@ public class GelfMessageChunkEncoder extends MessageToMessageEncoder<ByteBuf> {
     private static final byte[] CHUNK_MAGIC_BYTES = new byte[]{0x1e, 0x0f};
     private final byte[] machineIdentifier = new byte[4];
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
@@ -69,7 +73,7 @@ public class GelfMessageChunkEncoder extends MessageToMessageEncoder<ByteBuf> {
             chunk.readBytes(data);
 
             LOG.debug("nextChunk bytes magicBytes={} messageId={} sequenceNumber={} sequenceCount={} data={}",
-                CHUNK_MAGIC_BYTES.length, messageId.length, sequenceNumber.length, sequenceCount.length, data.length
+                    CHUNK_MAGIC_BYTES.length, messageId.length, sequenceNumber.length, sequenceCount.length, data.length
             );
 
             return Unpooled.copiedBuffer(CHUNK_MAGIC_BYTES, messageId, sequenceNumber, sequenceCount, data);
@@ -87,8 +91,14 @@ public class GelfMessageChunkEncoder extends MessageToMessageEncoder<ByteBuf> {
         }
     }
 
+    /**
+     * Creates a new instance with a given machine identifier used in the generation of the message ID.
+     * <p>Usually the hostname of the client makes a good enough machine identifier.</p>
+     *
+     * @param machineIdentifier the machine identifier (only the first 4 bytes are being used)
+     */
     public GelfMessageChunkEncoder(final byte[] machineIdentifier) {
-        if(machineIdentifier.length < 4) {
+        if (machineIdentifier.length < 4) {
             throw new IllegalArgumentException("The machine identifier must at least be 4 bytes long.");
         }
 
@@ -96,7 +106,7 @@ public class GelfMessageChunkEncoder extends MessageToMessageEncoder<ByteBuf> {
     }
 
     /**
-     * Create a new instance which will try to detect the types to match out of the type parameter of the class.
+     * Creates a new instance with a random machine identifier used in the generation of the message ID.
      */
     public GelfMessageChunkEncoder() {
         this(randomIdentifier(4));
@@ -109,6 +119,9 @@ public class GelfMessageChunkEncoder extends MessageToMessageEncoder<ByteBuf> {
         return randomIdentifier;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) throws Exception {
         if (buf.readableBytes() > MAX_MESSAGE_SIZE) {
