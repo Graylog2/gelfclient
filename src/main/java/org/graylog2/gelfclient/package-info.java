@@ -1,5 +1,7 @@
 /**
- * A simple GELF client library with support for different transport mechanisms.
+ * <p>
+ *     A simple GELF client library with support for different transport mechanisms.
+ * </p>
  * <p>
  *     Currently available transports are
  *     <ul>
@@ -15,5 +17,41 @@
  *     actually send the messages but add them to a queue where the background thread will pick them up.
  *     This is important to keep in mind when it comes to message delivery guarantees.
  * </p>
+ * <p>
+ *     <h1>Example</h1>
+ * </p>
+ * <pre><code>
+ *    final GelfConfiguration config = new GelfConfiguration();
+ *
+ *    // Optional but recommended settings
+ *    config.setHost("127.0.0.1");
+ *    config.setPort(12201);
+ *    config.setTransport(GelfTransports.TCP);
+ *
+ *    // Optional settings
+ *    config.setConnectTimeout(5000);
+ *    config.setReconnectDelay(1000);
+ *    config.setTcpNoDelay(true);
+ *    config.setQueueSize(512);
+ *    config.setSendBufferSize(32768);
+ *
+ *    final GelfTransport transport = GelfTransports.create(config);
+ *
+ *    boolean blocking = false;
+ *    for (int i = 0; i < 100; i++) {
+ *        final GelfMessage message = new GelfMessageBuilder("This is message #" + i, "localhost")
+ *              .level(GelfMessageLevel.INFORMATIONAL)
+ *              .additionalField("_foo", "bar")
+ *              .additionalField("_count", i)
+ *              .build();
+ *        if (blocking) {
+ *            // Blocks until there is capacity in the queue
+ *            transport.send(message);
+ *        } else {
+ *            // Returns false if there isn't enough room in the queue
+ *            boolean enqueued = transport.trySend(message);
+ *        }
+ *    }
+ * </code></pre>
  */
 package org.graylog2.gelfclient;
