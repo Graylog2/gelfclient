@@ -21,19 +21,13 @@
  *     <h1>Example</h1>
  * </p>
  * <pre><code>
- *    final GelfConfiguration config = new GelfConfiguration();
- *
- *    // Optional but recommended settings
- *    config.setHost("127.0.0.1");
- *    config.setPort(12201);
- *    config.setTransport(GelfTransports.TCP);
- *
- *    // Optional settings
- *    config.setConnectTimeout(5000);
- *    config.setReconnectDelay(1000);
- *    config.setTcpNoDelay(true);
- *    config.setQueueSize(512);
- *    config.setSendBufferSize(32768);
+ *    final GelfConfiguration config = new GelfConfiguration(new InetSocketAddress("example.com", 12201))
+ *          .transport(GelfTransports.TCP)
+ *          .queueSize(512)
+ *          .connectTimeout(5000)
+ *          .reconnectDelay(1000)
+ *          .tcpNoDelay(true)
+ *          .sendBufferSize(32768);
  *
  *    final GelfTransport transport = GelfTransports.create(config);
  *

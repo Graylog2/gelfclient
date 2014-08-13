@@ -40,8 +40,8 @@ public class GelfTransportsTest {
 
     @Test
     public void testCreateTransportFromGelfConfiguration() throws Exception {
-        final GelfConfiguration gelfConfiguration = new GelfConfiguration();
-        gelfConfiguration.setTransport(GelfTransports.UDP);
+        final GelfConfiguration gelfConfiguration = new GelfConfiguration()
+                .transport(GelfTransports.UDP);
 
         final GelfTransport transport = GelfTransports.create(gelfConfiguration);
 

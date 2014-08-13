@@ -88,9 +88,11 @@ public class GelfConfiguration {
      * Set the transport protocol used with the GELF server.
      *
      * @param transport the transport protocol used with the GELF server
+     * @return {@code this} instance
      */
-    public void setTransport(final GelfTransports transport) {
+    public GelfConfiguration transport(final GelfTransports transport) {
         this.transport = transport;
+        return this;
     }
 
     /**
@@ -106,9 +108,11 @@ public class GelfConfiguration {
      * Set the size of the internally used {@link java.util.concurrent.BlockingQueue}.
      *
      * @param size the size of the internally used queue
+     * @return {@code this} instance
      */
-    public void setQueueSize(final int size) {
+    public GelfConfiguration queueSize(final int size) {
         queueSize = size;
+        return this;
     }
 
     /**
@@ -124,9 +128,11 @@ public class GelfConfiguration {
      * Set the time to wait between reconnects in milliseconds.
      *
      * @param reconnectDelay the time to wait between reconnects in milliseconds
+     * @return {@code this} instance
      */
-    public void setReconnectDelay(final int reconnectDelay) {
+    public GelfConfiguration reconnectDelay(final int reconnectDelay) {
         this.reconnectDelay = reconnectDelay;
+        return this;
     }
 
     /**
@@ -143,10 +149,12 @@ public class GelfConfiguration {
      * Set the connection timeout for TCP connections in milliseconds.
      *
      * @param connectTimeout the connection timeout for TCP connections in milliseconds
+     * @return {@code this} instance
      * @see io.netty.channel.ChannelOption#CONNECT_TIMEOUT_MILLIS
      */
-    public void setConnectTimeout(final int connectTimeout) {
+    public GelfConfiguration connectTimeout(final int connectTimeout) {
         this.connectTimeout = connectTimeout;
+        return this;
     }
 
     /**
@@ -163,10 +171,12 @@ public class GelfConfiguration {
      * Whether to use <a href="https://en.wikipedia.org/wiki/Nagle's_algorithm">Nagle's algorithm</a> for TCP connections.
      *
      * @param tcpNoDelay {@code true} if Nagle's algorithm should used for TCP connections, {@code false} otherwise
+     * @return {@code this} instance
      * @see io.netty.channel.ChannelOption#TCP_NODELAY
      */
-    public void setTcpNoDelay(final boolean tcpNoDelay) {
+    public GelfConfiguration tcpNoDelay(final boolean tcpNoDelay) {
         this.tcpNoDelay = tcpNoDelay;
+        return this;
     }
 
     /**
@@ -184,9 +194,11 @@ public class GelfConfiguration {
      *
      * @param sendBufferSize the size of the socket send buffer in bytes.
      *                       A value of {@code -1} deactivates the socket send buffer.
+     * @return {@code this} instance
      * @see io.netty.channel.ChannelOption#SO_SNDBUF
      */
-    public void setSendBufferSize(final int sendBufferSize) {
+    public GelfConfiguration sendBufferSize(final int sendBufferSize) {
         this.sendBufferSize = sendBufferSize;
+        return this;
     }
 }

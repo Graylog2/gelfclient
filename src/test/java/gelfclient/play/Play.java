@@ -28,10 +28,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class Play {
     public static void main(String... args) throws InterruptedException {
-        final GelfConfiguration config = new GelfConfiguration();
-        config.setTransport(GelfTransports.UDP);
-        config.setReconnectDelay(5000);
-        config.setQueueSize(1024);
+        final GelfConfiguration config = new GelfConfiguration()
+                .transport(GelfTransports.UDP)
+                .queueSize(1024)
+                .reconnectDelay(5000);
 
         final GelfTransport transport = GelfTransports.create(config);
 

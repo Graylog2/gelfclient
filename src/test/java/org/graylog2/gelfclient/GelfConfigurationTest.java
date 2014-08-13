@@ -36,7 +36,7 @@ public class GelfConfigurationTest {
         // Check default value.
         assertEquals(512, config.getQueueSize());
 
-        config.setQueueSize(124);
+        config.queueSize(124);
 
         assertEquals(124, config.getQueueSize());
     }
@@ -63,7 +63,7 @@ public class GelfConfigurationTest {
     @Test
     public void testTransport() {
         assertEquals(GelfTransports.TCP, config.getTransport());
-        config.setTransport(GelfTransports.UDP);
+        config.transport(GelfTransports.UDP);
         assertEquals(GelfTransports.UDP, config.getTransport());
     }
 
@@ -72,7 +72,7 @@ public class GelfConfigurationTest {
         // Check default value.
         assertEquals(500, config.getReconnectDelay());
 
-        config.setReconnectDelay(5000);
+        config.reconnectDelay(5000);
 
         assertEquals(5000, config.getReconnectDelay());
     }
@@ -82,7 +82,7 @@ public class GelfConfigurationTest {
         // Check default value.
         assertEquals(1000, config.getConnectTimeout());
 
-        config.setConnectTimeout(10000);
+        config.connectTimeout(10000);
 
         assertEquals(10000, config.getConnectTimeout());
     }
@@ -92,7 +92,7 @@ public class GelfConfigurationTest {
         // Check default value.
         assertEquals(false, config.isTcpNoDelay());
 
-        config.setTcpNoDelay(true);
+        config.tcpNoDelay(true);
 
         assertEquals(true, config.isTcpNoDelay());
     }
@@ -102,7 +102,7 @@ public class GelfConfigurationTest {
         // Check default value.
         assertEquals(-1, config.getSendBufferSize());
 
-        config.setSendBufferSize(32768);
+        config.sendBufferSize(32768);
 
         assertEquals(32768, config.getSendBufferSize());
     }
