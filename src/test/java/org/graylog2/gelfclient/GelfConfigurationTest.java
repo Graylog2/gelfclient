@@ -18,7 +18,10 @@ package org.graylog2.gelfclient;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
+
+import java.net.InetSocketAddress;
+
+import static org.testng.AssertJUnit.assertEquals;
 
 public class GelfConfigurationTest {
     private GelfConfiguration config;
@@ -39,34 +42,29 @@ public class GelfConfigurationTest {
     }
 
     @Test
-    public void testHost() {
-        // Check default value.
-        assertEquals("127.0.0.1", config.getHost());
-
-        config.setHost("10.0.0.1");
-
-        assertEquals("10.0.0.1", config.getHost());
+    public void testRemoteAddress() {
+        assertEquals(new InetSocketAddress("127.0.0.1", 12201), config.getRemoteAddress());
+        assertEquals(InetSocketAddress.createUnresolved("10.0.0.1", 12345),
+                new GelfConfiguration(InetSocketAddress.createUnresolved("10.0.0.1", 12345)).getRemoteAddress());
     }
 
     @Test
     public void testPort() {
-        // Check default value.
-        assertEquals(12201, config.getPort());
+        assertEquals(12201, config.getRemoteAddress().getPort());
+        assertEquals(10000, new GelfConfiguration(10000).getRemoteAddress().getPort());
+    }
 
-        config.setPort(10000);
-
-        assertEquals(10000, config.getPort());
+    @Test
+    public void testHostName() {
+        assertEquals("127.0.0.1", config.getRemoteAddress().getHostString());
+        assertEquals("example.com", new GelfConfiguration("example.com").getRemoteAddress().getHostName());
     }
 
     @Test
     public void testTransport() {
-        // Check default value.
         assertEquals(GelfTransports.TCP, config.getTransport());
-
-        // We only have TCP for now so this is pretty useless.
-        config.setTransport(GelfTransports.TCP);
-
-        assertEquals(GelfTransports.TCP, config.getTransport());
+        config.setTransport(GelfTransports.UDP);
+        assertEquals(GelfTransports.UDP, config.getTransport());
     }
 
     @Test

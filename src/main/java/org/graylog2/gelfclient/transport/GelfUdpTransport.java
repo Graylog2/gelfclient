@@ -34,8 +34,6 @@ import org.graylog2.gelfclient.encoder.GelfMessageUdpEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-
 /**
  * A {@link GelfTransport} implementation that uses UDP to send GELF messages.
  * <p>This class is thread-safe.</p>
@@ -56,14 +54,13 @@ public class GelfUdpTransport extends AbstractGelfTransport {
     protected void createBootstrap(final EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
         final GelfSenderThread senderThread = new GelfSenderThread(queue);
-        final InetSocketAddress remoteAddress = new InetSocketAddress(config.getHost(), config.getPort());
 
         bootstrap.group(workerGroup)
                 .channel(NioDatagramChannel.class)
                 .handler(new ChannelInitializer<Channel>() {
                     @Override
                     protected void initChannel(Channel ch) throws Exception {
-                        ch.pipeline().addLast(new GelfMessageUdpEncoder(remoteAddress));
+                        ch.pipeline().addLast(new GelfMessageUdpEncoder(config.getRemoteAddress()));
                         ch.pipeline().addLast(new GelfMessageChunkEncoder());
                         ch.pipeline().addLast(new GelfCompressionEncoder());
                         ch.pipeline().addLast(new GelfMessageJsonEncoder());

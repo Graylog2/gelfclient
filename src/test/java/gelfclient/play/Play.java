@@ -18,11 +18,10 @@ package gelfclient.play;
 
 import org.graylog2.gelfclient.GelfConfiguration;
 import org.graylog2.gelfclient.GelfMessage;
-import org.graylog2.gelfclient.GelfMessageVersion;
 import org.graylog2.gelfclient.GelfTransports;
 import org.graylog2.gelfclient.transport.GelfTransport;
 
-import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
@@ -30,25 +29,15 @@ import java.util.Random;
 public class Play {
     public static void main(String... args) throws InterruptedException {
         final GelfConfiguration config = new GelfConfiguration();
-
-        config.setHost("127.0.0.1");
-        //config.setPort(12203);
-        //config.setTransport(GelfTransports.TCP);
-        config.setPort(12201);
         config.setTransport(GelfTransports.UDP);
         config.setReconnectDelay(5000);
         config.setQueueSize(1024);
-        //config.setSendBufferSize(32768);
 
-        GelfTransport transport = GelfTransports.create(config);
+        final GelfTransport transport = GelfTransports.create(config);
 
         int count = 0;
-
-        String largeMessage = largeMessage();
-
         while (true) {
-            GelfMessage msg = new GelfMessage("Hello world! " + count + " " + config.getTransport().toString());
-
+            final GelfMessage msg = new GelfMessage("Hello world! " + count + " " + config.getTransport().toString());
             count++;
 
             msg.addAdditionalField("_count", count);
@@ -56,18 +45,7 @@ public class Play {
             msg.addAdditionalField("_objecttest", new Object());
 
             transport.send(msg);
-            Thread.sleep(5000);
+            TimeUnit.SECONDS.sleep(2);
         }
-    }
-
-    private static String largeMessage() {
-        Random r = new Random();
-        String largeMessage = "";
-
-        for (int i = 0; i < 1500; i++) {
-            largeMessage += r.nextInt();
-        }
-
-        return largeMessage;
     }
 }

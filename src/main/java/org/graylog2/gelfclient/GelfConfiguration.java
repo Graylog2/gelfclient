@@ -16,53 +16,63 @@
 
 package org.graylog2.gelfclient;
 
+import java.net.InetSocketAddress;
+
 /**
  * The configuration used by a {@link org.graylog2.gelfclient.transport.GelfTransport}.
  */
 public class GelfConfiguration {
-    private String host = "127.0.0.1";
-    private int port = 12201;
-    private int queueSize = 512;
+    private static final int DEFAULT_PORT = 12201;
+    private static final String DEFAULT_HOSTNAME = "127.0.0.1";
+    private final InetSocketAddress remoteAddress;
     private GelfTransports transport = GelfTransports.TCP;
+    private int queueSize = 512;
     private int reconnectDelay = 500;
     private int connectTimeout = 1000;
     private boolean tcpNoDelay = false;
     private int sendBufferSize = -1;
 
     /**
-     * Get the hostname or IP address of the GELF server (e. g. Graylog2).
+     * Creates a new configuration with the given remote address.
      *
-     * @return the hostname or IP address of the GELF server
+     * @param remoteAddress The {@link java.net.InetSocketAddress} of the GELF server
      */
-    public String getHost() {
-        return host;
+    public GelfConfiguration(final InetSocketAddress remoteAddress) {
+        this.remoteAddress = remoteAddress;
     }
 
     /**
-     * Set the hostname or IP address of the GELF server (e. g. Graylog2).
+     * Creates a new configuration with the given hostname and the default port (12201).
      *
-     * @param host the hostname or IP address of the GELF server
+     * @param hostname The hostname of the GELF-enabled server
      */
-    public void setHost(String host) {
-        this.host = host;
+    public GelfConfiguration(final String hostname) {
+        this(new InetSocketAddress(hostname, DEFAULT_PORT));
     }
 
     /**
-     * Get the port of the GELF server.
+     * Creates a new configuration with the local hostname ("127.0.0.1") and the given port.
      *
-     * @return the port of the GELF server
+     * @param port The port of the GELF-enabled server
      */
-    public int getPort() {
-        return port;
+    public GelfConfiguration(final int port) {
+        this(new InetSocketAddress(DEFAULT_HOSTNAME, port));
     }
 
     /**
-     * Set the port of the GELF server.
-     *
-     * @param port the port of the GELF server
+     * Creates a new configuration with the local hostname ("127.0.0.1") and the default port (12201).
      */
-    public void setPort(int port) {
-        this.port = port;
+    public GelfConfiguration() {
+        this(new InetSocketAddress(DEFAULT_HOSTNAME, DEFAULT_PORT));
+    }
+
+    /**
+     * Get the remote address of the GELF server.
+     *
+     * @return the remote address of the GELF server.
+     */
+    public InetSocketAddress getRemoteAddress() {
+        return remoteAddress;
     }
 
     /**
@@ -79,7 +89,7 @@ public class GelfConfiguration {
      *
      * @param transport the transport protocol used with the GELF server
      */
-    public void setTransport(GelfTransports transport) {
+    public void setTransport(final GelfTransports transport) {
         this.transport = transport;
     }
 
@@ -89,7 +99,6 @@ public class GelfConfiguration {
      * @return the size of the internally used queue
      */
     public int getQueueSize() {
-
         return queueSize;
     }
 
@@ -98,7 +107,7 @@ public class GelfConfiguration {
      *
      * @param size the size of the internally used queue
      */
-    public void setQueueSize(int size) {
+    public void setQueueSize(final int size) {
         queueSize = size;
     }
 
@@ -116,7 +125,7 @@ public class GelfConfiguration {
      *
      * @param reconnectDelay the time to wait between reconnects in milliseconds
      */
-    public void setReconnectDelay(int reconnectDelay) {
+    public void setReconnectDelay(final int reconnectDelay) {
         this.reconnectDelay = reconnectDelay;
     }
 
@@ -136,7 +145,7 @@ public class GelfConfiguration {
      * @param connectTimeout the connection timeout for TCP connections in milliseconds
      * @see io.netty.channel.ChannelOption#CONNECT_TIMEOUT_MILLIS
      */
-    public void setConnectTimeout(int connectTimeout) {
+    public void setConnectTimeout(final int connectTimeout) {
         this.connectTimeout = connectTimeout;
     }
 
@@ -156,7 +165,7 @@ public class GelfConfiguration {
      * @param tcpNoDelay {@code true} if Nagle's algorithm should used for TCP connections, {@code false} otherwise
      * @see io.netty.channel.ChannelOption#TCP_NODELAY
      */
-    public void setTcpNoDelay(boolean tcpNoDelay) {
+    public void setTcpNoDelay(final boolean tcpNoDelay) {
         this.tcpNoDelay = tcpNoDelay;
     }
 
@@ -177,7 +186,7 @@ public class GelfConfiguration {
      *                       A value of {@code -1} deactivates the socket send buffer.
      * @see io.netty.channel.ChannelOption#SO_SNDBUF
      */
-    public void setSendBufferSize(int sendBufferSize) {
+    public void setSendBufferSize(final int sendBufferSize) {
         this.sendBufferSize = sendBufferSize;
     }
 }
