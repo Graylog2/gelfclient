@@ -165,8 +165,11 @@ public class GelfMessageBuilder {
 
         final GelfMessage gelfMessage = new GelfMessage(message, host, version);
 
-        gelfMessage.setFullMessage(fullMessage);
         gelfMessage.setLevel(level);
+
+        if(fullMessage != null) {
+            gelfMessage.setFullMessage(fullMessage);
+        }
 
         if (timestamp != null) {
             gelfMessage.setTimestamp(timestamp);

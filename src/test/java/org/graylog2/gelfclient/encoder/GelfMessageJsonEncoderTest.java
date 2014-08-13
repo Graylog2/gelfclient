@@ -37,6 +37,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 public class GelfMessageJsonEncoderTest {
@@ -80,9 +81,7 @@ public class GelfMessageJsonEncoderTest {
     public void testLastByteIsNull() throws Exception {
         byte[] bytes = readBytes();
 
-        String s = new String(bytes);
-
-        assertEquals("}".charAt(0), bytes[bytes.length - 2]);
+        assertEquals('}', bytes[bytes.length - 2]);
         assertEquals('\0', bytes[bytes.length - 1]);
     }
 
@@ -163,5 +162,66 @@ public class GelfMessageJsonEncoderTest {
         assertEquals(1.0, _foo);
         assertEquals(128, _bar);
         assertEquals("a value", _baz);
+    }
+
+    @Test
+    public void testOptionalFullMessage() throws Exception {
+        final EmbeddedChannel channel = new EmbeddedChannel(new GelfMessageJsonEncoder());
+        final GelfMessage message = new GelfMessageBuilder("test").build();
+        assertTrue(channel.writeOutbound(message));
+        assertTrue(channel.finish());
+
+        final ByteBuf byteBuf = (ByteBuf) channel.readOutbound();
+        final byte[] bytes = new byte[byteBuf.readableBytes()];
+        byteBuf.getBytes(0, bytes).release();
+        final JsonFactory json = new JsonFactory();
+        final JsonParser parser = json.createParser(bytes);
+
+        String version = null;
+        Number timestamp = null;
+        String host = null;
+        String short_message = null;
+        String full_message = null;
+        Number level = null;
+
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            String key = parser.getCurrentName();
+
+            if (key == null) {
+                continue;
+            }
+
+            parser.nextToken();
+
+            switch (key) {
+                case "version":
+                    version = parser.getText();
+                    break;
+                case "timestamp":
+                    timestamp = parser.getNumberValue();
+                    break;
+                case "host":
+                    host = parser.getText();
+                    break;
+                case "short_message":
+                    short_message = parser.getText();
+                    break;
+                case "full_message":
+                    full_message = parser.getText();
+                    break;
+                case "level":
+                    level = parser.getNumberValue();
+                    break;
+                default:
+                    throw new Exception("Found unexpected field in JSON payload: " + key);
+            }
+        }
+
+        assertEquals(message.getVersion().toString(), version);
+        assertEquals(message.getTimestamp(), timestamp);
+        assertEquals(message.getHost(), host);
+        assertEquals(message.getMessage(), short_message);
+        assertNull(full_message);
+        assertEquals(message.getLevel().getLevel(), level);
     }
 }
