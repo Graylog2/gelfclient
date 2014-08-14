@@ -29,10 +29,10 @@ public enum GelfMessageLevel {
     INFORMATIONAL(6),
     DEBUG(7);
 
-    private final int level;
+    private final int numericLevel;
 
-    GelfMessageLevel(final int level) {
-        this.level = level;
+    GelfMessageLevel(final int numericLevel) {
+        this.numericLevel = numericLevel;
     }
 
     /**
@@ -40,13 +40,13 @@ public enum GelfMessageLevel {
      *
      * @return the numerical level
      */
-    public int getLevel() {
-        return level;
+    public int getNumericLevel() {
+        return numericLevel;
     }
 
-    public static GelfMessageLevel fromLevel(final int level) {
+    public static GelfMessageLevel fromNumericLevel(final int level) {
         for (final GelfMessageLevel gelfMessageLevel : GelfMessageLevel.values()) {
-            if (level == gelfMessageLevel.getLevel()) {
+            if (level == gelfMessageLevel.getNumericLevel()) {
                 return gelfMessageLevel;
             }
         }
@@ -55,6 +55,6 @@ public enum GelfMessageLevel {
     }
 
     public String toString() {
-        return name() + "(" + level + ")";
+        return name() + "(" + numericLevel + ")";
     }
 }

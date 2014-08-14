@@ -158,7 +158,7 @@ public class GelfMessageJsonEncoderTest {
         assertEquals(message.getHost(), host);
         assertEquals(message.getMessage(), short_message);
         assertEquals(message.getFullMessage(), full_message);
-        assertEquals(message.getLevel().getLevel(), level);
+        assertEquals(message.getLevel().getNumericLevel(), level);
         assertEquals(1.0, _foo);
         assertEquals(128, _bar);
         assertEquals("a value", _baz);
@@ -222,6 +222,6 @@ public class GelfMessageJsonEncoderTest {
         assertEquals(message.getHost(), host);
         assertEquals(message.getMessage(), short_message);
         assertNull(full_message);
-        assertEquals(message.getLevel().getLevel(), level);
+        assertEquals(message.getLevel().getNumericLevel(), level);
     }
 }
