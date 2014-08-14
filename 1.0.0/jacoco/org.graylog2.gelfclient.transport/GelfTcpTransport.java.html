@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GelfTcpTransport.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gelfclient</a> &gt; <a href="index.source.html" class="el_package">org.graylog2.gelfclient.transport</a> &gt; <span class="el_source">GelfTcpTransport.java</span></div><h1>GelfTcpTransport.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2014 TORCH GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.graylog2.gelfclient.transport;
+
+import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import org.graylog2.gelfclient.GelfConfiguration;
+import org.graylog2.gelfclient.encoder.GelfMessageJsonEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * A {@link GelfTransport} implementation that uses TCP to send GELF messages.
+ * &lt;p&gt;This class is thread-safe.&lt;/p&gt;
+ */
+public class GelfTcpTransport extends AbstractGelfTransport {
+<span class="fc" id="L40">    private static final Logger LOG = LoggerFactory.getLogger(GelfTcpTransport.class);</span>
+
+    /**
+     * Creates a new TCP GELF transport.
+     *
+     * @param config the GELF client configuration
+     */
+    public GelfTcpTransport(GelfConfiguration config) {
+<span class="fc" id="L48">        super(config);</span>
+<span class="fc" id="L49">    }</span>
+
+    @Override
+    protected void createBootstrap(final EventLoopGroup workerGroup) {
+<span class="fc" id="L53">        final Bootstrap bootstrap = new Bootstrap();</span>
+<span class="fc" id="L54">        final GelfSenderThread senderThread = new GelfSenderThread(queue);</span>
+
+<span class="fc" id="L56">        bootstrap.group(workerGroup)</span>
+<span class="fc" id="L57">                .channel(NioSocketChannel.class)</span>
+<span class="fc" id="L58">                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, config.getConnectTimeout())</span>
+<span class="fc" id="L59">                .option(ChannelOption.TCP_NODELAY, config.isTcpNoDelay())</span>
+<span class="fc" id="L60">                .remoteAddress(config.getRemoteAddress())</span>
+<span class="fc" id="L61">                .handler(new ChannelInitializer&lt;SocketChannel&gt;() {</span>
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
+                        // We cannot use GZIP encoding for TCP because the headers contain '\0'-bytes then.
+                        // The graylog2-server uses '\0'-bytes as delimiter for TCP frames.
+<span class="fc" id="L66">                        ch.pipeline().addLast(new GelfMessageJsonEncoder());</span>
+<span class="fc" id="L67">                        ch.pipeline().addLast(new SimpleChannelInboundHandler&lt;ByteBuf&gt;() {</span>
+                            @Override
+                            protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
+                                // We do not receive data.
+<span class="nc" id="L71">                            }</span>
+
+                            @Override
+                            public void channelActive(ChannelHandlerContext ctx) throws Exception {
+<span class="nc" id="L75">                                senderThread.start(ctx.channel());</span>
+<span class="nc" id="L76">                            }</span>
+
+                            @Override
+                            public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+<span class="nc" id="L80">                                LOG.info(&quot;Channel disconnected!&quot;);</span>
+<span class="nc" id="L81">                                senderThread.stop();</span>
+<span class="nc" id="L82">                                scheduleReconnect(ctx.channel().eventLoop());</span>
+<span class="nc" id="L83">                            }</span>
+
+                            @Override
+                            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+<span class="nc" id="L87">                                LOG.error(&quot;Exception caught&quot;, cause);</span>
+<span class="nc" id="L88">                            }</span>
+                        });
+<span class="fc" id="L90">                    }</span>
+                });
+
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">        if (config.getSendBufferSize() != -1) {</span>
+<span class="nc" id="L94">            bootstrap.option(ChannelOption.SO_SNDBUF, config.getSendBufferSize());</span>
+        }
+
+<span class="fc" id="L97">        bootstrap.connect().addListener(new ChannelFutureListener() {</span>
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">                if (future.isSuccess()) {</span>
+<span class="nc" id="L101">                    LOG.debug(&quot;Connected!&quot;);</span>
+                } else {
+<span class="fc" id="L103">                    LOG.error(&quot;Connection failed: {}&quot;, future.cause().getMessage());</span>
+<span class="fc" id="L104">                    scheduleReconnect(future.channel().eventLoop());</span>
+                }
+<span class="fc" id="L106">            }</span>
+        });
+<span class="fc" id="L108">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

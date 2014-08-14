@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GelfSenderThread.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gelfclient</a> &gt; <a href="index.source.html" class="el_package">org.graylog2.gelfclient.transport</a> &gt; <span class="el_source">GelfSenderThread.java</span></div><h1>GelfSenderThread.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2014 TORCH GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.graylog2.gelfclient.transport;
+
+import io.netty.channel.Channel;
+import org.graylog2.gelfclient.GelfMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
+/**
+ * The main event thread used by the {@link org.graylog2.gelfclient.transport.GelfTransport}s.
+ */
+public class GelfSenderThread {
+<span class="fc" id="L34">    private static final Logger LOG = LoggerFactory.getLogger(GelfSenderThread.class);</span>
+    private final ReentrantLock lock;
+    private final Condition connectedCond;
+<span class="fc" id="L37">    private final AtomicBoolean keepRunning = new AtomicBoolean(true);</span>
+    private final Thread senderThread;
+    private Channel channel;
+
+    /**
+     * Creates a new sender thread with the given {@link BlockingQueue} as source of messages.
+     *
+     * @param queue the {@link BlockingQueue} used as source of {@link org.graylog2.gelfclient.GelfMessage}s
+     */
+<span class="fc" id="L46">    public GelfSenderThread(final BlockingQueue&lt;GelfMessage&gt; queue) {</span>
+<span class="fc" id="L47">        this.lock = new ReentrantLock();</span>
+<span class="fc" id="L48">        this.connectedCond = lock.newCondition();</span>
+
+<span class="fc" id="L50">        this.senderThread = new Thread(new Runnable() {</span>
+            @Override
+            public void run() {
+<span class="fc" id="L53">                GelfMessage gelfMessage = null;</span>
+
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">                while (keepRunning.get()) {</span>
+                    // wait until we are connected to the graylog2 server before polling log events from the queue
+<span class="fc" id="L57">                    lock.lock();</span>
+                    try {
+<span class="pc bpc" id="L59" title="2 of 4 branches missed.">                        while (channel == null || !channel.isActive()) {</span>
+                            try {
+<span class="nc" id="L61">                                connectedCond.await();</span>
+<span class="nc" id="L62">                            } catch (InterruptedException e) {</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">                                if (!keepRunning.get()) {</span>
+                                    // bail out if we are awoken because the application is stopping
+<span class="nc" id="L65">                                    break;</span>
+                                }
+<span class="nc" id="L67">                            }</span>
+                        }
+                        // we are connected, let's start sending logs
+                        try {
+                            // if we have a lingering event already, try to send that instead of polling a new one.
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">                            if (gelfMessage == null) {</span>
+<span class="fc" id="L73">                                gelfMessage = queue.poll(100, TimeUnit.MILLISECONDS);</span>
+                            }
+                            // if we are still connected, convert LoggingEvent to GELF and send it
+                            // but if we aren't connected anymore, we'll have already pulled an event from the queue,
+                            // which we keep hanging around in this thread and in the next loop iteration will block until we are connected again.
+<span class="pc bpc" id="L78" title="5 of 6 branches missed.">                            if (gelfMessage != null &amp;&amp; channel != null &amp;&amp; channel.isActive()) {</span>
+                                // Write the GELF message to the pipeline. The protocol specific channel handler
+                                // will take care of encoding.
+<span class="nc" id="L81">                                channel.writeAndFlush(gelfMessage);</span>
+<span class="nc" id="L82">                                gelfMessage = null;</span>
+                            }
+<span class="nc" id="L84">                        } catch (InterruptedException e) {</span>
+                            // ignore, when stopping keepRunning will be set to false outside
+<span class="fc" id="L86">                        }</span>
+                    } finally {
+<span class="pc" id="L88">                        lock.unlock();</span>
+<span class="fc" id="L89">                    }</span>
+                }
+
+<span class="nc" id="L92">                LOG.debug(&quot;GelfSenderThread exiting!&quot;);</span>
+<span class="nc" id="L93">            }</span>
+        });
+
+<span class="fc" id="L96">        this.senderThread.setName(&quot;GelfSenderThread-&quot; + senderThread.getId());</span>
+<span class="fc" id="L97">    }</span>
+
+    public void start(Channel channel) {
+<span class="fc" id="L100">        lock.lock();</span>
+        try {
+<span class="fc" id="L102">            this.channel = channel;</span>
+<span class="fc" id="L103">            this.connectedCond.signalAll();</span>
+        } finally {
+<span class="pc" id="L105">            lock.unlock();</span>
+<span class="fc" id="L106">        }</span>
+<span class="fc" id="L107">        senderThread.start();</span>
+<span class="fc" id="L108">    }</span>
+
+    public void stop() {
+<span class="nc" id="L111">        keepRunning.set(false);</span>
+<span class="nc" id="L112">        senderThread.interrupt();</span>
+<span class="nc" id="L113">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

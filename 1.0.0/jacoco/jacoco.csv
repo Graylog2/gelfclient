@@ -1,0 +1,24 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+gelfclient,org.graylog2.gelfclient.encoder,GelfCompressionEncoder,60,43,12,4,0,8,8,2,0,2
+gelfclient,org.graylog2.gelfclient.encoder,GelfMessageJsonEncoder,49,136,7,11,3,30,6,9,1,5
+gelfclient,org.graylog2.gelfclient.encoder,GelfMessageChunkEncoder.Chunker,0,136,0,2,0,18,0,4,0,3
+gelfclient,org.graylog2.gelfclient.encoder,GelfMessageChunkEncoder,23,117,1,9,7,24,2,9,1,5
+gelfclient,org.graylog2.gelfclient.encoder,GelfMessageUdpEncoder,5,21,0,0,2,6,1,3,1,3
+gelfclient,org.graylog2.gelfclient,GelfMessageVersion,9,26,0,0,0,6,2,3,2,3
+gelfclient,org.graylog2.gelfclient,GelfTransports.new Object() {...},2,17,0,0,0,1,0,1,0,1
+gelfclient,org.graylog2.gelfclient,GelfTransports,17,57,1,2,0,11,2,6,1,5
+gelfclient,org.graylog2.gelfclient,GelfMessageBuilder,0,138,0,14,0,39,0,17,0,10
+gelfclient,org.graylog2.gelfclient,GelfConfiguration,0,99,0,0,0,34,0,17,0,17
+gelfclient,org.graylog2.gelfclient,GelfMessage,21,197,11,13,0,44,10,20,0,18
+gelfclient,org.graylog2.gelfclient,GelfMessageLevel,5,156,0,4,0,18,1,8,1,6
+gelfclient,org.graylog2.gelfclient.transport,AbstractGelfTransport,25,45,0,0,7,12,3,4,3,4
+gelfclient,org.graylog2.gelfclient.transport,GelfTcpTransport,8,64,1,1,1,14,1,3,0,3
+gelfclient,org.graylog2.gelfclient.transport,GelfUdpTransport.1.new SimpleChannelInboundHandler() {...},11,13,0,0,5,3,3,2,3,2
+gelfclient,org.graylog2.gelfclient.transport,GelfTcpTransport.new ChannelInitializer() {...},0,35,0,0,0,4,0,2,0,2
+gelfclient,org.graylog2.gelfclient.transport,GelfUdpTransport.new ChannelInitializer() {...},0,75,0,0,0,7,0,2,0,2
+gelfclient,org.graylog2.gelfclient.transport,GelfTcpTransport.new ChannelFutureListener() {...},4,22,1,1,1,5,1,2,0,2
+gelfclient,org.graylog2.gelfclient.transport,GelfUdpTransport,8,42,1,1,1,11,1,3,0,3
+gelfclient,org.graylog2.gelfclient.transport,GelfTcpTransport.1.new SimpleChannelInboundHandler() {...},28,6,0,0,9,1,4,1,4,1
+gelfclient,org.graylog2.gelfclient.transport,AbstractGelfTransport.new Runnable() {...},9,9,0,0,3,1,1,1,1,1
+gelfclient,org.graylog2.gelfclient.transport,GelfSenderThread.new Runnable() {...},42,47,11,5,10,11,8,2,0,2
+gelfclient,org.graylog2.gelfclient.transport,GelfSenderThread,14,63,0,0,3,15,1,3,1,3

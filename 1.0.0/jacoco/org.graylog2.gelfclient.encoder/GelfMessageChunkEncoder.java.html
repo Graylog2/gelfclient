@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GelfMessageChunkEncoder.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gelfclient</a> &gt; <a href="index.source.html" class="el_package">org.graylog2.gelfclient.encoder</a> &gt; <span class="el_source">GelfMessageChunkEncoder.java</span></div><h1>GelfMessageChunkEncoder.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2014 TORCH GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.graylog2.gelfclient.encoder;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.EncoderException;
+import io.netty.handler.codec.MessageToMessageEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Random;
+
+/**
+ * A Netty channel handler which splits large GELF messages into
+ * &lt;a href=&quot;http://graylog2.org/gelf#specs&quot;&gt;chunked GELF&lt;/a&gt; messages.
+ */
+@ChannelHandler.Sharable
+public class GelfMessageChunkEncoder extends MessageToMessageEncoder&lt;ByteBuf&gt; {
+<span class="fc" id="L37">    private static final Logger LOG = LoggerFactory.getLogger(GelfMessageChunkEncoder.class);</span>
+    private static final int MAX_CHUNKS = 128;
+    private static final int MAX_CHUNK_SIZE = 1420;
+    private static final int MAX_MESSAGE_SIZE = (MAX_CHUNKS * MAX_CHUNK_SIZE);
+<span class="fc" id="L41">    private static final byte[] CHUNK_MAGIC_BYTES = new byte[]{0x1e, 0x0f};</span>
+<span class="fc" id="L42">    private final byte[] machineIdentifier = new byte[4];</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+<span class="nc" id="L49">        super.exceptionCaught(ctx, cause);</span>
+<span class="nc" id="L50">        LOG.error(&quot;Chunking error&quot;, cause);</span>
+<span class="nc" id="L51">    }</span>
+
+    private class Chunker {
+        private final byte[] sequenceCount;
+<span class="fc" id="L55">        private int sequenceNumber = 0;</span>
+<span class="fc" id="L56">        private final byte[] messageId = generateMessageId();</span>
+
+<span class="fc" id="L58">        public Chunker(final int messageSize) {</span>
+<span class="fc" id="L59">            int sequenceCount = (messageSize / MAX_CHUNK_SIZE);</span>
+
+            // Check if we have to add another chunk due to integer division.
+<span class="fc bfc" id="L62" title="All 2 branches covered.">            if ((messageSize % MAX_CHUNK_SIZE) != 0) {</span>
+<span class="fc" id="L63">                sequenceCount++;</span>
+            }
+
+<span class="fc" id="L66">            this.sequenceCount = new byte[]{(byte) sequenceCount};</span>
+<span class="fc" id="L67">        }</span>
+
+        public ByteBuf nextChunk(final ByteBuf chunk) {
+<span class="fc" id="L70">            final byte[] sequenceNumber = new byte[]{(byte) this.sequenceNumber++};</span>
+<span class="fc" id="L71">            final byte[] data = new byte[chunk.readableBytes()];</span>
+
+<span class="fc" id="L73">            chunk.readBytes(data);</span>
+
+<span class="fc" id="L75">            LOG.debug(&quot;nextChunk bytes magicBytes={} messageId={} sequenceNumber={} sequenceCount={} data={}&quot;,</span>
+<span class="fc" id="L76">                    CHUNK_MAGIC_BYTES.length, messageId.length, sequenceNumber.length, sequenceCount.length, data.length</span>
+            );
+
+<span class="fc" id="L79">            return Unpooled.copiedBuffer(CHUNK_MAGIC_BYTES, messageId, sequenceNumber, sequenceCount, data);</span>
+        }
+
+        private byte[] generateMessageId() {
+            // GELF message ID, max 8 bytes
+<span class="fc" id="L84">            final ByteBuf messageId = Unpooled.buffer(8, 8);</span>
+
+            // 4 bytes of current time.
+<span class="fc" id="L87">            messageId.writeInt((int) System.currentTimeMillis());</span>
+<span class="fc" id="L88">            messageId.writeBytes(machineIdentifier, 0, 4);</span>
+
+<span class="fc" id="L90">            return messageId.array();</span>
+        }
+    }
+
+    /**
+     * Creates a new instance with a given machine identifier used in the generation of the message ID.
+     * &lt;p&gt;Usually the hostname of the client makes a good enough machine identifier.&lt;/p&gt;
+     *
+     * @param machineIdentifier the machine identifier (only the first 4 bytes are being used)
+     */
+<span class="fc" id="L100">    public GelfMessageChunkEncoder(final byte[] machineIdentifier) {</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        if (machineIdentifier.length &lt; 4) {</span>
+<span class="fc" id="L102">            throw new IllegalArgumentException(&quot;The machine identifier must at least be 4 bytes long.&quot;);</span>
+        }
+
+<span class="fc" id="L105">        System.arraycopy(machineIdentifier, 0, this.machineIdentifier, 0, 4);</span>
+<span class="fc" id="L106">    }</span>
+
+    /**
+     * Creates a new instance with a random machine identifier used in the generation of the message ID.
+     */
+    public GelfMessageChunkEncoder() {
+<span class="fc" id="L112">        this(randomIdentifier(4));</span>
+<span class="fc" id="L113">    }</span>
+
+    private static byte[] randomIdentifier(final int length) {
+<span class="fc" id="L116">        final byte[] randomIdentifier = new byte[length];</span>
+<span class="fc" id="L117">        final Random random = new Random();</span>
+<span class="fc" id="L118">        random.nextBytes(randomIdentifier);</span>
+<span class="fc" id="L119">        return randomIdentifier;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void encode(ChannelHandlerContext ctx, ByteBuf buf, List&lt;Object&gt; out) throws Exception {
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        if (buf.readableBytes() &gt; MAX_MESSAGE_SIZE) {</span>
+<span class="fc" id="L128">            throw new EncoderException(&quot;Message too big. &quot; + buf.readableBytes() + &quot; bytes (max &quot; + MAX_MESSAGE_SIZE + &quot;)&quot;);</span>
+        }
+
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">        if (buf.readableBytes() &lt;= MAX_CHUNK_SIZE) {</span>
+            // Need to retain() the buffer here to avoid releasing the buffer too early.
+<span class="nc" id="L133">            out.add(buf.retain());</span>
+        } else {
+<span class="fc" id="L135">            final Chunker chunker = new Chunker(buf.readableBytes());</span>
+
+            try {
+<span class="fc bfc" id="L138" title="All 2 branches covered.">                while (buf.readableBytes() &gt; 0) {</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">                    if (buf.readableBytes() &gt;= MAX_CHUNK_SIZE) {</span>
+<span class="fc" id="L140">                        out.add(chunker.nextChunk(buf.readSlice(MAX_CHUNK_SIZE)));</span>
+                    } else {
+<span class="fc" id="L142">                        out.add(chunker.nextChunk(buf.readSlice(buf.readableBytes())));</span>
+                    }
+                }
+<span class="nc" id="L145">            } catch (Exception e) {</span>
+<span class="nc" id="L146">                LOG.error(&quot;Chunk encoder error&quot;, e);</span>
+<span class="nc" id="L147">                buf.release();</span>
+<span class="fc" id="L148">            }</span>
+        }
+<span class="fc" id="L150">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

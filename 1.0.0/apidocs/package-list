@@ -1,0 +1,3 @@
+org.graylog2.gelfclient
+org.graylog2.gelfclient.encoder
+org.graylog2.gelfclient.transport

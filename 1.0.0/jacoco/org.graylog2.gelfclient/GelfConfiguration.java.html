@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GelfConfiguration.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gelfclient</a> &gt; <a href="index.source.html" class="el_package">org.graylog2.gelfclient</a> &gt; <span class="el_source">GelfConfiguration.java</span></div><h1>GelfConfiguration.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2014 TORCH GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.graylog2.gelfclient;
+
+import java.net.InetSocketAddress;
+
+/**
+ * The configuration used by a {@link org.graylog2.gelfclient.transport.GelfTransport}.
+ */
+public class GelfConfiguration {
+    private static final int DEFAULT_PORT = 12201;
+    private static final String DEFAULT_HOSTNAME = &quot;127.0.0.1&quot;;
+    private final InetSocketAddress remoteAddress;
+<span class="fc" id="L28">    private GelfTransports transport = GelfTransports.TCP;</span>
+<span class="fc" id="L29">    private int queueSize = 512;</span>
+<span class="fc" id="L30">    private int reconnectDelay = 500;</span>
+<span class="fc" id="L31">    private int connectTimeout = 1000;</span>
+<span class="fc" id="L32">    private boolean tcpNoDelay = false;</span>
+<span class="fc" id="L33">    private int sendBufferSize = -1;</span>
+
+    /**
+     * Creates a new configuration with the given remote address.
+     *
+     * @param remoteAddress The {@link java.net.InetSocketAddress} of the GELF server
+     */
+<span class="fc" id="L40">    public GelfConfiguration(final InetSocketAddress remoteAddress) {</span>
+<span class="fc" id="L41">        this.remoteAddress = remoteAddress;</span>
+<span class="fc" id="L42">    }</span>
+
+    /**
+     * Creates a new configuration with the given hostname and the default port (12201).
+     *
+     * @param hostname The hostname of the GELF-enabled server
+     */
+    public GelfConfiguration(final String hostname) {
+<span class="fc" id="L50">        this(new InetSocketAddress(hostname, DEFAULT_PORT));</span>
+<span class="fc" id="L51">    }</span>
+
+    /**
+     * Creates a new configuration with the local hostname (&quot;127.0.0.1&quot;) and the given port.
+     *
+     * @param port The port of the GELF-enabled server
+     */
+    public GelfConfiguration(final int port) {
+<span class="fc" id="L59">        this(new InetSocketAddress(DEFAULT_HOSTNAME, port));</span>
+<span class="fc" id="L60">    }</span>
+
+    /**
+     * Creates a new configuration with the local hostname (&quot;127.0.0.1&quot;) and the default port (12201).
+     */
+    public GelfConfiguration() {
+<span class="fc" id="L66">        this(new InetSocketAddress(DEFAULT_HOSTNAME, DEFAULT_PORT));</span>
+<span class="fc" id="L67">    }</span>
+
+    /**
+     * Get the remote address of the GELF server.
+     *
+     * @return the remote address of the GELF server.
+     */
+    public InetSocketAddress getRemoteAddress() {
+<span class="fc" id="L75">        return remoteAddress;</span>
+    }
+
+    /**
+     * Get the transport protocol used with the GELF server.
+     *
+     * @return the transport protocol used with the GELF server
+     */
+    public GelfTransports getTransport() {
+<span class="fc" id="L84">        return transport;</span>
+    }
+
+    /**
+     * Set the transport protocol used with the GELF server.
+     *
+     * @param transport the transport protocol used with the GELF server
+     * @return {@code this} instance
+     */
+    public GelfConfiguration transport(final GelfTransports transport) {
+<span class="fc" id="L94">        this.transport = transport;</span>
+<span class="fc" id="L95">        return this;</span>
+    }
+
+    /**
+     * Get the size of the internally used {@link java.util.concurrent.BlockingQueue}.
+     *
+     * @return the size of the internally used queue
+     */
+    public int getQueueSize() {
+<span class="fc" id="L104">        return queueSize;</span>
+    }
+
+    /**
+     * Set the size of the internally used {@link java.util.concurrent.BlockingQueue}.
+     *
+     * @param size the size of the internally used queue
+     * @return {@code this} instance
+     */
+    public GelfConfiguration queueSize(final int size) {
+<span class="fc" id="L114">        queueSize = size;</span>
+<span class="fc" id="L115">        return this;</span>
+    }
+
+    /**
+     * Get the time to wait between reconnects in milliseconds.
+     *
+     * @return the time to wait between reconnects in milliseconds
+     */
+    public int getReconnectDelay() {
+<span class="fc" id="L124">        return reconnectDelay;</span>
+    }
+
+    /**
+     * Set the time to wait between reconnects in milliseconds.
+     *
+     * @param reconnectDelay the time to wait between reconnects in milliseconds
+     * @return {@code this} instance
+     */
+    public GelfConfiguration reconnectDelay(final int reconnectDelay) {
+<span class="fc" id="L134">        this.reconnectDelay = reconnectDelay;</span>
+<span class="fc" id="L135">        return this;</span>
+    }
+
+    /**
+     * Get the connection timeout for TCP connections in milliseconds.
+     *
+     * @return the connection timeout for TCP connections in milliseconds
+     * @see io.netty.channel.ChannelOption#CONNECT_TIMEOUT_MILLIS
+     */
+    public int getConnectTimeout() {
+<span class="fc" id="L145">        return connectTimeout;</span>
+    }
+
+    /**
+     * Set the connection timeout for TCP connections in milliseconds.
+     *
+     * @param connectTimeout the connection timeout for TCP connections in milliseconds
+     * @return {@code this} instance
+     * @see io.netty.channel.ChannelOption#CONNECT_TIMEOUT_MILLIS
+     */
+    public GelfConfiguration connectTimeout(final int connectTimeout) {
+<span class="fc" id="L156">        this.connectTimeout = connectTimeout;</span>
+<span class="fc" id="L157">        return this;</span>
+    }
+
+    /**
+     * Whether &lt;a href=&quot;https://en.wikipedia.org/wiki/Nagle's_algorithm&quot;&gt;Nagle's algorithm&lt;/a&gt; is enabled for TCP connections.
+     *
+     * @return {@code true} if Nagle's algorithm is being used for TCP connections
+     * @see io.netty.channel.ChannelOption#TCP_NODELAY
+     */
+    public boolean isTcpNoDelay() {
+<span class="fc" id="L167">        return tcpNoDelay;</span>
+    }
+
+    /**
+     * Whether to use &lt;a href=&quot;https://en.wikipedia.org/wiki/Nagle's_algorithm&quot;&gt;Nagle's algorithm&lt;/a&gt; for TCP connections.
+     *
+     * @param tcpNoDelay {@code true} if Nagle's algorithm should used for TCP connections, {@code false} otherwise
+     * @return {@code this} instance
+     * @see io.netty.channel.ChannelOption#TCP_NODELAY
+     */
+    public GelfConfiguration tcpNoDelay(final boolean tcpNoDelay) {
+<span class="fc" id="L178">        this.tcpNoDelay = tcpNoDelay;</span>
+<span class="fc" id="L179">        return this;</span>
+    }
+
+    /**
+     * Get the size of the socket send buffer in bytes.
+     *
+     * @return the size of the socket send buffer in bytes.
+     * @see io.netty.channel.ChannelOption#SO_SNDBUF
+     */
+    public int getSendBufferSize() {
+<span class="fc" id="L189">        return sendBufferSize;</span>
+    }
+
+    /**
+     * Get the size of the socket send buffer in bytes.
+     *
+     * @param sendBufferSize the size of the socket send buffer in bytes.
+     *                       A value of {@code -1} deactivates the socket send buffer.
+     * @return {@code this} instance
+     * @see io.netty.channel.ChannelOption#SO_SNDBUF
+     */
+    public GelfConfiguration sendBufferSize(final int sendBufferSize) {
+<span class="fc" id="L201">        this.sendBufferSize = sendBufferSize;</span>
+<span class="fc" id="L202">        return this;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

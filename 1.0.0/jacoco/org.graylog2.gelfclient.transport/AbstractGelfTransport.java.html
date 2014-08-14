@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractGelfTransport.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gelfclient</a> &gt; <a href="index.source.html" class="el_package">org.graylog2.gelfclient.transport</a> &gt; <span class="el_source">AbstractGelfTransport.java</span></div><h1>AbstractGelfTransport.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2014 TORCH GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.graylog2.gelfclient.transport;
+
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import org.graylog2.gelfclient.GelfConfiguration;
+import org.graylog2.gelfclient.GelfMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * An abstract {@link GelfTransport} implementation serving as parent for the concrete implementations.
+ * &lt;p&gt;This class is thread-safe.&lt;/p&gt;
+ */
+public abstract class AbstractGelfTransport implements GelfTransport {
+<span class="fc" id="L35">    private static final Logger LOG = LoggerFactory.getLogger(AbstractGelfTransport.class);</span>
+
+    protected final GelfConfiguration config;
+    protected final BlockingQueue&lt;GelfMessage&gt; queue;
+
+<span class="fc" id="L40">    private final EventLoopGroup workerGroup = new NioEventLoopGroup();</span>
+
+    /**
+     * Creates a new GELF transport with the given configuration and {@link java.util.concurrent.BlockingQueue}.
+     *
+     * @param config the client configuration
+     * @param queue  the {@link BlockingQueue} used to buffer GELF messages
+     */
+<span class="fc" id="L48">    public AbstractGelfTransport(final GelfConfiguration config, final BlockingQueue&lt;GelfMessage&gt; queue) {</span>
+<span class="fc" id="L49">        this.config = config;</span>
+<span class="fc" id="L50">        this.queue = queue;</span>
+
+<span class="fc" id="L52">        createBootstrap(workerGroup);</span>
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * Creates a new GELF transport with the given configuration.
+     *
+     * @param config the client configuration
+     */
+    public AbstractGelfTransport(final GelfConfiguration config) {
+<span class="fc" id="L61">        this(config, new LinkedBlockingQueue&lt;GelfMessage&gt;(config.getQueueSize()));</span>
+
+<span class="fc" id="L63">    }</span>
+
+    protected abstract void createBootstrap(final EventLoopGroup workerGroup);
+
+    protected void scheduleReconnect(final EventLoopGroup workerGroup) {
+<span class="fc" id="L68">        workerGroup.schedule(new Runnable() {</span>
+            @Override
+            public void run() {
+<span class="nc" id="L71">                LOG.debug(&quot;Starting reconnect!&quot;);</span>
+<span class="nc" id="L72">                createBootstrap(workerGroup);</span>
+<span class="nc" id="L73">            }</span>
+<span class="fc" id="L74">        }, config.getReconnectDelay(), TimeUnit.MILLISECONDS);</span>
+<span class="fc" id="L75">    }</span>
+
+    /**
+     * {@inheritDoc}
+     * &lt;p&gt;This implementation is backed by a {@link java.util.concurrent.BlockingQueue}. When this method returns the
+     * message has been added to the {@link java.util.concurrent.BlockingQueue} but has not been sent to the remote
+     * host yet.&lt;/p&gt;
+     *
+     * @param message message to send to the remote host
+     * @throws InterruptedException
+     */
+    @Override
+    public void send(final GelfMessage message) throws InterruptedException {
+<span class="nc" id="L88">        LOG.debug(&quot;Sending message: {}&quot;, message.toString());</span>
+<span class="nc" id="L89">        queue.put(message);</span>
+<span class="nc" id="L90">    }</span>
+
+    /**
+     * {@inheritDoc}
+     * &lt;p&gt;This implementation is backed by a {@link java.util.concurrent.BlockingQueue}. When this method returns the
+     * message has been added to the {@link java.util.concurrent.BlockingQueue} but has not been sent to the remote
+     * host yet.&lt;/p&gt;
+     *
+     * @param message message to send to the remote host
+     * @return true if the message could be dispatched, false otherwise
+     */
+    @Override
+    public boolean trySend(final GelfMessage message) {
+<span class="nc" id="L103">        LOG.debug(&quot;Trying to send message: {}&quot;, message.toString());</span>
+<span class="nc" id="L104">        return queue.offer(message);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stop() {
+<span class="nc" id="L112">        workerGroup.shutdownGracefully();</span>
+<span class="nc" id="L113">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GelfUdpTransport.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gelfclient</a> &gt; <a href="index.source.html" class="el_package">org.graylog2.gelfclient.transport</a> &gt; <span class="el_source">GelfUdpTransport.java</span></div><h1>GelfUdpTransport.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2014 TORCH GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.graylog2.gelfclient.transport;
+
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.socket.DatagramPacket;
+import io.netty.channel.socket.nio.NioDatagramChannel;
+import org.graylog2.gelfclient.GelfConfiguration;
+import org.graylog2.gelfclient.encoder.GelfCompressionEncoder;
+import org.graylog2.gelfclient.encoder.GelfMessageChunkEncoder;
+import org.graylog2.gelfclient.encoder.GelfMessageJsonEncoder;
+import org.graylog2.gelfclient.encoder.GelfMessageUdpEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * A {@link GelfTransport} implementation that uses UDP to send GELF messages.
+ * &lt;p&gt;This class is thread-safe.&lt;/p&gt;
+ */
+public class GelfUdpTransport extends AbstractGelfTransport {
+<span class="fc" id="L41">    private static final Logger LOG = LoggerFactory.getLogger(GelfUdpTransport.class);</span>
+
+    /**
+     * Creates a new UDP GELF transport.
+     *
+     * @param config the GELF client configuration
+     */
+    public GelfUdpTransport(final GelfConfiguration config) {
+<span class="fc" id="L49">        super(config);</span>
+<span class="fc" id="L50">    }</span>
+
+    @Override
+    protected void createBootstrap(final EventLoopGroup workerGroup) {
+<span class="fc" id="L54">        final Bootstrap bootstrap = new Bootstrap();</span>
+<span class="fc" id="L55">        final GelfSenderThread senderThread = new GelfSenderThread(queue);</span>
+
+<span class="fc" id="L57">        bootstrap.group(workerGroup)</span>
+<span class="fc" id="L58">                .channel(NioDatagramChannel.class)</span>
+<span class="fc" id="L59">                .handler(new ChannelInitializer&lt;Channel&gt;() {</span>
+                    @Override
+                    protected void initChannel(Channel ch) throws Exception {
+<span class="fc" id="L62">                        ch.pipeline().addLast(new GelfMessageUdpEncoder(config.getRemoteAddress()));</span>
+<span class="fc" id="L63">                        ch.pipeline().addLast(new GelfMessageChunkEncoder());</span>
+<span class="fc" id="L64">                        ch.pipeline().addLast(new GelfCompressionEncoder());</span>
+<span class="fc" id="L65">                        ch.pipeline().addLast(new GelfMessageJsonEncoder());</span>
+<span class="fc" id="L66">                        ch.pipeline().addLast(new SimpleChannelInboundHandler&lt;DatagramPacket&gt;() {</span>
+                            @Override
+                            protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
+                                // We do not receive data.
+<span class="nc" id="L70">                            }</span>
+
+                            @Override
+                            public void channelActive(ChannelHandlerContext ctx) throws Exception {
+<span class="fc" id="L74">                                senderThread.start(ctx.channel());</span>
+<span class="fc" id="L75">                            }</span>
+
+                            @Override
+                            public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+<span class="nc" id="L79">                                senderThread.stop();</span>
+<span class="nc" id="L80">                            }</span>
+
+                            @Override
+                            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+<span class="nc" id="L84">                                LOG.error(&quot;Exception caught&quot;, cause);</span>
+<span class="nc" id="L85">                            }</span>
+                        });
+<span class="fc" id="L87">                    }</span>
+                });
+
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        if (config.getSendBufferSize() != -1) {</span>
+<span class="nc" id="L91">            bootstrap.option(ChannelOption.SO_SNDBUF, config.getSendBufferSize());</span>
+        }
+
+<span class="fc" id="L94">        bootstrap.bind(0);</span>
+<span class="fc" id="L95">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

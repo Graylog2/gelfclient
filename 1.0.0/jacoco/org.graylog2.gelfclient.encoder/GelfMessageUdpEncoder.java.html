@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GelfMessageUdpEncoder.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gelfclient</a> &gt; <a href="index.source.html" class="el_package">org.graylog2.gelfclient.encoder</a> &gt; <span class="el_source">GelfMessageUdpEncoder.java</span></div><h1>GelfMessageUdpEncoder.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2014 TORCH GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.graylog2.gelfclient.encoder;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.socket.DatagramPacket;
+import io.netty.handler.codec.MessageToMessageEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
+import java.util.List;
+
+/**
+ * A Netty channel handler encoding messages into {@link DatagramPacket}s.
+ */
+@ChannelHandler.Sharable
+public class GelfMessageUdpEncoder extends MessageToMessageEncoder&lt;ByteBuf&gt; {
+<span class="fc" id="L35">    private static final Logger LOG = LoggerFactory.getLogger(GelfMessageUdpEncoder.class);</span>
+    private final InetSocketAddress remoteAddress;
+
+    /**
+     * Creates a new instance of this channel handler with the given {@link InetSocketAddress} of the
+     * remote recipient of the message.
+     *
+     * @param remoteAddress the remote address of the message recipient
+     */
+<span class="fc" id="L44">    public GelfMessageUdpEncoder(InetSocketAddress remoteAddress) {</span>
+<span class="fc" id="L45">        this.remoteAddress = remoteAddress;</span>
+<span class="fc" id="L46">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void encode(ChannelHandlerContext ctx, ByteBuf buf, List&lt;Object&gt; out) throws Exception {
+        // Need to retain() the buffer here to avoid a io.netty.util.IllegalReferenceCountException.
+<span class="fc" id="L54">        out.add(new DatagramPacket(buf.retain(), remoteAddress));</span>
+<span class="fc" id="L55">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+<span class="nc" id="L62">        LOG.error(&quot;UDP encoding error&quot;, cause);</span>
+<span class="nc" id="L63">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

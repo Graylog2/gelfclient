@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GelfMessage.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gelfclient</a> &gt; <a href="index.source.html" class="el_package">org.graylog2.gelfclient</a> &gt; <span class="el_source">GelfMessage.java</span></div><h1>GelfMessage.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2014 TORCH GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.graylog2.gelfclient;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+/**
+ * A GELF message according to the &lt;a href=&quot;http://graylog2.org/gelf#specs&quot;&gt;GELF specification&lt;/a&gt;
+ */
+public class GelfMessage {
+    private final GelfMessageVersion version;
+    private final String host;
+    private final String message;
+    private String fullMessage;
+<span class="fc" id="L31">    private double timestamp = System.currentTimeMillis() / 1000D;</span>
+<span class="fc" id="L32">    private GelfMessageLevel level = GelfMessageLevel.ALERT;</span>
+<span class="fc" id="L33">    private final Map&lt;String, Object&gt; additionalFields = new HashMap&lt;&gt;();</span>
+
+    public GelfMessage(final String message) {
+<span class="fc" id="L36">        this(message, &quot;localhost&quot;);</span>
+<span class="fc" id="L37">    }</span>
+
+    public GelfMessage(final String message, final String host) {
+<span class="fc" id="L40">        this(message, host, GelfMessageVersion.V1_1);</span>
+<span class="fc" id="L41">    }</span>
+
+<span class="fc" id="L43">    public GelfMessage(final String message, final String host, final GelfMessageVersion version) {</span>
+<span class="fc" id="L44">        this.message = message;</span>
+<span class="fc" id="L45">        this.host = host;</span>
+<span class="fc" id="L46">        this.version = version;</span>
+<span class="fc" id="L47">    }</span>
+
+    public GelfMessageVersion getVersion() {
+<span class="fc" id="L50">        return version;</span>
+    }
+
+    public String getHost() {
+<span class="fc" id="L54">        return host;</span>
+    }
+
+    public String getMessage() {
+<span class="fc" id="L58">        return message;</span>
+    }
+
+    public String getFullMessage() {
+<span class="fc" id="L62">        return fullMessage;</span>
+    }
+
+    public void setFullMessage(final String fullMessage) {
+<span class="fc" id="L66">        this.fullMessage = fullMessage;</span>
+<span class="fc" id="L67">    }</span>
+
+    public double getTimestamp() {
+<span class="fc" id="L70">        return timestamp;</span>
+    }
+
+    public void setTimestamp(final double timestamp) {
+<span class="fc" id="L74">        this.timestamp = timestamp;</span>
+<span class="fc" id="L75">    }</span>
+
+    public GelfMessageLevel getLevel() {
+<span class="fc" id="L78">        return level;</span>
+    }
+
+    public void setLevel(final GelfMessageLevel level) {
+<span class="fc" id="L82">        this.level = level;</span>
+<span class="fc" id="L83">    }</span>
+
+    public Map&lt;String, Object&gt; getAdditionalFields() {
+<span class="fc" id="L86">        return additionalFields;</span>
+    }
+
+    public void addAdditionalField(final String key, final Object value) {
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (key == null) {</span>
+<span class="fc" id="L91">            return;</span>
+        }
+
+<span class="fc" id="L94">        additionalFields.put(key, value);</span>
+<span class="fc" id="L95">    }</span>
+
+    public void addAdditionalFields(final Map&lt;String, Object&gt; additionalFields) {
+<span class="fc" id="L98">        this.additionalFields.putAll(additionalFields);</span>
+<span class="fc" id="L99">    }</span>
+
+    @Override
+    public String toString() {
+<span class="fc" id="L103">        return String.format(&quot;GelfMessage{version=\&quot;%s\&quot; timestamp=\&quot;%.3f\&quot; short_message=\&quot;%s\&quot;, level=\&quot;%s\&quot;}&quot;,</span>
+<span class="fc" id="L104">                version, timestamp, message, level);</span>
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L110" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+
+<span class="fc" id="L112">        final GelfMessage that = (GelfMessage) o;</span>
+
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        if (version != that.version) return false;</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (!message.equals(that.message)) return false;</span>
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">        if (!host.equals(that.host)) return false;</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">        if (level != that.level) return false;</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        if (Double.compare(that.timestamp, timestamp) != 0) return false;</span>
+<span class="pc bpc" id="L119" title="4 of 6 branches missed.">        if (fullMessage != null ? !fullMessage.equals(that.fullMessage) : that.fullMessage != null) return false;</span>
+
+<span class="fc" id="L121">        return true;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L126">        return Objects.hash(version, host, message, fullMessage, level, timestamp);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>

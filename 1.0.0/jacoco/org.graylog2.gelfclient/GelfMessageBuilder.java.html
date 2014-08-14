@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GelfMessageBuilder.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gelfclient</a> &gt; <a href="index.source.html" class="el_package">org.graylog2.gelfclient</a> &gt; <span class="el_source">GelfMessageBuilder.java</span></div><h1>GelfMessageBuilder.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2014 TORCH GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.graylog2.gelfclient;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * {@link GelfMessageBuilder} can be used to build one or more valid {@link GelfMessage}s.
+ * &lt;p&gt;
+ * Since the message properties are stored in the {@link GelfMessageBuilder} instance, it
+ * can be used as a template for building {@link GelfMessage}s.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * This class is &lt;em&gt;not&lt;/em&gt; thread-safe.
+ * &lt;/p&gt;
+ *
+ * @author Bernd Ahlers &lt;bernd@torch.sh&gt;
+ * @see GelfMessage
+ */
+public class GelfMessageBuilder {
+    private final GelfMessageVersion version;
+    private final String host;
+    private String message;
+    private String fullMessage;
+    private Double timestamp;
+<span class="fc" id="L41">    private GelfMessageLevel level = GelfMessageLevel.ALERT;</span>
+<span class="fc" id="L42">    private final Map&lt;String, Object&gt; fields = new HashMap&lt;&gt;();</span>
+
+    /**
+     * Construct a {@link GelfMessageBuilder} instance with the given message.
+     *
+     * @param message The message of the {@link GelfMessage}
+     */
+    public GelfMessageBuilder(final String message) {
+<span class="fc" id="L50">        this(message, &quot;localhost&quot;);</span>
+<span class="fc" id="L51">    }</span>
+
+    /**
+     * Construct a {@link GelfMessageBuilder} instance with the given message and @{code host} field.
+     *
+     * @param message The message of the {@link GelfMessage}
+     * @param host    The contents of the {@code host} field of the {@link GelfMessage}
+     */
+    public GelfMessageBuilder(final String message, final String host) {
+<span class="fc" id="L60">        this(message, host, GelfMessageVersion.V1_1);</span>
+<span class="fc" id="L61">    }</span>
+
+    /**
+     * Construct a {@link GelfMessageBuilder} instance with the given message and @{code host} field.
+     *
+     * @param message The message of the {@link GelfMessage}
+     * @param host    The contents of the {@code host} field of the {@link GelfMessage}
+     * @param version The version of the &lt;a href=&quot;http://graylog2.org/gelf#specs&quot;&gt;GELF specification&lt;/a&gt; to use
+     */
+<span class="fc" id="L70">    public GelfMessageBuilder(final String message, final String host, final GelfMessageVersion version) {</span>
+<span class="fc" id="L71">        this.message = message;</span>
+<span class="fc" id="L72">        this.host = host;</span>
+<span class="fc" id="L73">        this.version = version;</span>
+<span class="fc" id="L74">    }</span>
+
+    /**
+     * Set the (short) message of the {@link GelfMessage}.
+     *
+     * @param message the (short) message of the {@link GelfMessage}
+     * @return {@code this} instance
+     */
+    public GelfMessageBuilder message(final String message) {
+<span class="fc" id="L83">        this.message = message;</span>
+<span class="fc" id="L84">        return this;</span>
+    }
+
+    /**
+     * Set the full message (e. g. containing a stack trace) of the {@link GelfMessage}.
+     *
+     * @param fullMessage the full message of the {@link GelfMessage}
+     * @return {@code this} instance
+     */
+    public GelfMessageBuilder fullMessage(final String fullMessage) {
+<span class="fc" id="L94">        this.fullMessage = fullMessage;</span>
+<span class="fc" id="L95">        return this;</span>
+    }
+
+    /**
+     * Set the timestamp (seconds since UNIX epoch) of the {@link GelfMessage}.
+     *
+     * @param timestamp the timestamp of the {@link GelfMessage}
+     * @return {@code this} instance
+     */
+    public GelfMessageBuilder timestamp(final double timestamp) {
+<span class="fc" id="L105">        this.timestamp = timestamp;</span>
+<span class="fc" id="L106">        return this;</span>
+    }
+
+    /**
+     * Set the level (priority) of the {@link GelfMessage}.
+     *
+     * @param level the {@link GelfMessageLevel} of the {@link GelfMessage}.
+     * @return {@code this} instance
+     */
+    public GelfMessageBuilder level(final GelfMessageLevel level) {
+<span class="fc" id="L116">        this.level = level;</span>
+<span class="fc" id="L117">        return this;</span>
+    }
+
+    /**
+     * Add an additional field (key-/value-pair) to the {@link GelfMessage}.
+     *
+     * @param key   the key of the additional field
+     * @param value the value of the additional field
+     * @return {@code this} instance
+     */
+    public GelfMessageBuilder additionalField(final String key, final Object value) {
+<span class="fc" id="L128">        fields.put(key, value);</span>
+<span class="fc" id="L129">        return this;</span>
+    }
+
+    /**
+     * Add the contents of a {@link Map} as additional fields (key-/value-pairs) to the {@link GelfMessage}.
+     *
+     * @param additionalFields the {@link Map} which will be added as additional fields
+     * @return {@code this} instance
+     */
+    public GelfMessageBuilder additionalFields(final Map&lt;String, Object&gt; additionalFields) {
+<span class="fc" id="L139">        fields.putAll(additionalFields);</span>
+<span class="fc" id="L140">        return this;</span>
+    }
+
+    /**
+     * Build a new {@link GelfMessage} with all information from the {@link GelfMessageBuilder}.
+     *
+     * @return a new {@link GelfMessage} instance.
+     * @throws IllegalArgumentException if any mandatory information is missing.
+     */
+    public GelfMessage build() {
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        if (message == null) {</span>
+<span class="fc" id="L151">            throw new IllegalArgumentException(&quot;message must not be null!&quot;);</span>
+        }
+
+<span class="fc bfc" id="L154" title="All 4 branches covered.">        if (host == null || host.trim().isEmpty()) {</span>
+<span class="fc" id="L155">            throw new IllegalArgumentException(&quot;host must not be null or empty!&quot;);</span>
+        }
+
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        if (version == null) {</span>
+<span class="fc" id="L159">            throw new IllegalArgumentException(&quot;version must not be null!&quot;);</span>
+        }
+
+<span class="fc bfc" id="L162" title="All 2 branches covered.">        if (level == null) {</span>
+<span class="fc" id="L163">            throw new IllegalArgumentException(&quot;level must not be null!&quot;);</span>
+        }
+
+<span class="fc" id="L166">        final GelfMessage gelfMessage = new GelfMessage(message, host, version);</span>
+
+<span class="fc" id="L168">        gelfMessage.setLevel(level);</span>
+
+<span class="fc bfc" id="L170" title="All 2 branches covered.">        if(fullMessage != null) {</span>
+<span class="fc" id="L171">            gelfMessage.setFullMessage(fullMessage);</span>
+        }
+
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        if (timestamp != null) {</span>
+<span class="fc" id="L175">            gelfMessage.setTimestamp(timestamp);</span>
+        }
+
+<span class="fc" id="L178">        gelfMessage.addAdditionalFields(fields);</span>
+
+<span class="fc" id="L180">        return gelfMessage;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>
