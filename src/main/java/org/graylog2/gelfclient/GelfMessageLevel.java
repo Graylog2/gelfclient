@@ -26,7 +26,7 @@ public enum GelfMessageLevel {
     ERROR(3),
     WARNING(4),
     NOTICE(5),
-    INFORMATIONAL(6),
+    INFO(6),
     DEBUG(7);
 
     private final int numericLevel;

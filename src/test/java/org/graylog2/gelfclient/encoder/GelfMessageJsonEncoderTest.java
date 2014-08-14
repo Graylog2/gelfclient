@@ -49,7 +49,7 @@ public class GelfMessageJsonEncoderTest {
         channel = new EmbeddedChannel(new GelfMessageJsonEncoder());
         message = new GelfMessageBuilder("test")
                 .fullMessage("The full message!")
-                .level(GelfMessageLevel.INFORMATIONAL)
+                .level(GelfMessageLevel.INFO)
                 .additionalField("_foo", 1.0)
                 .additionalField("_bar", 128)
                 .additionalField("_baz", "a value")
