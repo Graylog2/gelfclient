@@ -28,7 +28,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.graylog2.gelfclient.GelfConfiguration;
-import org.graylog2.gelfclient.GelfSenderThread;
 import org.graylog2.gelfclient.encoder.GelfMessageJsonEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

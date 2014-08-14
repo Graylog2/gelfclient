@@ -26,7 +26,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.graylog2.gelfclient.GelfConfiguration;
-import org.graylog2.gelfclient.GelfSenderThread;
 import org.graylog2.gelfclient.encoder.GelfCompressionEncoder;
 import org.graylog2.gelfclient.encoder.GelfMessageChunkEncoder;
 import org.graylog2.gelfclient.encoder.GelfMessageJsonEncoder;

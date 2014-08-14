@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package org.graylog2.gelfclient;
+package org.graylog2.gelfclient.transport;
 
 import io.netty.channel.Channel;
+import org.graylog2.gelfclient.GelfMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,7 @@ public class GelfSenderThread {
     /**
      * Creates a new sender thread with the given {@link BlockingQueue} as source of messages.
      *
-     * @param queue the {@link BlockingQueue} used as source of {@link GelfMessage}s
+     * @param queue the {@link BlockingQueue} used as source of {@link org.graylog2.gelfclient.GelfMessage}s
      */
     public GelfSenderThread(final BlockingQueue<GelfMessage> queue) {
         this.lock = new ReentrantLock();
