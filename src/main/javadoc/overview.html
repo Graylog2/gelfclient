@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+</head>
+<body>
+<p>A simple GELF client library with support for different transport mechanisms.</p>
+<p>Currently available transports are
+    <ul>
+        <li>UDP</li>
+        <li>TCP</li>
+    </ul>
+</p>
+<p>All default transport implementations use a queue (backed by a <tt>java.util.concurrent.BlockingQueue</tt>)
+to send messages in a background thread to avoid blocking the calling thread until a message has
+been sent. That means that the <tt>org.graylog2.gelfclient.transport.GelfTransport#send(GelfMessage)</tt>
+and <tt>org.graylog2.gelfclient.transport.GelfTransport#trySend(GelfMessage)</tt> methods do not
+actually send the messages but add them to a queue where the background thread will pick them up.
+This is important to keep in mind when it comes to message delivery guarantees.
+</p>
+
+<h1>Example</h1>
+<pre><code>
+final GelfConfiguration config = new GelfConfiguration(new InetSocketAddress("example.com", 12201))
+        .transport(GelfTransports.UDP)
+        .queueSize(512)
+        .connectTimeout(5000)
+        .reconnectDelay(1000)
+        .tcpNoDelay(true)
+        .sendBufferSize(32768);
+
+final GelfTransport transport = GelfTransports.create(config);
+final GelfMessageBuilder builder = new GelfMessageBuilder("", "example.com")
+        .level(GelfMessageLevel.INFORMATIONAL)
+        .additionalField("_foo", "bar");
+
+boolean blocking = false;
+for (int i = 0; i < 100; i++) {
+    final GelfMessage message = builder.message("This is message #" + i)
+            .additionalField("_count", i)
+            .build();
+
+    if (blocking) {
+        // Blocks until there is capacity in the queue
+        transport.send(message);
+    } else {
+        // Returns false if there isn't enough room in the queue
+        boolean enqueued = transport.trySend(message);
+    }
+}
+</code></pre>
+</body>
+</html>
