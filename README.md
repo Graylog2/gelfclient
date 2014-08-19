@@ -39,12 +39,12 @@ tasks and [Jackson](https://github.com/FasterXML/jackson) for JSON encoding.
 public class Application {
     public static void main(String[] args) {
         final GelfConfiguration config = new GelfConfiguration(new InetSocketAddress("example.com", 12201));
-              .setTransport(GelfTransports.UDP);
-              .setQueueSize(512)
-              .setConnectTimeout(5000)
-              .setReconnectDelay(1000)
-              .setTcpNoDelay(true)
-              .setSendBufferSize(32768);
+              .transport(GelfTransports.UDP);
+              .queueSize(512)
+              .connectTimeout(5000)
+              .reconnectDelay(1000)
+              .tcpNoDelay(true)
+              .sendBufferSize(32768);
 
         final GelfTransport transport = GelfTransports.create(config);
         final GelfMessageBuilder builder = new GelfMessageBuilder("", "example.com")
