@@ -48,7 +48,7 @@ public class Application {
 
         final GelfTransport transport = GelfTransports.create(config);
         final GelfMessageBuilder builder = new GelfMessageBuilder("", "example.com")
-                .level(GelfMessageLevel.INFORMATIONAL)
+                .level(GelfMessageLevel.INFO)
                 .additionalField("_foo", "bar");
 
         boolean blocking = false;
