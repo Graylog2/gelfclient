@@ -38,8 +38,8 @@ tasks and [Jackson](https://github.com/FasterXML/jackson) for JSON encoding.
 ```java
 public class Application {
     public static void main(String[] args) {
-        final GelfConfiguration config = new GelfConfiguration(new InetSocketAddress("example.com", 12201));
-              .transport(GelfTransports.UDP);
+        final GelfConfiguration config = new GelfConfiguration(new InetSocketAddress("example.com", 12201))
+              .transport(GelfTransports.UDP)
               .queueSize(512)
               .connectTimeout(5000)
               .reconnectDelay(1000)
