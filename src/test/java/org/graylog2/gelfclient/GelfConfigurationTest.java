@@ -31,6 +31,36 @@ public class GelfConfigurationTest {
         this.config = new GelfConfiguration();
     }
 
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testConstructorNullHostname() throws Exception {
+        new GelfConfiguration(null, 12201);
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testConstructorEmptyHostname() throws Exception {
+        new GelfConfiguration("  ", 12201);
+    }
+
+    @Test
+    public void testConstructorMinPort() throws Exception {
+        new GelfConfiguration("127.0.0.1", 1);
+    }
+
+    @Test
+    public void testConstructorMaxPort() throws Exception {
+        new GelfConfiguration("127.0.0.1", 65535);
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testConstructorSmallerMinPort() throws Exception {
+        new GelfConfiguration("127.0.0.1", 0);
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testConstructorLargerMaxPort() throws Exception {
+        new GelfConfiguration("127.0.0.1", 65536);
+    }
+
     @Test
     public void testQueueSize() {
         // Check default value.

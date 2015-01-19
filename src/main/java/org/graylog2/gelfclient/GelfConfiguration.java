@@ -40,8 +40,8 @@ public class GelfConfiguration {
      * @param port The port of the GELF-enabled server
      */
     public GelfConfiguration(final String hostname, final int port) {
-        this.hostname = hostname;
-        this.port = port;
+        this.hostname = checkHostname(hostname);
+        this.port = checkPort(port);
     }
 
     /**
@@ -231,5 +231,24 @@ public class GelfConfiguration {
     public GelfConfiguration sendBufferSize(final int sendBufferSize) {
         this.sendBufferSize = sendBufferSize;
         return this;
+    }
+
+    private String checkHostname(final String hostname) {
+        if (hostname == null) {
+            throw new IllegalArgumentException("hostname can't be null");
+        }
+        if (hostname.trim().isEmpty()) {
+            throw new IllegalArgumentException("hostname can't be empty");
+        }
+        return hostname;
+    }
+
+    private int checkPort(final int port) {
+        // While 0 is a valid port number, it doesn't make sense here.
+        if (port < 1 || port > 65535) {
+            throw new IllegalArgumentException("port out of range: " + port);
+        }
+
+        return port;
     }
 }
