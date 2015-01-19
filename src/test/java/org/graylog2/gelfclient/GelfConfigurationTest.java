@@ -31,6 +31,36 @@ public class GelfConfigurationTest {
         this.config = new GelfConfiguration();
     }
 
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testConstructorNullHostname() throws Exception {
+        new GelfConfiguration(null, 12201);
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testConstructorEmptyHostname() throws Exception {
+        new GelfConfiguration("  ", 12201);
+    }
+
+    @Test
+    public void testConstructorMinPort() throws Exception {
+        new GelfConfiguration("127.0.0.1", 1);
+    }
+
+    @Test
+    public void testConstructorMaxPort() throws Exception {
+        new GelfConfiguration("127.0.0.1", 65535);
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testConstructorSmallerMinPort() throws Exception {
+        new GelfConfiguration("127.0.0.1", 0);
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testConstructorLargerMaxPort() throws Exception {
+        new GelfConfiguration("127.0.0.1", 65536);
+    }
+
     @Test
     public void testQueueSize() {
         // Check default value.
@@ -44,20 +74,20 @@ public class GelfConfigurationTest {
     @Test
     public void testRemoteAddress() {
         assertEquals(new InetSocketAddress("127.0.0.1", 12201), config.getRemoteAddress());
-        assertEquals(InetSocketAddress.createUnresolved("10.0.0.1", 12345),
-                new GelfConfiguration(InetSocketAddress.createUnresolved("10.0.0.1", 12345)).getRemoteAddress());
+        assertEquals(new InetSocketAddress("10.0.0.1", 12345),
+                new GelfConfiguration(new InetSocketAddress("10.0.0.1", 12345)).getRemoteAddress());
     }
 
     @Test
     public void testPort() {
-        assertEquals(12201, config.getRemoteAddress().getPort());
-        assertEquals(10000, new GelfConfiguration(10000).getRemoteAddress().getPort());
+        assertEquals(12201, config.getPort());
+        assertEquals(10000, new GelfConfiguration(10000).getPort());
     }
 
     @Test
     public void testHostName() {
-        assertEquals("127.0.0.1", config.getRemoteAddress().getHostString());
-        assertEquals("example.com", new GelfConfiguration("example.com").getRemoteAddress().getHostName());
+        assertEquals("127.0.0.1", config.getHostname());
+        assertEquals("example.com", new GelfConfiguration("example.com").getHostname());
     }
 
     @Test
