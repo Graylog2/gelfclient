@@ -24,7 +24,8 @@ import java.net.InetSocketAddress;
 public class GelfConfiguration {
     private static final int DEFAULT_PORT = 12201;
     private static final String DEFAULT_HOSTNAME = "127.0.0.1";
-    private final InetSocketAddress remoteAddress;
+    private final String hostname;
+    private final int port;
     private GelfTransports transport = GelfTransports.TCP;
     private int queueSize = 512;
     private int reconnectDelay = 500;
@@ -33,12 +34,23 @@ public class GelfConfiguration {
     private int sendBufferSize = -1;
 
     /**
+     * Creates a new configuration with the given hostname and port.
+     *
+     * @param hostname The hostname of the GELF-enabled server
+     * @param port The port of the GELF-enabled server
+     */
+    public GelfConfiguration(final String hostname, final int port) {
+        this.hostname = hostname;
+        this.port = port;
+    }
+
+    /**
      * Creates a new configuration with the given remote address.
      *
      * @param remoteAddress The {@link java.net.InetSocketAddress} of the GELF server
      */
     public GelfConfiguration(final InetSocketAddress remoteAddress) {
-        this.remoteAddress = remoteAddress;
+        this(remoteAddress.getHostString(), remoteAddress.getPort());
     }
 
     /**
@@ -47,7 +59,7 @@ public class GelfConfiguration {
      * @param hostname The hostname of the GELF-enabled server
      */
     public GelfConfiguration(final String hostname) {
-        this(new InetSocketAddress(hostname, DEFAULT_PORT));
+        this(hostname, DEFAULT_PORT);
     }
 
     /**
@@ -56,14 +68,32 @@ public class GelfConfiguration {
      * @param port The port of the GELF-enabled server
      */
     public GelfConfiguration(final int port) {
-        this(new InetSocketAddress(DEFAULT_HOSTNAME, port));
+        this(DEFAULT_HOSTNAME, port);
     }
 
     /**
      * Creates a new configuration with the local hostname ("127.0.0.1") and the default port (12201).
      */
     public GelfConfiguration() {
-        this(new InetSocketAddress(DEFAULT_HOSTNAME, DEFAULT_PORT));
+        this(DEFAULT_HOSTNAME, DEFAULT_PORT);
+    }
+
+    /**
+     * Get the hostname of the GELF server.
+     *
+     * @return the hostname of the GELF server.
+     */
+    public String getHostname() {
+        return hostname;
+    }
+
+    /**
+     * Get the port of the GELF server.
+     *
+     * @return the port of the GELF server.
+     */
+    public int getPort() {
+        return port;
     }
 
     /**
@@ -72,7 +102,8 @@ public class GelfConfiguration {
      * @return the remote address of the GELF server.
      */
     public InetSocketAddress getRemoteAddress() {
-        return remoteAddress;
+        // Always create a new InetSocketAddress to ensure that the hostname is resolved to an ip address again.
+        return new InetSocketAddress(hostname, port);
     }
 
     /**
