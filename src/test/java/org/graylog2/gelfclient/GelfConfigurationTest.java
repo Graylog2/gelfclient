@@ -77,11 +77,15 @@ public class GelfConfigurationTest {
 
     @Test
     public void testTls() {
-        assertFalse(config.isTls());
+        assertFalse(config.isTlsEnabled());
 
-        config.tls(true);
+        config.enableTls();
 
-        assertTrue(config.isTls());
+        assertTrue(config.isTlsEnabled());
+
+        config.disableTls();
+
+        assertFalse(config.isTlsEnabled());
     }
 
     @Test
@@ -95,11 +99,15 @@ public class GelfConfigurationTest {
 
     @Test
     public void testTlsVerifyCert() throws Exception {
-        assertTrue(config.isTlsVerifyCert());
+        assertTrue(config.isTlsCertVerificationEnabled());
 
-        config.tlsVerifyCert(false);
+        config.disableTlsCertVerification();
 
-        assertFalse(config.isTlsVerifyCert());
+        assertFalse(config.isTlsCertVerificationEnabled());
+
+        config.enableTlsCertVerification();
+
+        assertTrue(config.isTlsCertVerificationEnabled());
     }
 
     @Test

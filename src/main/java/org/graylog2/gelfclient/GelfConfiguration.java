@@ -29,9 +29,9 @@ public class GelfConfiguration {
     private final int port;
     private GelfTransports transport = GelfTransports.TCP;
     private int queueSize = 512;
-    private boolean tls = false;
+    private boolean tlsEnabled = false;
     private File tlsTrustCertChainFile = null;
-    private boolean tlsVerifyCert = true;
+    private boolean tlsCertVerificationEnabled = true;
     private int reconnectDelay = 500;
     private int connectTimeout = 1000;
     private boolean tcpNoDelay = false;
@@ -153,20 +153,29 @@ public class GelfConfiguration {
     /**
      * Check if TLS option for the transport is enabled.
      *
-     * @return true if TLS is enabled, false if disabled
+     * @return {@code true} if TLS is enabled, {@code false} if disabled
      */
-    public boolean isTls() {
-        return tls;
+    public boolean isTlsEnabled() {
+        return tlsEnabled;
     }
 
     /**
-     * Enable/disable TLS for transport.
+     * Enable TLS for transport.
      *
-     * @param tls {@code true} to enable TLS, {@code false} to disable it
      * @return {@code this} instance
      */
-    public GelfConfiguration tls(final boolean tls) {
-        this.tls = tls;
+    public GelfConfiguration enableTls() {
+        this.tlsEnabled = true;
+        return this;
+    }
+
+    /**
+     * Disable TLS for transport.
+     *
+     * @return {@code this} instance
+     */
+    public GelfConfiguration disableTls() {
+        this.tlsEnabled = false;
         return this;
     }
 
@@ -193,20 +202,29 @@ public class GelfConfiguration {
     /**
      * Check if TLS certificate verification is enabled.
      *
-     * @return true if enabled, false otherwise
+     * @return {@code true} if enabled, {@code false} if disabled
      */
-    public boolean isTlsVerifyCert() {
-        return tlsVerifyCert;
+    public boolean isTlsCertVerificationEnabled() {
+        return tlsCertVerificationEnabled;
     }
 
     /**
-     * Enable/disable TLS certificate verification for transport.
+     * Enable TLS certificate verification for transport.
      *
-     * @param tlsVerifyCert {@code true} to enable TLS certificate verification, {@code false} otherwise
      * @return {@code this} instance
      */
-    public GelfConfiguration tlsVerifyCert(final boolean tlsVerifyCert) {
-        this.tlsVerifyCert = tlsVerifyCert;
+    public GelfConfiguration enableTlsCertVerification() {
+        this.tlsCertVerificationEnabled = true;
+        return this;
+    }
+
+    /**
+     * Disable TLS certificate verification for transport.
+     *
+     * @return {@code this} instance
+     */
+    public GelfConfiguration disableTlsCertVerification() {
+        this.tlsCertVerificationEnabled = false;
         return this;
     }
 

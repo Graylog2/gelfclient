@@ -63,11 +63,11 @@ public class GelfTcpTransport extends AbstractGelfTransport {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        if (config.isTls()) {
+                        if (config.isTlsEnabled()) {
                             LOG.debug("TLS enabled.");
                             final SslContext sslContext;
 
-                            if (!config.isTlsVerifyCert()) {
+                            if (!config.isTlsCertVerificationEnabled()) {
                                 // If the cert should not be verified just use an insecure trust manager.
                                 LOG.debug("TLS certificate verification disabled!");
                                 sslContext = SslContext.newClientContext(InsecureTrustManagerFactory.INSTANCE);
