@@ -27,6 +27,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.graylog2.gelfclient.GelfConfiguration;
 import org.graylog2.gelfclient.encoder.GelfMessageJsonEncoder;
 import org.slf4j.Logger;
@@ -61,6 +63,26 @@ public class GelfTcpTransport extends AbstractGelfTransport {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
+                        if (config.isTlsEnabled()) {
+                            LOG.debug("TLS enabled.");
+                            final SslContext sslContext;
+
+                            if (!config.isTlsCertVerificationEnabled()) {
+                                // If the cert should not be verified just use an insecure trust manager.
+                                LOG.debug("TLS certificate verification disabled!");
+                                sslContext = SslContext.newClientContext(InsecureTrustManagerFactory.INSTANCE);
+                            } else if (config.getTlsTrustCertChainFile() != null) {
+                                // If a cert chain file is set, use it.
+                                LOG.debug("TLS certificate chain file: {}", config.getTlsTrustCertChainFile());
+                                sslContext = SslContext.newClientContext(config.getTlsTrustCertChainFile());
+                            } else {
+                                // Otherwise use the JVM default cert chain.
+                                sslContext = SslContext.newClientContext();
+                            }
+
+                            ch.pipeline().addLast(sslContext.newHandler(ch.alloc()));
+                        }
+
                         // We cannot use GZIP encoding for TCP because the headers contain '\0'-bytes then.
                         // The graylog2-server uses '\0'-bytes as delimiter for TCP frames.
                         ch.pipeline().addLast(new GelfMessageJsonEncoder());

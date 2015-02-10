@@ -19,8 +19,12 @@ package org.graylog2.gelfclient;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.net.InetSocketAddress;
 
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertEquals;
 
 public class GelfConfigurationTest {
@@ -69,6 +73,41 @@ public class GelfConfigurationTest {
         config.queueSize(124);
 
         assertEquals(124, config.getQueueSize());
+    }
+
+    @Test
+    public void testTls() {
+        assertFalse(config.isTlsEnabled());
+
+        config.enableTls();
+
+        assertTrue(config.isTlsEnabled());
+
+        config.disableTls();
+
+        assertFalse(config.isTlsEnabled());
+    }
+
+    @Test
+    public void testTlsTrustCertChainFile() {
+        assertNull(config.getTlsTrustCertChainFile());
+
+        config.tlsTrustCertChainFile(new File("/tmp/cert.pem"));
+
+        assertEquals(config.getTlsTrustCertChainFile(), new File("/tmp/cert.pem"));
+    }
+
+    @Test
+    public void testTlsVerifyCert() throws Exception {
+        assertTrue(config.isTlsCertVerificationEnabled());
+
+        config.disableTlsCertVerification();
+
+        assertFalse(config.isTlsCertVerificationEnabled());
+
+        config.enableTlsCertVerification();
+
+        assertTrue(config.isTlsCertVerificationEnabled());
     }
 
     @Test
