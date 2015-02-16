@@ -1,6 +1,10 @@
 gelfclient Changes
 ==================
 
+## 1.2.0 (2015-02-16)
+
+* Initial TLS support for GELF TCP transport.
+
 ## 1.1.0 (2015-01-19)
 
 * Avoid resolving the ip address early in the configuration. (See #4)
