@@ -1,6 +1,16 @@
 gelfclient Changes
 ==================
 
+## 1.3.0 (2015-07-08)
+
+* Make `SO_KEEPALIVE` on TCP sockets configurable via `tcpKeepAlive()` method on `GelfConfiguration`. (#13, #15)
+* Allow setting GELF level to null to remove the level field from the message. (#14)
+* Make Netty and GelfSender threads daemon threads. (#8)
+* Update to netty-all 4.0.29.Final.
+* Update to jackson-core 2.5.4.
+* Update to slf4j-api 1.7.12.
+* Update to testng 6.9.4.
+
 ## 1.2.0 (2015-02-16)
 
 * Initial TLS support for GELF TCP transport.
