@@ -83,7 +83,9 @@ public class GelfMessageJsonEncoder extends MessageToMessageEncoder<GelfMessage>
             jg.writeNumberField("timestamp", message.getTimestamp());
             jg.writeStringField("host", message.getHost());
             jg.writeStringField("short_message", message.getMessage());
-            jg.writeNumberField("level", message.getLevel().getNumericLevel());
+            if (message.getLevel() != null) {
+                jg.writeNumberField("level", message.getLevel().getNumericLevel());
+            }
 
             if(null != message.getFullMessage()) {
                 jg.writeStringField("full_message", message.getFullMessage());

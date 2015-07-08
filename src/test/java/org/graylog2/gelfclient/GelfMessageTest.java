@@ -23,6 +23,7 @@ import java.util.Map;
 
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -155,5 +156,27 @@ public class GelfMessageTest {
         assertTrue(message.toString().contains("123456"));
         assertTrue(message.toString().contains("ALERT"));
         assertFalse(message.toString().contains("additional_key"));
+    }
+
+    @Test
+    public void testWorksWithNullLevel() throws Exception {
+        final GelfMessage message = new GelfMessage("hello");
+        final GelfMessage message2 = new GelfMessage("hello");
+        final GelfMessage messageNoNull = new GelfMessage("hello");
+
+        // Make sure timestamp is the same for all objects.
+        message.setTimestamp(1.0);
+        message2.setTimestamp(1.0);
+        messageNoNull.setTimestamp(1.0);
+
+        message.setLevel(null);
+        message2.setLevel(null);
+
+        assertNull(message.getLevel());
+        assertTrue(message.toString().contains("level=\"null\""));
+        assertTrue(message.equals(message2));
+        assertFalse(message.equals(messageNoNull));
+        assertEquals(message.hashCode(), message2.hashCode());
+        assertNotEquals(message.hashCode(), messageNoNull.hashCode());
     }
 }

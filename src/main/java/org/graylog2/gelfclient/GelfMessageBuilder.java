@@ -109,6 +109,8 @@ public class GelfMessageBuilder {
     /**
      * Set the level (priority) of the {@link GelfMessage}.
      *
+     * Can be set to {@code null} to remove the (optional) level from the {@link GelfMessage}.
+     *
      * @param level the {@link GelfMessageLevel} of the {@link GelfMessage}.
      * @return {@code this} instance
      */
@@ -159,15 +161,11 @@ public class GelfMessageBuilder {
             throw new IllegalArgumentException("version must not be null!");
         }
 
-        if (level == null) {
-            throw new IllegalArgumentException("level must not be null!");
-        }
-
         final GelfMessage gelfMessage = new GelfMessage(message, host, version);
 
         gelfMessage.setLevel(level);
 
-        if(fullMessage != null) {
+        if (fullMessage != null) {
             gelfMessage.setFullMessage(fullMessage);
         }
 
