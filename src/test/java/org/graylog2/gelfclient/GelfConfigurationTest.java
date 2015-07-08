@@ -159,21 +159,21 @@ public class GelfConfigurationTest {
     @Test
     public void testtcpNoDelay() {
         // Check default value.
-        assertEquals(false, config.isTcpNoDelay());
+        assertFalse(config.isTcpNoDelay());
 
         config.tcpNoDelay(true);
 
-        assertEquals(true, config.isTcpNoDelay());
+        assertTrue(config.isTcpNoDelay());
     }
 
     @Test
     public void testtcpKeepAlive() {
         // Check default value.
-        assertEquals(false, config.isTcpKeepAlive());
+        assertFalse(config.isTcpKeepAlive());
 
         config.tcpKeepAlive(true);
 
-        assertEquals(true, config.isTcpKeepAlive());
+        assertTrue(config.isTcpKeepAlive());
     }
 
     @Test
