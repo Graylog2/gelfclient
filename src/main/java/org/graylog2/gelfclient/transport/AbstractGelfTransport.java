@@ -18,6 +18,7 @@ package org.graylog2.gelfclient.transport;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.graylog2.gelfclient.GelfConfiguration;
 import org.graylog2.gelfclient.GelfMessage;
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ public abstract class AbstractGelfTransport implements GelfTransport {
     protected final GelfConfiguration config;
     protected final BlockingQueue<GelfMessage> queue;
 
-    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private final EventLoopGroup workerGroup = new NioEventLoopGroup(0, new DefaultThreadFactory(getClass(), true));
 
     /**
      * Creates a new GELF transport with the given configuration and {@link java.util.concurrent.BlockingQueue}.

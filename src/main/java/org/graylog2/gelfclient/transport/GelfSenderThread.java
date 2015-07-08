@@ -93,6 +93,7 @@ public class GelfSenderThread {
             }
         });
 
+        this.senderThread.setDaemon(true);
         this.senderThread.setName("GelfSenderThread-" + senderThread.getId());
     }
 
