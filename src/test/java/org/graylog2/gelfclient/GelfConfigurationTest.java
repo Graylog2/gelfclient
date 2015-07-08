@@ -167,6 +167,16 @@ public class GelfConfigurationTest {
     }
 
     @Test
+    public void testtcpKeepAlive() {
+        // Check default value.
+        assertEquals(false, config.isTcpKeepAlive());
+
+        config.tcpKeepAlive(true);
+
+        assertEquals(true, config.isTcpKeepAlive());
+    }
+
+    @Test
     public void testSendBufferSize() {
         // Check default value.
         assertEquals(-1, config.getSendBufferSize());
