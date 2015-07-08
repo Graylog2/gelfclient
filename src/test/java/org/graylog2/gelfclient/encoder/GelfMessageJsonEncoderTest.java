@@ -224,4 +224,68 @@ public class GelfMessageJsonEncoderTest {
         assertNull(full_message);
         assertEquals(message.getLevel().getNumericLevel(), level);
     }
+
+    @Test
+    public void testNullLevel() throws Exception {
+        final EmbeddedChannel channel = new EmbeddedChannel(new GelfMessageJsonEncoder());
+        final GelfMessage message = new GelfMessageBuilder("test").build();
+
+        message.setLevel(null);
+
+        assertTrue(channel.writeOutbound(message));
+        assertTrue(channel.finish());
+
+        final ByteBuf byteBuf = (ByteBuf) channel.readOutbound();
+        final byte[] bytes = new byte[byteBuf.readableBytes()];
+        byteBuf.getBytes(0, bytes).release();
+        final JsonFactory json = new JsonFactory();
+        final JsonParser parser = json.createParser(bytes);
+
+        String version = null;
+        Number timestamp = null;
+        String host = null;
+        String short_message = null;
+        String full_message = null;
+        Number level = null;
+
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            String key = parser.getCurrentName();
+
+            if (key == null) {
+                continue;
+            }
+
+            parser.nextToken();
+
+            switch (key) {
+                case "version":
+                    version = parser.getText();
+                    break;
+                case "timestamp":
+                    timestamp = parser.getNumberValue();
+                    break;
+                case "host":
+                    host = parser.getText();
+                    break;
+                case "short_message":
+                    short_message = parser.getText();
+                    break;
+                case "full_message":
+                    full_message = parser.getText();
+                    break;
+                case "level":
+                    level = parser.getNumberValue();
+                    break;
+                default:
+                    throw new Exception("Found unexpected field in JSON payload: " + key);
+            }
+        }
+
+        assertEquals(message.getVersion().toString(), version);
+        assertEquals(message.getTimestamp(), timestamp);
+        assertEquals(message.getHost(), host);
+        assertEquals(message.getMessage(), short_message);
+        assertNull(full_message);
+        assertNull(level);
+    }
 }

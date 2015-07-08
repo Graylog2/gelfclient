@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.testng.Assert.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotSame;
 
@@ -42,6 +43,7 @@ public class GelfMessageBuilderTest {
         assertEquals("example.org", gelfMessage.getHost());
         assertEquals(GelfMessageVersion.V1_1, gelfMessage.getVersion());
         assertEquals(0.0d, gelfMessage.getTimestamp());
+        assertEquals(GelfMessageLevel.ALERT, gelfMessage.getLevel());
         assertEquals("bar", gelfMessage.getAdditionalFields().get("_foo"));
         assertEquals(123, gelfMessage.getAdditionalFields().get("_baz"));
         assertEquals(456.789d, gelfMessage.getAdditionalFields().get("_qux"));
@@ -84,8 +86,10 @@ public class GelfMessageBuilderTest {
         new GelfMessageBuilder("Test", "localhost", null).build();
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testMissingLevelThrowsException() throws Exception {
-        new GelfMessageBuilder("Test").level(null).build();
+    @Test
+    public void testWithNullLevel() throws Exception {
+        final GelfMessage message= new GelfMessageBuilder("Test").level(null).build();
+
+        assertNull(message.getLevel());
     }
 }
