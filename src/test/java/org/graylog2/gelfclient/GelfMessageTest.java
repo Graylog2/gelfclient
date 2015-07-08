@@ -174,8 +174,8 @@ public class GelfMessageTest {
 
         assertNull(message.getLevel());
         assertTrue(message.toString().contains("level=\"null\""));
-        assertTrue(message.equals(message2));
-        assertFalse(message.equals(messageNoNull));
+        assertEquals(message, message2);
+        assertNotEquals(message, messageNoNull);
         assertEquals(message.hashCode(), message2.hashCode());
         assertNotEquals(message.hashCode(), messageNoNull.hashCode());
     }

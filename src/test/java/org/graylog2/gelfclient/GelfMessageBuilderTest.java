@@ -21,7 +21,6 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotSame;
@@ -89,18 +88,8 @@ public class GelfMessageBuilderTest {
 
     @Test
     public void testWithNullLevel() throws Exception {
-        final GelfMessageBuilder builder = new GelfMessageBuilder("Test").level(null);
+        final GelfMessage message= new GelfMessageBuilder("Test").level(null).build();
 
-        boolean error = false;
-        final GelfMessage message;
-        try {
-            message = builder.build();
-
-            assertNull(message.getLevel());
-        } catch (Exception e) {
-            error = true;
-        }
-
-        assertFalse(error, "Null level should not throw an error");
+        assertNull(message.getLevel());
     }
 }
