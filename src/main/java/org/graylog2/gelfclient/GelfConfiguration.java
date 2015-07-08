@@ -35,6 +35,7 @@ public class GelfConfiguration {
     private int reconnectDelay = 500;
     private int connectTimeout = 1000;
     private boolean tcpNoDelay = false;
+    private boolean tcpKeepAlive = false;
     private int sendBufferSize = -1;
 
     /**
@@ -289,6 +290,15 @@ public class GelfConfiguration {
      */
     public GelfConfiguration tcpNoDelay(final boolean tcpNoDelay) {
         this.tcpNoDelay = tcpNoDelay;
+        return this;
+    }
+
+    public boolean isTcpKeepAlive() {
+        return tcpKeepAlive;
+    }
+
+    public GelfConfiguration tcpKeepAlive(final boolean tcpKeepAlive) {
+        this.tcpKeepAlive = tcpKeepAlive;
         return this;
     }
 

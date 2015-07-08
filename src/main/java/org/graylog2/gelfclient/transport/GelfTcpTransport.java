@@ -59,6 +59,7 @@ public class GelfTcpTransport extends AbstractGelfTransport {
                 .channel(NioSocketChannel.class)
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, config.getConnectTimeout())
                 .option(ChannelOption.TCP_NODELAY, config.isTcpNoDelay())
+                .option(ChannelOption.SO_KEEPALIVE, config.isTcpKeepAlive())
                 .remoteAddress(config.getRemoteAddress())
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override

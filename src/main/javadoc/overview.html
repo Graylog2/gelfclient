@@ -27,6 +27,7 @@ final GelfConfiguration config = new GelfConfiguration(new InetSocketAddress("ex
         .connectTimeout(5000)
         .reconnectDelay(1000)
         .tcpNoDelay(true)
+        .tcpKeepAlive(true)
         .sendBufferSize(32768);
 
 final GelfTransport transport = GelfTransports.create(config);
