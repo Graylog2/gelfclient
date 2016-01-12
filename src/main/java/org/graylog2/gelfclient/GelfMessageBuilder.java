@@ -98,11 +98,22 @@ public class GelfMessageBuilder {
     /**
      * Set the timestamp (seconds since UNIX epoch) of the {@link GelfMessage}.
      *
-     * @param timestamp the timestamp of the {@link GelfMessage}
+     * @param timestamp the timestamp of the {@link GelfMessage} (seconds since UNIX epoch)
      * @return {@code this} instance
      */
     public GelfMessageBuilder timestamp(final double timestamp) {
         this.timestamp = timestamp;
+        return this;
+    }
+
+    /**
+     * Set the timestamp (milliseconds since UNIX epoch) of the {@link GelfMessage}.
+     *
+     * @param millis the timestamp of the {@link GelfMessage} (milliseconds since UNIX epoch)
+     * @return {@code this} instance
+     */
+    public GelfMessageBuilder timestamp(final long millis) {
+        this.timestamp = millis / 1000D;
         return this;
     }
 

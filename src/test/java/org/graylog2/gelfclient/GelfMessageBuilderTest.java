@@ -50,6 +50,20 @@ public class GelfMessageBuilderTest {
     }
 
     @Test
+    public void testBuilderWithMillisecondTimestamp() throws Exception {
+        final GelfMessage gelfMessage =
+                new GelfMessageBuilder("hello builder message", "example.org")
+                        .timestamp(1451606400L)
+                        .build();
+
+        assertEquals("hello builder message", gelfMessage.getMessage());
+        assertEquals("example.org", gelfMessage.getHost());
+        assertEquals(GelfMessageVersion.V1_1, gelfMessage.getVersion());
+        assertEquals(1451606.400D, gelfMessage.getTimestamp());
+        assertEquals(GelfMessageLevel.ALERT, gelfMessage.getLevel());
+    }
+
+    @Test
     public void testReturnsNewMessageObjectEveryTime() throws Exception {
         final GelfMessageBuilder builder = new GelfMessageBuilder("hello builder message", "example.org");
         assertNotSame(builder.build(), builder.build());
