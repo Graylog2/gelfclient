@@ -31,6 +31,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.graylog2.gelfclient.GelfConfiguration;
 import org.graylog2.gelfclient.encoder.GelfMessageJsonEncoder;
+import org.graylog2.gelfclient.encoder.GelfTcpFrameDelimiterEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,8 +85,9 @@ public class GelfTcpTransport extends AbstractGelfTransport {
                             ch.pipeline().addLast(sslContext.newHandler(ch.alloc()));
                         }
 
-                        // We cannot use GZIP encoding for TCP because the headers contain '\0'-bytes then.
                         // The graylog2-server uses '\0'-bytes as delimiter for TCP frames.
+                        ch.pipeline().addLast(new GelfTcpFrameDelimiterEncoder());
+                        // We cannot use GZIP encoding for TCP because the headers contain '\0'-bytes then.
                         ch.pipeline().addLast(new GelfMessageJsonEncoder());
                         ch.pipeline().addLast(new SimpleChannelInboundHandler<ByteBuf>() {
                             @Override
