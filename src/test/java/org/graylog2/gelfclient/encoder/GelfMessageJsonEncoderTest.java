@@ -78,14 +78,6 @@ public class GelfMessageJsonEncoderTest {
     }
 
     @Test
-    public void testLastByteIsNull() throws Exception {
-        byte[] bytes = readBytes();
-
-        assertEquals('}', bytes[bytes.length - 2]);
-        assertEquals('\0', bytes[bytes.length - 1]);
-    }
-
-    @Test
     public void testNullValue() throws Exception {
         channel = new EmbeddedChannel(new GelfMessageJsonEncoder());
         message = new GelfMessage("test");

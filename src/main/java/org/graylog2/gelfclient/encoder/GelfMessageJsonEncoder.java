@@ -107,9 +107,6 @@ public class GelfMessageJsonEncoder extends MessageToMessageEncoder<GelfMessage>
             jg.writeEndObject();
         }
 
-        // Graylog2 GELF TCP input uses NULL-byte as separator.
-        out.write('\0');
-
         return out.toByteArray();
     }
 }
