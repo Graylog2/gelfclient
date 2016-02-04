@@ -1,6 +1,10 @@
 gelfclient Changes
 ==================
 
+## 1.3.1 (2016-01-12)
+
+* Only append null-byte to message payload when using TCP transport. (#20)
+
 ## 1.3.0 (2015-07-08)
 
 * Make `SO_KEEPALIVE` on TCP sockets configurable via `tcpKeepAlive()` method on `GelfConfiguration`. (#13, #15)
