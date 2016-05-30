@@ -20,6 +20,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.graylog2.gelfclient.GelfMessage;
+import org.graylog2.gelfclient.util.Uninterruptibles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static java.util.concurrent.TimeUnit.MICROSECONDS;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * The main event thread used by the {@link org.graylog2.gelfclient.transport.GelfTransport}s.
@@ -99,7 +99,7 @@ public class GelfSenderThread {
                                 // Do not allow more than "maxInflightSends" concurrent writes in netty, to avoid having netty buffer
                                 // excessively when faced with slower consumers
                                 while (inflightSends.get() > GelfSenderThread.this.maxInflightSends) {
-                                    sleepUninterruptibly(1, MICROSECONDS);
+                                    Uninterruptibles.sleepUninterruptibly(1, MICROSECONDS);
                                 }
                                 inflightSends.incrementAndGet();
 
@@ -122,34 +122,6 @@ public class GelfSenderThread {
 
         this.senderThread.setDaemon(true);
         this.senderThread.setName("GelfSenderThread-" + senderThread.getId());
-    }
-
-    /**
-     * Copied from Guava for convenience.
-     *
-     * Invokes {@code unit.}{@link TimeUnit#sleep(long) sleep(sleepFor)}
-     * uninterruptibly.
-     */
-    private static void sleepUninterruptibly(long sleepFor, TimeUnit unit) {
-        boolean interrupted = false;
-        try {
-            long remainingNanos = unit.toNanos(sleepFor);
-            long end = System.nanoTime() + remainingNanos;
-            while (true) {
-                try {
-                    // TimeUnit.sleep() treats negative timeouts just like zero.
-                    NANOSECONDS.sleep(remainingNanos);
-                    return;
-                } catch (InterruptedException e) {
-                    interrupted = true;
-                    remainingNanos = end - System.nanoTime();
-                }
-            }
-        } finally {
-            if (interrupted) {
-                Thread.currentThread().interrupt();
-            }
-        }
     }
 
     public void start(Channel channel) {
