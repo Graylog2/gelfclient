@@ -345,11 +345,25 @@ public class GelfConfiguration {
         return port;
     }
 
+    /**
+     * Get the number of max queued network operations.
+     *
+     * @return max number of queued network operations
+     * @since 1.4.0
+     */
     public int getMaxInflightSends() {
         return maxInflightSends;
     }
 
-    public void setMaxInflightSends(int maxInflightSends) {
+    /**
+     * Set the number of max queued network operations.
+     *
+     * @param maxInflightSends max number of queued network operations
+     * @return {@code this} instance
+     * @since 1.4.0
+     */
+    public GelfConfiguration maxInflightSends(int maxInflightSends) {
         this.maxInflightSends = maxInflightSends;
+        return this;
     }
 }

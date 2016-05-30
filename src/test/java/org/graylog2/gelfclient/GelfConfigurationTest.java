@@ -189,7 +189,7 @@ public class GelfConfigurationTest {
     @Test
     public void testMaxInflightSends() {
         assertEquals(512, config.getMaxInflightSends());
-        config.setMaxInflightSends(1024);
+        assertEquals(config.maxInflightSends(1024), config);
         assertEquals(1024, config.getMaxInflightSends());
     }
 }
