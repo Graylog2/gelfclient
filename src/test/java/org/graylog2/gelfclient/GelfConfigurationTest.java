@@ -185,4 +185,11 @@ public class GelfConfigurationTest {
 
         assertEquals(32768, config.getSendBufferSize());
     }
+
+    @Test
+    public void testMaxInflightSends() {
+        assertEquals(512, config.getMaxInflightSends());
+        assertEquals(config.maxInflightSends(1024), config);
+        assertEquals(1024, config.getMaxInflightSends());
+    }
 }

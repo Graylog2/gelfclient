@@ -37,6 +37,7 @@ public class GelfConfiguration {
     private boolean tcpNoDelay = false;
     private boolean tcpKeepAlive = false;
     private int sendBufferSize = -1;
+    private int maxInflightSends = 512;
 
     /**
      * Creates a new configuration with the given hostname and port.
@@ -313,7 +314,7 @@ public class GelfConfiguration {
     }
 
     /**
-     * Get the size of the socket send buffer in bytes.
+     * Set the size of the socket send buffer in bytes.
      *
      * @param sendBufferSize the size of the socket send buffer in bytes.
      *                       A value of {@code -1} deactivates the socket send buffer.
@@ -342,5 +343,27 @@ public class GelfConfiguration {
         }
 
         return port;
+    }
+
+    /**
+     * Get the number of max queued network operations.
+     *
+     * @return max number of queued network operations
+     * @since 1.4.0
+     */
+    public int getMaxInflightSends() {
+        return maxInflightSends;
+    }
+
+    /**
+     * Set the number of max queued network operations.
+     *
+     * @param maxInflightSends max number of queued network operations
+     * @return {@code this} instance
+     * @since 1.4.0
+     */
+    public GelfConfiguration maxInflightSends(int maxInflightSends) {
+        this.maxInflightSends = maxInflightSends;
+        return this;
     }
 }
