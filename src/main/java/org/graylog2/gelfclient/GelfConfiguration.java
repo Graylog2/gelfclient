@@ -314,7 +314,7 @@ public class GelfConfiguration {
     }
 
     /**
-     * Get the size of the socket send buffer in bytes.
+     * Set the size of the socket send buffer in bytes.
      *
      * @param sendBufferSize the size of the socket send buffer in bytes.
      *                       A value of {@code -1} deactivates the socket send buffer.
