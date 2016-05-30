@@ -1,6 +1,12 @@
 gelfclient Changes
 ==================
 
+## 1.4.0 (2016-05-30)
+
+* Add convenience method to GelfMessageBuilder for using a millisecond timestamp. (#18)
+* Limit the number of allow inflight network writeAndFlush operations. (#22)
+* Add config options for `maxInflightSends` option.
+
 ## 1.3.1 (2016-01-12)
 
 * Only append null-byte to message payload when using TCP transport. (#20)
