@@ -37,6 +37,7 @@ public class GelfConfiguration {
     private boolean tcpNoDelay = false;
     private boolean tcpKeepAlive = false;
     private int sendBufferSize = -1;
+    private int maxInflightSends = 512;
 
     /**
      * Creates a new configuration with the given hostname and port.
@@ -342,5 +343,13 @@ public class GelfConfiguration {
         }
 
         return port;
+    }
+
+    public int getMaxInflightSends() {
+        return maxInflightSends;
+    }
+
+    public void setMaxInflightSends(int maxInflightSends) {
+        this.maxInflightSends = maxInflightSends;
     }
 }
