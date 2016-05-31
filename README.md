@@ -29,7 +29,7 @@ tasks and [Jackson](https://github.com/FasterXML/jackson) for JSON encoding.
 <dependency>
   <groupId>org.graylog2</groupId>
   <artifactId>gelfclient</artifactId>
-  <version>1.0.0</version>
+  <version>1.4.0</version>
 </dependency>
 ```
 
