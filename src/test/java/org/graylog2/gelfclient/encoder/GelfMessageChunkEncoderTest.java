@@ -48,8 +48,8 @@ public class GelfMessageChunkEncoderTest {
         assertEquals((byte) 0x0f, chunk2.readByte());
 
         // 8 bytes for the message ID
-        assertEquals(8, chunk1.readBytes(8).array().length);
-        assertEquals(8, chunk2.readBytes(8).array().length);
+        assertEquals(8, chunk1.readBytes(8).readableBytes());
+        assertEquals(8, chunk2.readBytes(8).readableBytes());
 
         // 1 byte sequence number
         assertEquals((byte) 0, chunk1.readByte());
@@ -84,8 +84,8 @@ public class GelfMessageChunkEncoderTest {
         assertEquals((byte) 0x0f, chunk2.readByte());
 
         // 8 bytes for the message ID
-        assertEquals(8, chunk1.readBytes(8).array().length);
-        assertEquals(8, chunk2.readBytes(8).array().length);
+        assertEquals(8, chunk1.readBytes(8).readableBytes());
+        assertEquals(8, chunk2.readBytes(8).readableBytes());
 
         // 1 byte sequence number
         assertEquals((byte) 0, chunk1.readByte());
