@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2014 TORCH GmbH
+  ~ Copyright 2014 TORCH GmbH, 2015-2016 Graylog, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -32,9 +32,11 @@
     <artifactId>gelfclient</artifactId>
     <version>1.4.1-SNAPSHOT</version>
     <packaging>jar</packaging>
+
     <name>gelfclient</name>
     <url>https://github.com/Graylog2/gelfclient</url>
     <description>A GELF client library based on Netty 4.</description>
+    <inceptionYear>2014</inceptionYear>
 
     <licenses>
         <license>
@@ -62,8 +64,8 @@
     </ciManagement>
 
     <organization>
-        <name>TORCH</name>
-        <url>http://www.torch.sh/</url>
+        <name>Graylog, Inc.</name>
+        <url>https://www.graylog.org/</url>
     </organization>
 
     <distributionManagement>
