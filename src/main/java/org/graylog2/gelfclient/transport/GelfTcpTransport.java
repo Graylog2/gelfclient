@@ -28,6 +28,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.graylog2.gelfclient.GelfConfiguration;
 import org.graylog2.gelfclient.encoder.GelfMessageJsonEncoder;
@@ -72,14 +73,18 @@ public class GelfTcpTransport extends AbstractGelfTransport {
                             if (!config.isTlsCertVerificationEnabled()) {
                                 // If the cert should not be verified just use an insecure trust manager.
                                 LOG.debug("TLS certificate verification disabled!");
-                                sslContext = SslContext.newClientContext(InsecureTrustManagerFactory.INSTANCE);
+                                sslContext = SslContextBuilder.forClient()
+                                        .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                                        .build();
                             } else if (config.getTlsTrustCertChainFile() != null) {
                                 // If a cert chain file is set, use it.
                                 LOG.debug("TLS certificate chain file: {}", config.getTlsTrustCertChainFile());
-                                sslContext = SslContext.newClientContext(config.getTlsTrustCertChainFile());
+                                sslContext = SslContextBuilder.forClient()
+                                        .trustManager(config.getTlsTrustCertChainFile())
+                                        .build();
                             } else {
                                 // Otherwise use the JVM default cert chain.
-                                sslContext = SslContext.newClientContext();
+                                sslContext = SslContextBuilder.forClient().build();
                             }
 
                             ch.pipeline().addLast(sslContext.newHandler(ch.alloc()));
