@@ -23,7 +23,7 @@
 
     <groupId>org.graylog2</groupId>
     <artifactId>gelfclient</artifactId>
-    <version>1.4.1-SNAPSHOT</version>
+    <version>1.4.1</version>
     <packaging>jar</packaging>
 
     <name>gelfclient</name>
@@ -43,7 +43,7 @@
         <url>https://github.com/Graylog2/gelfclient</url>
         <connection>scm:git:git@github.com:Graylog2/gelfclient.git</connection>
         <developerConnection>scm:git:git@github.com:Graylog2/gelfclient.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>gelfclient-1.4.1</tag>
     </scm>
 
     <issueManagement>
@@ -267,8 +267,8 @@
                                 </relocation>
                             </relocations>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"/>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                             </transformers>
                         </configuration>
                     </execution>
