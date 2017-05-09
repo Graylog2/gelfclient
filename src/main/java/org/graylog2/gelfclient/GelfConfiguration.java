@@ -32,6 +32,10 @@ public class GelfConfiguration {
     private boolean tlsEnabled = false;
     private File tlsTrustCertChainFile = null;
     private boolean tlsCertVerificationEnabled = true;
+    private boolean tlsClientCertVerificationEnabled = true;
+    private File tlsKeyCertChainFile = null;
+    private File tlsKeyFile = null;
+    private String tlsKeyPassword = null;
     private int reconnectDelay = 500;
     private int connectTimeout = 1000;
     private boolean tcpNoDelay = false;
@@ -230,6 +234,94 @@ public class GelfConfiguration {
         return this;
     }
 
+    /**
+     * Get the X.509 certificate chain file in PEM format for the server TLS connection.
+     *
+     * @return the trust certificate chain file
+     */
+    public File getTlsKeyCertChainFile() {
+        return tlsKeyCertChainFile;
+    }
+
+    /**
+     * Set the X.509 certificate chain file in PEM format for the server TLS connection.
+     *
+     * @param tlsTrustCertChainFile the trust certificate chain file
+     * @return {@code this} instance
+     */
+    public GelfConfiguration tlsKeyCertChainFile(final File tlsKeyCertChainFile) {
+        this.tlsKeyCertChainFile = tlsKeyCertChainFile;
+        return this;
+    }
+
+    /**
+     * Get the  PKCS#8 private key file in PEM format for the server TLS connection.
+     *
+     * @return the trust certificate chain file
+     */
+    public File getTlsKeyFile() {
+        return tlsKeyFile;
+    }
+
+    /**
+     * Set thePKCS#8 private key file in PEM format  for the server TLS connection.
+     *
+     * @param tlsTrustCertChainFile the trust certificate chain file
+     * @return {@code this} instance
+     */
+    public GelfConfiguration tlsKeyFile(final File tlsKeyFile) {
+        this.tlsKeyFile = tlsKeyFile;
+        return this;
+    }
+    /**
+     * Get the password of the tlsKeyFile 
+     *
+     * @return  the password of the tlsKeyFile .
+     */
+    public String getTlsKeyPassword() {
+        return tlsKeyPassword;
+    }
+
+    /**
+     * Set the password of the tlsKeyFile, or null if it's not password-protected
+     *
+     * @return {@code this} instance
+     */
+    public GelfConfiguration tlsKeyPassword(final String tlsKeyPassword) {
+        this.tlsKeyPassword = tlsKeyPassword;
+        return this;
+    }
+    
+    
+    /**
+     * Check if client TLS certificate verification is enabled.
+     *
+     * @return {@code true} if enabled, {@code false} if disabled
+     */
+    public boolean isTlsClientCertVerificationEnabled() {
+        return tlsClientCertVerificationEnabled;
+    }
+
+    /**
+     * Enable client TLS certificate verification for transport.
+     *
+     * @return {@code this} instance
+     */
+    public GelfConfiguration enableTlsClientCertVerification() {
+        this.tlsClientCertVerificationEnabled = true;
+        return this;
+    }
+
+    /**
+     * Disable client TLS certificate verification for transport.
+     *
+     * @return {@code this} instance
+     */
+    public GelfConfiguration disableTlsClientCertVerification() {
+        this.tlsClientCertVerificationEnabled = false;
+        return this;
+    }
+    
     /**
      * Get the time to wait between reconnects in milliseconds.
      *
