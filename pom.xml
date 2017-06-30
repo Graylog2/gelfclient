@@ -19,7 +19,7 @@
 
     <groupId>org.graylog2</groupId>
     <artifactId>gelfclient</artifactId>
-    <version>1.4.2.1</version>
+    <version>1.4.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>gelfclient</name>
@@ -39,7 +39,7 @@
         <url>https://github.com/Graylog2/gelfclient</url>
         <connection>scm:git:git@github.com:Graylog2/gelfclient.git</connection>
         <developerConnection>scm:git:git@github.com:Graylog2/gelfclient.git</developerConnection>
-        <tag>gelfclient-1.4.2.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
