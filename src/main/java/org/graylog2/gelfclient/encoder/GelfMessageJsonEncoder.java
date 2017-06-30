@@ -87,7 +87,7 @@ public class GelfMessageJsonEncoder extends MessageToMessageEncoder<GelfMessage>
                 jg.writeNumberField("level", message.getLevel().getNumericLevel());
             }
 
-            if(null != message.getFullMessage()) {
+            if (null != message.getFullMessage()) {
                 jg.writeStringField("full_message", message.getFullMessage());
             }
 
@@ -97,6 +97,8 @@ public class GelfMessageJsonEncoder extends MessageToMessageEncoder<GelfMessage>
                 if (field.getValue() instanceof Number) {
                     // Let Jackson figure out how to write Number values.
                     jg.writeObjectField(realKey, field.getValue());
+                } else if (field.getValue() instanceof Boolean) {
+                    jg.writeBooleanField(realKey, (Boolean) field.getValue());
                 } else if (field.getValue() == null) {
                     jg.writeNullField(realKey);
                 } else {
