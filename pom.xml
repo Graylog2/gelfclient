@@ -269,6 +269,10 @@
                                     <pattern>io.netty</pattern>
                                     <shadedPattern>org.graylog2.gelfclient.shaded.netty</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>org.slf4j</pattern>
+                                    <shadedPattern>org.graylog2.gelfclient.shaded.sfl4j</shadedPattern>
+                                </relocation>
                             </relocations>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
