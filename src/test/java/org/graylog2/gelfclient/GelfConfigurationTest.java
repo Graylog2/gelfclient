@@ -192,4 +192,13 @@ public class GelfConfigurationTest {
         assertEquals(config.maxInflightSends(1024), config);
         assertEquals(1024, config.getMaxInflightSends());
     }
+
+    @Test
+    public void testThreads() {
+        assertEquals(0, config.getThreads());
+
+        config.threads(512);
+
+        assertEquals(512, config.getThreads());
+    }
 }
