@@ -38,6 +38,7 @@ public class GelfConfiguration {
     private boolean tcpKeepAlive = false;
     private int sendBufferSize = -1;
     private int maxInflightSends = 512;
+    private int threads = 0;
 
     /**
      * Creates a new configuration with the given hostname and port.
@@ -323,6 +324,26 @@ public class GelfConfiguration {
      */
     public GelfConfiguration sendBufferSize(final int sendBufferSize) {
         this.sendBufferSize = sendBufferSize;
+        return this;
+    }
+
+    /**
+     * Get number of worker threads.
+     * @return number of worker threads.
+     */
+    public int getThreads() {
+        return threads;
+    }
+
+    /**
+     * Set number of worker threads that will be processing gelf messages.
+     * @param threads number of worker threads.
+     *                A value of {@code 0} sets number of threads to default equal to number of processors * 2.
+     *                For details see: {@link org.graylog2.gelfclient.transport.AbstractGelfTransport}
+     * @return {@code this} instance
+     */
+    public GelfConfiguration threads(int threads) {
+        this.threads = threads;
         return this;
     }
 
