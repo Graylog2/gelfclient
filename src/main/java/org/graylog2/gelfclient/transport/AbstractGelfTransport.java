@@ -82,7 +82,6 @@ public abstract class AbstractGelfTransport implements GelfTransport {
      * host yet.</p>
      *
      * @param message message to send to the remote host
-     * @throws InterruptedException
      */
     @Override
     public void send(final GelfMessage message) throws InterruptedException {

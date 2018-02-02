@@ -29,7 +29,7 @@ import java.util.Map;
  * This class is <em>not</em> thread-safe.
  * </p>
  *
- * @author Bernd Ahlers <bernd@torch.sh>
+ * @author <a href="bernd@torch.sh">Bernd Ahlers</a>
  * @see GelfMessage
  */
 public class GelfMessageBuilder {

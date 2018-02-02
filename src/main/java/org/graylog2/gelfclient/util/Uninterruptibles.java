@@ -26,6 +26,10 @@ public class Uninterruptibles {
      *
      * Invokes {@code unit.}{@link TimeUnit#sleep(long) sleep(sleepFor)}
      * uninterruptibly.
+     *
+     * @param sleepFor the minimum time to sleep. If less than or equal to zero,
+     *                 do not sleep at all.
+     * @param unit     the time unit of the {@code sleepFor} parameter.
      */
     public static void sleepUninterruptibly(long sleepFor, TimeUnit unit) {
         boolean interrupted = false;

@@ -28,9 +28,8 @@ public interface GelfTransport {
      * a queue might be used to dispatch the message.
      *
      * @param message message to send to the remote host
-     * @throws InterruptedException
      */
-    public void send(GelfMessage message) throws InterruptedException;
+    void send(GelfMessage message) throws InterruptedException;
 
     /**
      * Tries to send the given message to the remote host. It does <strong>not block</strong> if there is not enough
@@ -40,10 +39,10 @@ public interface GelfTransport {
      * @param message message to send to the remote host
      * @return true if the message could be dispatched, false otherwise
      */
-    public boolean trySend(GelfMessage message);
+    boolean trySend(GelfMessage message);
 
     /**
      * Stops the transport. Should be used to gracefully shutdown the backend.
      */
-    public void stop();
+    void stop();
 }
