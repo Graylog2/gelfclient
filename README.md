@@ -1,6 +1,7 @@
 GELF Client
 ===========
 
+[![Maven Central](https://img.shields.io/maven-central/v/org.graylog2/gelfclient.svg)](https://mvnrepository.com/artifact/org.graylog2/gelfclient)
 [![Build Status](https://travis-ci.org/Graylog2/gelfclient.svg)](https://travis-ci.org/Graylog2/gelfclient)
 [![Coverage Status](https://img.shields.io/coveralls/Graylog2/gelfclient.svg)](https://coveralls.io/r/Graylog2/gelfclient)
 
