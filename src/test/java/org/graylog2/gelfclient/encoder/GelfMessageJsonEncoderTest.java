@@ -53,7 +53,6 @@ public class GelfMessageJsonEncoderTest {
                 .additionalField("_foo", 1.0)
                 .additionalField("_bar", 128)
                 .additionalField("_baz", "a value")
-                .additionalField("_bool", true)
                 .build();
 
         assertTrue(channel.writeOutbound(message));
@@ -61,7 +60,7 @@ public class GelfMessageJsonEncoderTest {
     }
 
     private byte[] readBytes() {
-        ByteBuf buf = channel.readOutbound();
+        ByteBuf buf = (ByteBuf) channel.readOutbound();
         byte[] bytes = new byte[buf.readableBytes()];
 
         buf.getBytes(0, bytes).release();
@@ -103,7 +102,6 @@ public class GelfMessageJsonEncoderTest {
         Number _foo = null;
         Number _bar = null;
         String _baz = null;
-        Boolean _bool = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String key = parser.getCurrentName();
@@ -142,9 +140,6 @@ public class GelfMessageJsonEncoderTest {
                 case "_baz":
                     _baz = parser.getText();
                     break;
-                case "_bool":
-                    _bool = parser.getBooleanValue();
-                    break;
                 default:
                     throw new Exception("Found unexpected field in JSON payload: " + key);
             }
@@ -159,7 +154,6 @@ public class GelfMessageJsonEncoderTest {
         assertEquals(1.0, _foo);
         assertEquals(128, _bar);
         assertEquals("a value", _baz);
-        assertEquals(Boolean.TRUE, _bool);
     }
 
     @Test
