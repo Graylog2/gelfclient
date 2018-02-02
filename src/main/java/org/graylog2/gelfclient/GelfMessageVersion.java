@@ -29,6 +29,7 @@ public enum GelfMessageVersion {
         this.versionString = versionString;
     }
 
+    @Override
     public String toString() {
         return versionString;
     }

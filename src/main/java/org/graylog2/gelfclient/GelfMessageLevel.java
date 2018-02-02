@@ -54,6 +54,7 @@ public enum GelfMessageLevel {
         throw new IllegalArgumentException("Unknown GELF message level: " + level);
     }
 
+    @Override
     public String toString() {
         return name() + "(" + numericLevel + ")";
     }

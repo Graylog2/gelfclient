@@ -110,6 +110,6 @@ public abstract class AbstractGelfTransport implements GelfTransport {
      */
     @Override
     public void stop() {
-        workerGroup.shutdownGracefully().awaitUninterruptibly();
+        workerGroup.shutdownGracefully().syncUninterruptibly();
     }
 }

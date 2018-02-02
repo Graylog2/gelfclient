@@ -22,6 +22,7 @@ import io.netty.channel.socket.DatagramPacket;
 import org.testng.annotations.Test;
 
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
@@ -34,7 +35,7 @@ public class GelfMessageUdpEncoderTest {
         EmbeddedChannel channel = new EmbeddedChannel(new GelfMessageUdpEncoder(remoteAddress));
 
         // Test writing.
-        assertTrue(channel.writeOutbound(Unpooled.wrappedBuffer("test".getBytes())));
+        assertTrue(channel.writeOutbound(Unpooled.wrappedBuffer("test".getBytes(StandardCharsets.US_ASCII))));
         assertTrue(channel.finish());
 
         // Test reading.
@@ -45,6 +46,6 @@ public class GelfMessageUdpEncoderTest {
         datagramPacket.content().getBytes(0, bytes);
 
         assertEquals(remoteAddress, datagramPacket.recipient());
-        assertEquals("test", new String(bytes));
+        assertEquals("test", new String(bytes, StandardCharsets.US_ASCII));
     }
 }

@@ -22,6 +22,7 @@ import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.EncoderException;
 import org.testng.annotations.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -33,7 +34,7 @@ public class GelfMessageChunkEncoderTest {
         final EmbeddedChannel channel = new EmbeddedChannel(new GelfMessageChunkEncoder());
         final String largeMessage = largeMessage(1500);
 
-        channel.writeOutbound(Unpooled.wrappedBuffer(largeMessage.getBytes()));
+        channel.writeOutbound(Unpooled.wrappedBuffer(largeMessage.getBytes(StandardCharsets.US_ASCII)));
 
         final ByteBuf chunk1 = (ByteBuf) channel.readOutbound();
         final ByteBuf chunk2 = (ByteBuf) channel.readOutbound();
