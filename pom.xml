@@ -244,6 +244,7 @@
                 <configuration>
                     <compilerId>javac-with-errorprone</compilerId>
                     <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                    <showDeprecation>true</showDeprecation>
                 </configuration>
                 <dependencies>
                     <dependency>
