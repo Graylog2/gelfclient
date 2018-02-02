@@ -28,7 +28,7 @@ import java.util.zip.GZIPOutputStream;
 /**
  * A Netty channel handler which compresses messages using a {@link GZIPOutputStream}.
  */
-public class GelfCompressionEncoder extends MessageToMessageEncoder<ByteBuf> {
+public class GelfCompressionGzipEncoder extends MessageToMessageEncoder<ByteBuf> {
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
         try (final ByteArrayOutputStream bos = new ByteArrayOutputStream();

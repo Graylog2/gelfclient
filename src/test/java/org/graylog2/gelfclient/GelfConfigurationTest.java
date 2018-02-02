@@ -201,4 +201,13 @@ public class GelfConfigurationTest {
 
         assertEquals(512, config.getThreads());
     }
+
+    @Test
+    public void testCompression() {
+        assertEquals(Compression.GZIP, config.getCompression());
+
+        config.compression(Compression.NONE);
+
+        assertEquals(Compression.NONE, config.getCompression());
+    }
 }

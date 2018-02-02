@@ -26,7 +26,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.graylog2.gelfclient.GelfConfiguration;
-import org.graylog2.gelfclient.encoder.GelfCompressionEncoder;
+import org.graylog2.gelfclient.encoder.GelfCompressionGzipEncoder;
+import org.graylog2.gelfclient.encoder.GelfCompressionZlibEncoder;
 import org.graylog2.gelfclient.encoder.GelfMessageChunkEncoder;
 import org.graylog2.gelfclient.encoder.GelfMessageJsonEncoder;
 import org.graylog2.gelfclient.encoder.GelfMessageUdpEncoder;
@@ -61,7 +62,16 @@ public class GelfUdpTransport extends AbstractGelfTransport {
                     protected void initChannel(Channel ch) throws Exception {
                         ch.pipeline().addLast(new GelfMessageUdpEncoder(config.getRemoteAddress()));
                         ch.pipeline().addLast(new GelfMessageChunkEncoder());
-                        ch.pipeline().addLast(new GelfCompressionEncoder());
+                        switch (config.getCompression()) {
+                            case GZIP:
+                                ch.pipeline().addLast(new GelfCompressionGzipEncoder());
+                                break;
+                            case ZLIB:
+                                ch.pipeline().addLast(new GelfCompressionZlibEncoder());
+                                break;
+                            case NONE:
+                            default:
+                        }
                         ch.pipeline().addLast(new GelfMessageJsonEncoder());
                         ch.pipeline().addLast(new SimpleChannelInboundHandler<DatagramPacket>() {
                             @Override
