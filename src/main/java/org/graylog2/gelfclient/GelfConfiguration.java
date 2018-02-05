@@ -28,6 +28,7 @@ public class GelfConfiguration {
     private final String hostname;
     private final int port;
     private GelfTransports transport = GelfTransports.TCP;
+    private Compression compression = Compression.GZIP;
     private int queueSize = 512;
     private boolean tlsEnabled = false;
     private File tlsTrustCertChainFile = null;
@@ -130,6 +131,26 @@ public class GelfConfiguration {
      */
     public GelfConfiguration transport(final GelfTransports transport) {
         this.transport = transport;
+        return this;
+    }
+
+    /**
+     * Get the compression algorithm used for GELF UDP.
+     *
+     * @return the compression algorithm used for GELF UDP
+     */
+    public Compression getCompression() {
+        return compression;
+    }
+
+    /**
+     * Set the compression algorithm used for GELF UDP.
+     *
+     * @param compression the compression algorithm used for GELF UDP
+     * @return {@code this} instance
+     */
+    public GelfConfiguration compression(final Compression compression) {
+        this.compression = compression;
         return this;
     }
 
