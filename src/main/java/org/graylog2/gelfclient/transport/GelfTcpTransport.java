@@ -82,6 +82,15 @@ public class GelfTcpTransport extends AbstractGelfTransport {
                                 sslContext = SslContextBuilder.forClient()
                                         .trustManager(config.getTlsTrustCertChainFile())
                                         .build();
+                            } else if (!config.isTlsClientCertVerificationEnabled() 
+                            		&& config.getTlsKeyCertChainFile() != null
+                            		&& config.getTlsKeyFile() != null
+                            		&& config.getTlsKeyPassword() != null && !config.getTlsKeyPassword().equals("")) {
+                                // If the cert should not be verified just use an insecure trust manager.
+                                LOG.debug("client TLS certificate verification disabled or keyFile missed!");
+                                sslContext = SslContextBuilder
+                                		.forServer(config.getTlsKeyCertChainFile(), config.getTlsKeyFile(), config.getTlsKeyPassword())
+                                		.build();
                             } else {
                                 // Otherwise use the JVM default cert chain.
                                 sslContext = SslContextBuilder.forClient().build();
