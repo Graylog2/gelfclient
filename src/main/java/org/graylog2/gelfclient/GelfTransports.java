@@ -16,6 +16,7 @@
 
 package org.graylog2.gelfclient;
 
+import org.graylog2.gelfclient.transport.GelfHttpTransport;
 import org.graylog2.gelfclient.transport.GelfTcpTransport;
 import org.graylog2.gelfclient.transport.GelfTransport;
 import org.graylog2.gelfclient.transport.GelfUdpTransport;
@@ -25,7 +26,8 @@ import org.graylog2.gelfclient.transport.GelfUdpTransport;
  */
 public enum GelfTransports {
     TCP,
-    UDP;
+    UDP,
+    HTTP;
 
     /**
      * Creates a {@link GelfTransport} from the given protocol and configuration.
@@ -43,6 +45,9 @@ public enum GelfTransports {
                 break;
             case UDP:
                 gelfTransport = new GelfUdpTransport(config);
+                break;
+            case HTTP:
+                gelfTransport = new GelfHttpTransport(config);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported GELF transport: " + transport);

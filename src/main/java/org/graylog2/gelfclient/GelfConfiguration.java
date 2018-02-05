@@ -18,6 +18,7 @@ package org.graylog2.gelfclient;
 
 import java.io.File;
 import java.net.InetSocketAddress;
+import java.net.URI;
 
 /**
  * The configuration used by a {@link org.graylog2.gelfclient.transport.GelfTransport}.
@@ -25,8 +26,10 @@ import java.net.InetSocketAddress;
 public class GelfConfiguration {
     private static final int DEFAULT_PORT = 12201;
     private static final String DEFAULT_HOSTNAME = "127.0.0.1";
+
     private final String hostname;
     private final int port;
+    private URI uri = URI.create("http://127.0.0.1:12201/gelf");
     private GelfTransports transport = GelfTransports.TCP;
     private Compression compression = Compression.GZIP;
     private int queueSize = 512;
@@ -112,6 +115,15 @@ public class GelfConfiguration {
     public InetSocketAddress getRemoteAddress() {
         // Always create a new InetSocketAddress to ensure that the hostname is resolved to an ip address again.
         return new InetSocketAddress(hostname, port);
+    }
+
+    public URI getUri() {
+        return uri;
+    }
+
+    public GelfConfiguration uri(URI uri) {
+        this.uri = uri;
+        return this;
     }
 
     /**
