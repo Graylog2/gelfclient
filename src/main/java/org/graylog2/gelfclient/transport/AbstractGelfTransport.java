@@ -85,7 +85,7 @@ public abstract class AbstractGelfTransport implements GelfTransport {
      */
     @Override
     public void send(final GelfMessage message) throws InterruptedException {
-        LOG.debug("Sending message: {}", message.toString());
+        LOG.debug("Sending message: {}", message);
         queue.put(message);
     }
 
@@ -100,7 +100,7 @@ public abstract class AbstractGelfTransport implements GelfTransport {
      */
     @Override
     public boolean trySend(final GelfMessage message) {
-        LOG.debug("Trying to send message: {}", message.toString());
+        LOG.debug("Trying to send message: {}", message);
         return queue.offer(message);
     }
 
