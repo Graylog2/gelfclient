@@ -1,6 +1,44 @@
 gelfclient Changes
 ==================
 
+## 1.4.4 (2018-11-13)
+
+* Update to Netty 4.1.31.Final. (#40)
+
+## 1.4.3 (2018-07-02)
+
+* Drop support fro Java 7.
+* Move number of worker threads to configuration. (#35)
+* Revert support for boolean values to make sure we adhere to the GELF spec. (#31)
+* Allow choice for compression algorithm in GELF UDP. (#36)
+* Update to Jackson 2.8.11.
+* Update to to Netty 4.1.25.Final.
+* Update to TestNG 6.14.3.
+* Update to Mockito 2.19.0.
+* Avoid `toString()` overhead in AbstractGelfTransport. (#38)
+
+## 1.4.2.1 (2017-06-30)
+
+* Revert "Upgrade to TestNG 6.11" to keep Java 7 compatibility.
+
+## 1.4.2 (2017-06-30)
+
+* Properly support boolean values in GELF messages. (#29, #30)
+* Update to Netty 4.1.12.
+* Update to Jackson 2.8.9.
+* Update to TestNG 6.11.
+* Update to Mockito 2.8.47.
+* Update to SLF4J 1.7.25.
+* Relocate SLF4J packages in shaded JAR.
+
+## 1.4.1 (2016-10-22)
+
+* Update Maven plugins.
+* Update to Netty 4.1.6.Final.
+* Update to Jackson 2.8.4.
+* Update to SLF4J 1.7.21.
+* Update to Mockito 2.2.7.
+
 ## 1.4.0 (2016-05-30)
 
 * Add convenience method to GelfMessageBuilder for using a millisecond timestamp. (#18)
