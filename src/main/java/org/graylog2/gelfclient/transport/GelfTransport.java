@@ -47,7 +47,7 @@ public interface GelfTransport {
     void stop();
 
     /**
-     * Stops the transport after sending all enqueued messages.
+     * Stops the transport after flushing/sending all enqueued messages.
      * Should be used to gracefully shutdown the backend.
      */
     void flushAndStop();
