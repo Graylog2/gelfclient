@@ -34,6 +34,11 @@ public class AbstractGelfTransportTest {
                 final NioEventLoopGroup eventLoopGroup = (NioEventLoopGroup) workerGroup;
                 assertEquals(threads, eventLoopGroup.executorCount());
             }
+
+            @Override
+            public void flushAndStop() {
+                // Nothing do to here.
+            }
         };
         transport.stop();
     }
