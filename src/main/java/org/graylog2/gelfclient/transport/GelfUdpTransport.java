@@ -110,7 +110,7 @@ public class GelfUdpTransport extends AbstractGelfTransport {
     public void flushAndStop() {
 
         if (senderThread != null) {
-            senderThread.flushAndStop();
+            senderThread.flushSynchronously();
         }
         super.stop();
     }

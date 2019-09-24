@@ -39,8 +39,8 @@ import static java.util.concurrent.TimeUnit.MICROSECONDS;
 public class GelfSenderThread {
     private static final Logger LOG = LoggerFactory.getLogger(GelfSenderThread.class);
 
-    private static final int SHUTDOWN_SENDING_RETRIES = 250;
-    private static final int SHUTDOWN_SENDING_DELAY_MS = 240;
+    private static final int FLUSH_WAIT_RETRIES = 250;
+    private static final int FLUSH_WAIT_MS = 240;
 
     private final ReentrantLock lock;
     private final Condition connectedCond;
@@ -148,38 +148,37 @@ public class GelfSenderThread {
     }
 
     /**
-     * Attempt to send all messages in the queue before allowing shutdown to proceed.
-     * Retrying will continue for the indicated {@code SHUTDOWN_SENDING_RETRIES} and {@code SHUTDOWN_SENDING_DELAY_MS.}
+     * Block and wait for all messages in the queue to send. This can be used during shutdown to wait for
+     * queued messages to send before shutting down.
+     * Waiting will continue for the indicated {@code FLUSH_WAIT_RETRIES} and {@code FLUSH_WAIT_MS.}
      */
-    void flushAndStop() {
+    void flushSynchronously() {
 
-        for (int i = 0; i <= SHUTDOWN_SENDING_RETRIES; i++) {
-            if (!sendingInProgress()) {
+        for (int i = 0; i <= FLUSH_WAIT_RETRIES; i++) {
+            if (!flushingInProgress()) {
                 LOG.debug("Successfully flushed messages. Shutting down now.");
                 continue;
             }
 
-            LOG.debug("Shutdown delayed: [{}] messages are still enqueued, and [{}] messages are still in-flight.",
+            LOG.debug("Flushing in progress. [{}] messages are still enqueued, and [{}] messages are still in-flight.",
                       queue.size(), inflightSends.get());
 
             try {
-                Thread.sleep(SHUTDOWN_SENDING_DELAY_MS);
+                Thread.sleep(FLUSH_WAIT_MS);
             } catch (InterruptedException e) {
                 LOG.error("Interrupted message flushing during shutdown after [{}}] attempts.", i);
             }
 
-            if (i == SHUTDOWN_SENDING_DELAY_MS) {
-                LOG.error("Failed to flush messages in [{}] attempts. Shutting down anyway.", SHUTDOWN_SENDING_RETRIES);
+            if (i == FLUSH_WAIT_MS) {
+                LOG.error("Failed to flush messages in [{}] attempts. Shutting down anyway.", FLUSH_WAIT_RETRIES);
             }
         }
-
-        stop();
     }
 
     /**
      * @return {@code true} if messages are queued or in-flight.
      */
-    private boolean sendingInProgress() {
+    private boolean flushingInProgress() {
 
         return (inflightSends != null && inflightSends.get() != 0) || !queue.isEmpty();
     }
