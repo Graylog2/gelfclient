@@ -55,7 +55,7 @@ public class GelfUdpTransport extends AbstractGelfTransport {
     @Override
     protected void createBootstrap(final EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
-        senderThread = new GelfSenderThread(queue, config.getMaxInflightSends());
+        super.senderThread = new GelfSenderThread(queue, config.getMaxInflightSends());
 
         bootstrap.group(workerGroup)
                 .channel(NioDatagramChannel.class)
@@ -104,14 +104,5 @@ public class GelfUdpTransport extends AbstractGelfTransport {
         }
 
         bootstrap.bind(0);
-    }
-
-    @Override
-    public void flushAndStop() {
-
-        if (senderThread != null) {
-            senderThread.flushSynchronously();
-        }
-        super.stop();
     }
 }

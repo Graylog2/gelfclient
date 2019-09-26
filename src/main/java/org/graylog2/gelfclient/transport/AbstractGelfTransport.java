@@ -39,6 +39,7 @@ public abstract class AbstractGelfTransport implements GelfTransport {
     protected final BlockingQueue<GelfMessage> queue;
 
     private final EventLoopGroup workerGroup;
+    GelfSenderThread senderThread;
 
     /**
      * Creates a new GELF transport with the given configuration and {@link java.util.concurrent.BlockingQueue}.
@@ -110,5 +111,17 @@ public abstract class AbstractGelfTransport implements GelfTransport {
     @Override
     public void stop() {
         workerGroup.shutdownGracefully().syncUninterruptibly();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void flushAndStopSynchronously(int waitDuration, TimeUnit timeUnit, int retries) {
+
+        if (senderThread != null) {
+            senderThread.flushSynchronously(waitDuration, timeUnit, retries);
+        }
+        stop();
     }
 }

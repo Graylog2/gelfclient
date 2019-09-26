@@ -43,8 +43,6 @@ import org.slf4j.LoggerFactory;
 public class GelfTcpTransport extends AbstractGelfTransport {
     private static final Logger LOG = LoggerFactory.getLogger(GelfTcpTransport.class);
 
-    GelfSenderThread senderThread;
-
     /**
      * Creates a new TCP GELF transport.
      *
@@ -57,7 +55,7 @@ public class GelfTcpTransport extends AbstractGelfTransport {
     @Override
     protected void createBootstrap(final EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
-        senderThread = new GelfSenderThread(queue, config.getMaxInflightSends());
+        super.senderThread = new GelfSenderThread(queue, config.getMaxInflightSends());
 
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
@@ -137,14 +135,5 @@ public class GelfTcpTransport extends AbstractGelfTransport {
                 }
             }
         });
-    }
-
-    @Override
-    public void flushAndStop() {
-
-        if (senderThread != null) {
-            senderThread.flushSynchronously();
-        }
-        super.stop();
     }
 }

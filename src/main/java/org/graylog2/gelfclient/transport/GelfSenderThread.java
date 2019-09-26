@@ -39,9 +39,6 @@ import static java.util.concurrent.TimeUnit.MICROSECONDS;
 public class GelfSenderThread {
     private static final Logger LOG = LoggerFactory.getLogger(GelfSenderThread.class);
 
-    private static final int FLUSH_WAIT_RETRIES = 250;
-    private static final int FLUSH_WAIT_MS = 240;
-
     private final ReentrantLock lock;
     private final Condition connectedCond;
     private final AtomicBoolean keepRunning = new AtomicBoolean(true);
@@ -147,32 +144,35 @@ public class GelfSenderThread {
         senderThread.interrupt();
     }
 
-    /**
-     * Block and wait for all messages in the queue to send. This can be used during shutdown to wait for
-     * queued messages to send before shutting down.
-     * Waiting will continue for the indicated {@code FLUSH_WAIT_RETRIES} and {@code FLUSH_WAIT_MS.}
+    /***
+     * Block and wait for all messages in the queue to send until the indicated {@code waitDuration}, {@code timeUnit} and
+     * {@code retries} have elapsed. Each retry waits for the indicated {@code waitDuration} and {@code timeUnit} again.
+     * @param waitDuration the wait duration.
+     * @param timeUnit the time unit for the {@code waitDuration}.
+     * @param retries the number of times to retry and wait for messages to flush.
      */
-    void flushSynchronously() {
+    void flushSynchronously(int waitDuration, TimeUnit timeUnit, int retries) {
 
-        for (int i = 0; i <= FLUSH_WAIT_RETRIES; i++) {
+        LOG.debug("Attempting to flush messages in [{}/{}] with [{}] retries", waitDuration, timeUnit, retries);
+
+        for (int i = 0; i <= retries; i++) {
             if (!flushingInProgress()) {
                 LOG.debug("Successfully flushed messages. Shutting down now.");
-                continue;
+                return;
             }
 
             LOG.debug("Flushing in progress. [{}] messages are still enqueued, and [{}] messages are still in-flight.",
                       queue.size(), inflightSends.get());
 
             try {
-                Thread.sleep(FLUSH_WAIT_MS);
+                timeUnit.sleep(waitDuration);
             } catch (InterruptedException e) {
                 LOG.error("Interrupted message flushing during shutdown after [{}}] attempts.", i);
-            }
-
-            if (i == FLUSH_WAIT_MS) {
-                LOG.error("Failed to flush messages in [{}] attempts. Shutting down anyway.", FLUSH_WAIT_RETRIES);
+                Thread.currentThread().interrupt();
+                return;
             }
         }
+        LOG.error("Failed to flush messages in [{}] attempts. Shutting down anyway.", retries);
     }
 
     /**
