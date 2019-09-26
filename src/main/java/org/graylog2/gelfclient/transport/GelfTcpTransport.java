@@ -55,7 +55,7 @@ public class GelfTcpTransport extends AbstractGelfTransport {
     @Override
     protected void createBootstrap(final EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
-        super.senderThread = new GelfSenderThread(queue, config.getMaxInflightSends());
+        senderThread = new GelfSenderThread(queue, config.getMaxInflightSends());
 
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)

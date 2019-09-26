@@ -59,7 +59,8 @@ public interface GelfTransport {
      *
      * @param waitDuration the wait duration.
      * @param timeUnit the time unit for the {@code waitDuration}.
-     * @param retries the number of times to retry and wait for messages to flush.
+     * @param retries the number of times to retry and wait for messages to flush. Zero retries indicates that
+     *                one initial attempt will be made.
      */
     void flushAndStopSynchronously(int waitDuration, TimeUnit timeUnit, int retries);
 }

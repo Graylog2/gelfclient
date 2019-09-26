@@ -41,8 +41,6 @@ import org.slf4j.LoggerFactory;
 public class GelfUdpTransport extends AbstractGelfTransport {
     private static final Logger LOG = LoggerFactory.getLogger(GelfUdpTransport.class);
 
-    GelfSenderThread senderThread;
-
     /**
      * Creates a new UDP GELF transport.
      *
@@ -55,7 +53,7 @@ public class GelfUdpTransport extends AbstractGelfTransport {
     @Override
     protected void createBootstrap(final EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
-        super.senderThread = new GelfSenderThread(queue, config.getMaxInflightSends());
+        senderThread = new GelfSenderThread(queue, config.getMaxInflightSends());
 
         bootstrap.group(workerGroup)
                 .channel(NioDatagramChannel.class)

@@ -45,8 +45,8 @@ public class GelfSenderThread {
     private final Thread senderThread;
     private Channel channel;
     private final int maxInflightSends;
-    private BlockingQueue<GelfMessage> queue;
-    private AtomicInteger inflightSends;
+    private final BlockingQueue<GelfMessage> queue;
+    private final AtomicInteger inflightSends;
 
     /**
      * Creates a new sender thread with the given {@link BlockingQueue} as source of messages.
