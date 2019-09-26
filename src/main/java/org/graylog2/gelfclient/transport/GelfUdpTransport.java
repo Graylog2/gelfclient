@@ -53,7 +53,6 @@ public class GelfUdpTransport extends AbstractGelfTransport {
     @Override
     protected void createBootstrap(final EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
-        senderThread = new GelfSenderThread(queue, config.getMaxInflightSends());
 
         bootstrap.group(workerGroup)
                 .channel(NioDatagramChannel.class)

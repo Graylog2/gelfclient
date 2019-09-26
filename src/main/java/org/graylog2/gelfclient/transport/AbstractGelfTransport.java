@@ -39,7 +39,7 @@ public abstract class AbstractGelfTransport implements GelfTransport {
     protected final BlockingQueue<GelfMessage> queue;
 
     private final EventLoopGroup workerGroup;
-    GelfSenderThread senderThread;
+    final GelfSenderThread senderThread;
 
     /**
      * Creates a new GELF transport with the given configuration and {@link java.util.concurrent.BlockingQueue}.
@@ -51,6 +51,7 @@ public abstract class AbstractGelfTransport implements GelfTransport {
         this.config = config;
         this.queue = queue;
         this.workerGroup = new NioEventLoopGroup(config.getThreads(), new DefaultThreadFactory(getClass(), true));
+        this.senderThread = new GelfSenderThread(queue, config.getMaxInflightSends());
         createBootstrap(workerGroup);
     }
 
