@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * An abstract {@link GelfTransport} implementation serving as parent for the concrete implementations.
@@ -39,7 +40,9 @@ public abstract class AbstractGelfTransport implements GelfTransport {
     protected final BlockingQueue<GelfMessage> queue;
 
     private final EventLoopGroup workerGroup;
-    final GelfSenderThread senderThread;
+
+    // Use an ato
+    final AtomicReference<GelfSenderThread> senderThreadReference;
 
     /**
      * Creates a new GELF transport with the given configuration and {@link java.util.concurrent.BlockingQueue}.
@@ -51,7 +54,7 @@ public abstract class AbstractGelfTransport implements GelfTransport {
         this.config = config;
         this.queue = queue;
         this.workerGroup = new NioEventLoopGroup(config.getThreads(), new DefaultThreadFactory(getClass(), true));
-        this.senderThread = new GelfSenderThread(queue, config.getMaxInflightSends());
+        this.senderThreadReference = new AtomicReference<>();
         createBootstrap(workerGroup);
     }
 
@@ -120,8 +123,8 @@ public abstract class AbstractGelfTransport implements GelfTransport {
     @Override
     public void flushAndStopSynchronously(int waitDuration, TimeUnit timeUnit, int retries) {
 
-        if (senderThread != null) {
-            senderThread.flushSynchronously(waitDuration, timeUnit, retries);
+        if (senderThreadReference != null) {
+            senderThreadReference.get().flushSynchronously(waitDuration, timeUnit, retries);
         }
         stop();
     }

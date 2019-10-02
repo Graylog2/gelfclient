@@ -53,6 +53,7 @@ public class GelfUdpTransport extends AbstractGelfTransport {
     @Override
     protected void createBootstrap(final EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
+        senderThreadReference.set(new GelfSenderThread(queue, config.getMaxInflightSends()));
 
         bootstrap.group(workerGroup)
                 .channel(NioDatagramChannel.class)
@@ -80,12 +81,12 @@ public class GelfUdpTransport extends AbstractGelfTransport {
 
                             @Override
                             public void channelActive(ChannelHandlerContext ctx) throws Exception {
-                                senderThread.start(ctx.channel());
+                                senderThreadReference.get().start(ctx.channel());
                             }
 
                             @Override
                             public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-                                senderThread.stop();
+                                senderThreadReference.get().stop();
                             }
 
                             @Override

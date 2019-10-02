@@ -55,6 +55,7 @@ public class GelfTcpTransport extends AbstractGelfTransport {
     @Override
     protected void createBootstrap(final EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
+        senderThreadReference.set(new GelfSenderThread(queue, config.getMaxInflightSends()));
 
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
@@ -101,13 +102,13 @@ public class GelfTcpTransport extends AbstractGelfTransport {
 
                             @Override
                             public void channelActive(ChannelHandlerContext ctx) throws Exception {
-                                senderThread.start(ctx.channel());
+                                senderThreadReference.get().start(ctx.channel());
                             }
 
                             @Override
                             public void channelInactive(ChannelHandlerContext ctx) throws Exception {
                                 LOG.info("Channel disconnected!");
-                                senderThread.stop();
+                                senderThreadReference.get().stop();
                                 scheduleReconnect(ctx.channel().eventLoop());
                             }
 
