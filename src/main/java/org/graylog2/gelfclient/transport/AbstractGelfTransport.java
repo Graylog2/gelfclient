@@ -41,7 +41,8 @@ public abstract class AbstractGelfTransport implements GelfTransport {
 
     private final EventLoopGroup workerGroup;
 
-    // Use an ato
+    // Use an AtomicReference to manage thread safe access to the senderThread.
+    // A new senderThread instance is set each time a reconnect is attempted.
     final AtomicReference<GelfSenderThread> senderThreadReference;
 
     /**
