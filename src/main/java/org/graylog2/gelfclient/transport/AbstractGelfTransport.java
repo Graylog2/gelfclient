@@ -124,7 +124,7 @@ public abstract class AbstractGelfTransport implements GelfTransport {
     @Override
     public void flushAndStopSynchronously(int waitDuration, TimeUnit timeUnit, int retries) {
 
-        if (senderThreadReference != null) {
+        if (senderThreadReference.get() != null) {
             senderThreadReference.get().flushSynchronously(waitDuration, timeUnit, retries);
         }
         stop();

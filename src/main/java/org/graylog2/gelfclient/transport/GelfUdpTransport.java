@@ -53,7 +53,12 @@ public class GelfUdpTransport extends AbstractGelfTransport {
     @Override
     protected void createBootstrap(final EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
-        senderThreadReference.set(new GelfSenderThread(queue, config.getMaxInflightSends()));
+
+        // Use local senderThread variable within this method to ensure that the same thread is always returned.
+        // Even if the reference is updated by another thread, the channelActive channelInactive callbacks
+        // will still reference the original thread.
+        final GelfSenderThread senderThread = new GelfSenderThread(queue, config.getMaxInflightSends());
+        senderThreadReference.set(senderThread);
 
         bootstrap.group(workerGroup)
                 .channel(NioDatagramChannel.class)
@@ -81,12 +86,12 @@ public class GelfUdpTransport extends AbstractGelfTransport {
 
                             @Override
                             public void channelActive(ChannelHandlerContext ctx) throws Exception {
-                                senderThreadReference.get().start(ctx.channel());
+                                senderThread.start(ctx.channel());
                             }
 
                             @Override
                             public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-                                senderThreadReference.get().stop();
+                                senderThread.stop();
                             }
 
                             @Override
