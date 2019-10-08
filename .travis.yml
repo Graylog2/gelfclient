@@ -1,11 +1,9 @@
-dist: trusty
 sudo: false
 language: java
 after_success:
   - mvn clean test jacoco:report coveralls:report
 jdk:
   - openjdk8
-  - oraclejdk8
   - openjdk9
-  - oraclejdk9
   - openjdk10
+  - openjdk11
