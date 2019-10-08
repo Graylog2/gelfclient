@@ -55,7 +55,12 @@ public class GelfTcpTransport extends AbstractGelfTransport {
     @Override
     protected void createBootstrap(final EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
+
+        // Use local senderThread variable within this method to ensure that the same thread is always returned.
+        // Even if the reference is updated by another thread, the channelActive channelInactive callbacks
+        // will still reference the original thread.
         final GelfSenderThread senderThread = new GelfSenderThread(queue, config.getMaxInflightSends());
+        senderThreadReference.set(senderThread);
 
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
