@@ -56,6 +56,7 @@ public class GelfHttpTransport extends AbstractGelfTransport {
     protected void createBootstrap(final EventLoopGroup workerGroup) {
         final Bootstrap bootstrap = new Bootstrap();
         final GelfSenderThread senderThread = new GelfSenderThread(queue, config.getMaxInflightSends());
+        senderThreadReference.set(senderThread);
 
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
