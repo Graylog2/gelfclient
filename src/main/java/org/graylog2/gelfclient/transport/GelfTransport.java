@@ -18,6 +18,8 @@ package org.graylog2.gelfclient.transport;
 
 import org.graylog2.gelfclient.GelfMessage;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * A common interface for all GELF network transports.
  */
@@ -42,7 +44,23 @@ public interface GelfTransport {
     boolean trySend(GelfMessage message);
 
     /**
-     * Stops the transport. Should be used to gracefully shutdown the backend.
+     * Stops the transport. Can be used to gracefully shutdown the backend.
      */
     void stop();
+
+    /**
+     * Blocks and stops the transport after flushing/sending all enqueued messages.
+     * Blocking occurs until either all messages are flushed, or the indicated {@code waitDuration}, {@code timeUnit}
+     * and {@code retries} have elapsed.
+     *
+     * Each retry waits for the indicated {@code waitDuration} and {@code timeUnit} again.
+     *
+     * This can be used to gracefully shutdown the backend.
+     *
+     * @param waitDuration the wait duration.
+     * @param timeUnit the time unit for the {@code waitDuration}.
+     * @param retries the number of times to retry and wait for messages to flush. Zero retries indicates that
+     *                one initial attempt will be made.
+     */
+    void flushAndStopSynchronously(int waitDuration, TimeUnit timeUnit, int retries);
 }

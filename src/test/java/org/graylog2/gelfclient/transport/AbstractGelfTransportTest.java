@@ -20,6 +20,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import org.graylog2.gelfclient.GelfConfiguration;
 import org.testng.annotations.Test;
 
+import java.util.concurrent.TimeUnit;
+
 import static org.testng.Assert.assertEquals;
 
 public class AbstractGelfTransportTest {
@@ -33,6 +35,11 @@ public class AbstractGelfTransportTest {
             protected void createBootstrap(EventLoopGroup workerGroup) {
                 final NioEventLoopGroup eventLoopGroup = (NioEventLoopGroup) workerGroup;
                 assertEquals(threads, eventLoopGroup.executorCount());
+            }
+
+            @Override
+            public void flushAndStopSynchronously(int waitDuration, TimeUnit timeUnit, int retries) {
+                super.flushAndStopSynchronously(waitDuration, timeUnit, retries);
             }
         };
         transport.stop();

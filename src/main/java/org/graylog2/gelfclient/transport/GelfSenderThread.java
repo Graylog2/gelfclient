@@ -38,23 +38,28 @@ import static java.util.concurrent.TimeUnit.MICROSECONDS;
  */
 public class GelfSenderThread {
     private static final Logger LOG = LoggerFactory.getLogger(GelfSenderThread.class);
+
     private final ReentrantLock lock;
     private final Condition connectedCond;
     private final AtomicBoolean keepRunning = new AtomicBoolean(true);
     private final Thread senderThread;
     private Channel channel;
     private final int maxInflightSends;
+    private final BlockingQueue<GelfMessage> queue;
+    private final AtomicInteger inflightSends;
 
     /**
      * Creates a new sender thread with the given {@link BlockingQueue} as source of messages.
      *
-     * @param queue the {@link BlockingQueue} used as source of {@link GelfMessage}s
+     * @param queue            the {@link BlockingQueue} used as source of {@link GelfMessage}s
      * @param maxInflightSends the maximum number of outstanding network writes/flushes before the sender spins
      */
     public GelfSenderThread(final BlockingQueue<GelfMessage> queue, int maxInflightSends) {
         this.maxInflightSends = maxInflightSends;
         this.lock = new ReentrantLock();
         this.connectedCond = lock.newCondition();
+        this.inflightSends = new AtomicInteger(0);
+        this.queue = queue;
 
         if (maxInflightSends <= 0) {
             throw new IllegalArgumentException("maxInflightSends must be larger than 0");
@@ -64,7 +69,6 @@ public class GelfSenderThread {
             @Override
             public void run() {
                 GelfMessage gelfMessage = null;
-                final AtomicInteger inflightSends = new AtomicInteger(0);
                 final ChannelFutureListener inflightListener = new ChannelFutureListener() {
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
@@ -138,5 +142,44 @@ public class GelfSenderThread {
     public void stop() {
         keepRunning.set(false);
         senderThread.interrupt();
+    }
+
+    /***
+     * Block and wait for all messages in the queue to send until the indicated {@code waitDuration}, {@code timeUnit} and
+     * {@code retries} have elapsed. Each retry waits for the indicated {@code waitDuration} and {@code timeUnit} again.
+     * @param waitDuration the wait duration.
+     * @param timeUnit the time unit for the {@code waitDuration}.
+     * @param retries the number of times to retry and wait for messages to flush.
+     */
+    void flushSynchronously(int waitDuration, TimeUnit timeUnit, int retries) {
+
+        LOG.debug("Attempting to flush messages in [{}/{}] with [{}] retries", waitDuration, timeUnit, retries);
+
+        for (int i = 0; i <= retries; i++) {
+            if (!flushingInProgress()) {
+                LOG.debug("Successfully flushed messages. Shutting down now.");
+                return;
+            }
+
+            LOG.debug("Flushing in progress. [{}] messages are still enqueued, and [{}] messages are still in-flight.",
+                      queue.size(), inflightSends.get());
+
+            try {
+                timeUnit.sleep(waitDuration);
+            } catch (InterruptedException e) {
+                LOG.error("Interrupted message flushing during shutdown after [{}}] attempts.", i);
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
+        LOG.error("Failed to flush messages in [{}] attempts. Shutting down anyway.", retries);
+    }
+
+    /**
+     * @return {@code true} if messages are queued or in-flight.
+     */
+    private boolean flushingInProgress() {
+
+        return (inflightSends != null && inflightSends.get() != 0) || !queue.isEmpty();
     }
 }
