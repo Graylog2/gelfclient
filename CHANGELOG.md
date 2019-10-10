@@ -1,6 +1,11 @@
 gelfclient Changes
 ==================
 
+## 1.5.0 (2019-10-10)
+
+* Add support for flushing message queues before shutdown. (#43)
+* Update to Netty 4.1.42.Final. (#45)
+
 ## 1.4.4 (2018-11-13)
 
 * Update to Netty 4.1.31.Final. (#40)
