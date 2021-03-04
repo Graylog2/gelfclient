@@ -1,5 +1,8 @@
 gelfclient Changes
 ==================
+## 1.5.1 (2021-3-4)
+
+* Update netty-handler to latest version `4.1.59.Final` (CVE-2020-11612) (#52) 
 
 ## 1.5.0 (2019-10-10)
 
