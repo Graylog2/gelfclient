@@ -43,7 +43,7 @@ pipeline
          steps
          {
             unstash 'workspace'
-            sh 'mvn deploy'
+            sh 'mvn deploy -P release'
          }
 
          post
