@@ -29,7 +29,7 @@ pipeline
           steps
           {
              sh 'mvn package'
-             stash name: 'build artifacts', includes: 'build/**'
+             stash name: 'workspace'
           }
        }
 
@@ -42,7 +42,7 @@ pipeline
 
          steps
          {
-            unstash 'build artifacts'
+            unstash 'workspace'
             sh 'mvn deploy'
          }
 
@@ -55,3 +55,5 @@ pipeline
             }
          }
       }
+   }
+}
